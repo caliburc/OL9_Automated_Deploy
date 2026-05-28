@@ -1,4 +1,5 @@
 # OEL9 on VMware with cloud-init, Terraform, and Ansible Automation Platform
+! THIS README IS A WORK IN PROGRESS !
 
 This starter kit builds reusable Oracle Linux 9 VMs on VMware vSphere using Terraform modules, cloud-init via VMware GuestInfo, and Ansible as the orchestration entry point.
 
