@@ -1,0 +1,54 @@
+#!/bin/bash
+# oracle_db_ctl_{{ item.sid }}.sh
+# Start / stop Oracle non-CDB database {{ item.sid }}
+# Managed by Ansible - do not edit manually
+
+export ORACLE_BASE={{ oracle_base }}
+export ORACLE_HOME={{ oracle_home }}
+export ORACLE_SID={{ item.sid }}
+export TNS_ADMIN={{ oracle_base }}/common/tns
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+
+case "$1" in
+  start)
+    echo "$(date) Starting Oracle listener LMT..."
+    $ORACLE_HOME/bin/lsnrctl start LMT
+    echo "$(date) Starting Oracle database {{ item.sid }}..."
+    $ORACLE_HOME/bin/dbstart $ORACLE_HOME
+    ;;
+
+  stop)
+    echo "$(date) Stopping Oracle database {{ item.sid }}..."
+    $ORACLE_HOME/bin/dbshut $ORACLE_HOME
+
+    # Count pmon processes for OTHER databases (exclude this SID and grep itself)
+    # ora_pmon_<SID> is the process name for each running instance
+    OTHER_RUNNING=$(ps -ef | grep ora_pmon | grep -v grep | grep -v "ora_pmon_{{ item.sid }}" | wc -l)
+
+    if [[ "$OTHER_RUNNING" -eq 0 ]]; then
+      echo "No other databases running - stopping listener LMT..."
+      $ORACLE_HOME/bin/lsnrctl stop LMT
+    else
+      echo "$OTHER_RUNNING other database(s) still running - leaving listener LMT up."
+    fi
+    ;;
+
+  status)
+    echo "=== Listener ==="
+    $ORACLE_HOME/bin/lsnrctl status LMT
+    echo "=== Database {{ item.sid }} ==="
+    $ORACLE_HOME/bin/sqlplus -s / as sysdba <<'EOF'
+set pages 0 feed off
+col instance_name for a12
+col status for a10
+select instance_name, status from v\$instance;
+exit
+EOF
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop|status}"
+    exit 1
+    ;;
+esac

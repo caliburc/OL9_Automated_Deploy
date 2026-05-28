@@ -1,0 +1,10 @@
+---
+### for demonstration purposes only, changed values and use ansible-vault to encrypt
+ipa_principal_user: admin
+ipa_principal_pass: "YOUR_ADMIN_PASSWORD"
+vsphere_admin: "vsphere.admin.user"
+vsphere_pass: "vsphere.admin.password"
+oracle_sys_default_pass: "oracle_sys_pass"
+oracle_system_default_pass: "oracle_system_pass"
+oracle_stig_audit_user: "STIG_AUDIT_USER"
+oracle_stig_audit_pass: "Stig_AUDIT_USER_PASS"

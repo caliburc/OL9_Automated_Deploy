@@ -1,0 +1,151 @@
+---
+- name: Waiting for cloud-init boot-finished file to exist
+  ansible.builtin.stat: 
+    path: /var/lib/cloud/instance/boot-finished
+    follow: true
+  become: true
+  register: cloud_init_done
+  until: cloud_init_done.stat.exists
+  retries: 30
+  delay: 20
+  tags: 
+    - host_config
+    - cloudinit
+
+- name: Create Birth Certificate 
+  ansible.builtin.template:
+    src: birth_certificate.j2
+    dest: /etc/birth_certificate
+    owner: root
+    group: root
+    mode: '0700'
+    force: false
+  tags: host_config
+
+- name: Place Repo Files
+  ansible.builtin.copy:
+    src: etc/yum.repos.d/{{ repo_file }}
+    dest: /etc/yum.repos.d/{{ repo_file }}
+    owner: root
+    group: root
+    mode: '0600'
+    force: true
+  loop:
+    - hedc-oracle.repo
+    - hedc-custom.repo
+  loop_control:
+    loop_var: repo_file
+  tags: host_config
+
+- name: Ensure required IPA packages are installed
+  ansible.builtin.dnf:
+    name:
+      - ipa-client
+      - chrony
+    state: present
+  register: ipa_pkg_result
+  tags: ipa
+
+- name: Ensure chronyd is enabled and running
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+  tags: ipa
+
+- name: Verify IPA servers resolve
+  ansible.builtin.command: "getent hosts {{ ipa_server }}"
+  loop: "{{ ipa_servers }}"
+  loop_control:
+    loop_var: ipa_server
+  changed_when: false
+  tags: ipa
+
+# - name: Check HTTPS on IPA servers
+#   ansible.builtin.wait_for:
+#     host: "{{ item }}"
+#     port: 443
+#     timeout: 3
+#   loop: "{{ ipa_servers }}"
+#   register: ipa_https_checks
+#   failed_when: false
+#   changed_when: false
+
+# - name: Check LDAP on IPA servers
+#   ansible.builtin.wait_for:
+#     host: "{{ item }}"
+#     port: 389
+#     timeout: 3
+#   loop: "{{ ipa_servers }}"
+#   register: ipa_ldap_checks
+#   failed_when: false
+#   changed_when: false
+
+# - name: Check Kerberos on IPA servers
+#   ansible.builtin.wait_for:
+#     host: "{{ item }}"
+#     port: 88
+#     timeout: 3
+#   loop: "{{ ipa_servers }}"
+#   register: ipa_krb_checks
+#   failed_when: false
+#   changed_when: false
+
+# - name: Require at least one IPA server with HTTPS
+#   ansible.builtin.assert:
+#     that:
+#       - (ipa_https_checks.results | rejectattr('failed', 'equalto', true) | list | length) > 0
+#     fail_msg: "No IPA servers responded on TCP/443"
+
+# - name: Require at least one IPA server with LDAP
+#   ansible.builtin.assert:
+#     that:
+#       - (ipa_ldap_checks.results | rejectattr('failed', 'equalto', true) | list | length) > 0
+#     fail_msg: "No IPA servers responded on TCP/389"
+
+# - name: Require at least one IPA server with Kerberos
+#   ansible.builtin.assert:
+#     that:
+#       - (ipa_krb_checks.results | rejectattr('failed', 'equalto', true) | list | length) > 0
+#     fail_msg: "No IPA servers responded on TCP/88"
+
+- name: Join the host to IPA/IdM non-interactively
+  ansible.builtin.command:
+    cmd: >
+      ipa-client-install
+      --unattended
+      --mkhomedir
+      --enable-dns-updates
+      --hostname={{ ansible_facts['nodename'] }}
+      --domain={{ ipa_domain }}
+      --realm={{ ipa_realm }}
+      {% for server in ipa_servers %}--server={{ server }} {% endfor %}
+      {% for server in ipa_servers %}--ntp-server={{ server }} {% endfor %}
+      --automount-location={{ build_vm.ipa_automount_location | default('hedc') }}
+      --principal={{ ipa_principal_user }}
+      --password={{ ipa_principal_pass }}
+    creates: "{{ ipa_client_state_file }}"
+  no_log: true
+  register: ipa_join_result
+  tags: ipa
+
+- name: Verify IdM client config file exists
+  ansible.builtin.stat:
+    path: "{{ ipa_client_state_file }}"
+  register: ipa_default_conf
+  tags: ipa
+
+- name: Fail if join did not complete
+  ansible.builtin.fail:
+    msg: "IPA client enrollment did not complete successfully"
+  when: not ipa_default_conf.stat.exists
+  tags: ipa
+
+- name: Update permissions of ansible /app/ansible dir
+  ansible.builtin.file:
+    path: /app/ansible
+    state: directory
+    owner: hedcadm
+    group: allusers
+    mode: 0775
+  tags: host_config

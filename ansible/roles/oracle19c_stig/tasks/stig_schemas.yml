@@ -1,0 +1,55 @@
+---
+# =============================================================================
+# STIG Sub-tasks: Sample Schema Removal (Non-CDB)
+# VUL: O19C-00-010800 – Default Oracle sample schemas must be removed
+# Uses loop_var: stig_db  (set in main.yml)
+# SQL logic lives in templates/sql/stig_schemas.sql.j2
+# =============================================================================
+
+- name: "[STIG schemas – {{ stig_db.sid }}] Deploy schema removal SQL script"
+  ansible.builtin.template:
+    src: sql/stig_schemas.sql.j2
+    dest: "/tmp/stig_schemas_{{ stig_db.sid }}.sql"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_dba_group }}"
+    mode: "0640"
+  when:
+    - stig_O19C_010800_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags: stig_schemas
+
+- name: "[STIG schemas – {{ stig_db.sid }}] Execute schema removal SQL script"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba @/tmp/stig_schemas_{{ stig_db.sid }}.sql
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID:  "{{ stig_db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: schema_drop_result
+  changed_when: "'DROPPED' in schema_drop_result.stdout"
+  failed_when: false
+  when:
+    - stig_O19C_010800_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags: stig_schemas
+
+- name: "[STIG schemas – {{ stig_db.sid }}] Display output"
+  ansible.builtin.debug:
+    var: schema_drop_result.stdout_lines
+  when:
+    - stig_O19C_010800_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags: stig_schemas
+
+- name: "[STIG schemas – {{ stig_db.sid }}] Remove schema SQL script"
+  ansible.builtin.file:
+    path: "/tmp/stig_schemas_{{ stig_db.sid }}.sql"
+    state: absent
+  when:
+    - stig_O19C_010800_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags: stig_schemas

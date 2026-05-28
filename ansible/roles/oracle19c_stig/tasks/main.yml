@@ -1,0 +1,136 @@
+---
+# =============================================================================
+# Role: oracle_stig
+# Purpose: Apply Oracle 19c DoD STIG controls
+#          STIG Reference: DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+#          Non-CDB edition -- no PDB/CDB container references.
+#
+# Structure:
+#   - OS-level controls run once (listener, sqlnet, cman, file perms)
+#   - stig_uniaud.yml runs once to relink Oracle binary for OS audit trail
+#   - All database-level controls loop over oracle_databases list
+#     using loop_var: stig_db so sub-task files can reference stig_db.sid
+#
+# Task file responsibilities:
+#   stig_os.yml      - host-level only: listener, sqlnet, adump perms, cman
+#   stig_db_os.yml   - per-DB OS tasks: pwfile perms, catpvf.sql, ANONYMOUS lock
+#   stig_uniaud.yml  - once: relink Oracle binary with uniaud_on
+#   stig_network.yml - once: sqlnet.ora encryption settings
+#   stig_init_params - per-DB: SPFILE parameter hardening
+#   stig_profiles    - per-DB: password profiles
+#   stig_privileges  - per-DB: revoke PUBLIC grants
+#   stig_audit       - per-DB: unified audit policies + DBMS_AUDIT_MGMT
+#   stig_schemas     - per-DB: drop/lock sample schemas
+#   stig_report      - per-DB: generate compliance flat file
+# =============================================================================
+
+# ── Pre-STIG: setup ───────────────────────────────────────────────────────────
+- name: "[STIG] Create STIG report directory"
+  ansible.builtin.file:
+    path: "{{ oracle_stig_report_dir }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_dba_group }}"
+    mode: "0750"
+  tags:
+    - stig_setup
+    - stig
+
+- name: "[STIG] Record run timestamp"
+  ansible.builtin.set_fact:
+    stig_run_timestamp: "{{ ansible_date_time.iso8601 }}"
+  tags:
+    - stig_setup
+    - stig
+
+# ── OS-level controls (run once -- no per-DB context) ─────────────────────────
+# listener.ora extproc, sqlnet.ora idle timeout, adump perms, cman.ora
+# NOTE: stig_os.yml must NOT reference stig_db -- it has no loop_var context.
+- name: "[STIG] Apply OS-level controls"
+  ansible.builtin.include_tasks: stig_os.yml
+  tags:
+    - stig
+    - stig_os
+
+# ── Network encryption (run once -- applies to listener / sqlnet.ora) ──────────
+- name: "[STIG] Apply network encryption controls"
+  ansible.builtin.include_tasks: stig_network.yml
+  tags:
+    - stig
+    - stig_network
+
+# ── Database-level controls -- loop over all customer databases ───────────────
+# Each included task file receives loop_var: stig_db and uses stig_db.sid
+# for ORACLE_SID and task labels.
+
+# Per-DB OS controls: password file perms, catpvf.sql, ANONYMOUS lock
+# Runs before stig_profiles so catpvf functions exist when profiles reference them
+- name: "[STIG] Apply per-DB OS controls to {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_db_os.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_db_os
+
+- name: "[STIG] Apply init parameter controls to {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_init_params.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_params
+
+- name: "[STIG] Apply profile and password controls to {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_profiles.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_profiles
+
+- name: "[STIG] Apply privilege and grant controls to {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_privileges.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_privs
+
+- name: "[STIG] Apply unified audit policy to {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_audit.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_audit
+
+- name: "[STIG] Remove sample schemas from {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_schemas.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_schemas
+
+- name: "[STIG] Generate compliance report for {{ stig_db.sid }}"
+  ansible.builtin.include_tasks: stig_report.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: stig_db
+    label: "{{ stig_db.sid }}"
+  tags:
+    - stig
+    - stig_report

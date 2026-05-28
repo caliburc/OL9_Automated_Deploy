@@ -1,0 +1,151 @@
+---
+- name: Set per-VM facts
+  ansible.builtin.set_fact:
+    vmvars: "{{ vm_item.ansible_facts.build_vm }}"
+    fqdn: >-
+      {{
+        [
+          vm_item.ansible_facts.build_vm.vm_name,
+          (
+            vm_item.ansible_facts.build_vm.vm_domain
+            | default(vm_domain | default('idm.hedc.mil'))
+          )
+        ] | join('.')
+      }}
+    short_name: "{{ vm_item.ansible_facts.build_vm.vm_name }}"
+    vm_primary_ip: "{{ vm_item.ansible_facts.build_vm.networks[0].ipv4_address }}"
+    tfplan_file: "{{ terraform_state_dir }}/{{ fqdn }}.tfplan"
+    tfstate_file: "{{ terraform_state_dir }}/{{ fqdn }}.tfstate"
+    tfvars_file: "{{ terraform_tfvars_dir }}/{{ fqdn }}.auto.tfvars.json"
+
+- name: Build one-VM terraform_vms payload
+  ansible.builtin.set_fact:
+    terraform_vms: >-
+      {{
+        {
+          fqdn: {
+            'vm_name': short_name,
+            'vm_type': vmvars.vm_type | default('generic'),
+            'annotation': vmvars.annotation | default(''),
+            'networks': vmvars.networks | default([]),
+            'additional_disks': vmvars.additional_disks | default([]),
+            'cpu_override': vmvars.cpu_override | default(0) | int,
+            'memory_mb_override': vmvars.memory_override_mb | default(0) | int,
+            'disk0_gb_override': vmvars.disk0_gb_override | default(0) | int,
+            'vsphere_datacenter': vmvars.vsphere_datacenter,
+            'vsphere_cluster': vmvars.vsphere_cluster,
+            'vsphere_datastore': vmvars.vsphere_datastore,
+            'vsphere_folder': vmvars.vsphere_folder | default(''),
+            'vsphere_resource_pool': vmvars.vsphere_resource_pool | default(''),
+            'template_name': vmvars.template_name,
+            'vm_domain': vmvars.vm_domain | default(vm_domain | default('idm.hedc.mil'))
+          }
+        }
+      }}
+
+- name: Render per-VM Terraform variables file
+  ansible.builtin.template:
+    src: terraform.auto.tfvars.json.j2
+    dest: "{{ tfvars_file }}"
+    mode: "0600"
+
+- name: Process one VM through plan gate and deploy
+  block:
+    - name: Run Terraform plan for one VM
+      ansible.builtin.command: >-
+        terraform plan
+        -no-color
+        -detailed-exitcode
+        -out={{ tfplan_file }}
+        -state={{ tfstate_file }}
+        -var-file={{ tfvars_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      environment:
+        TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+      register: tf_plan
+      changed_when: tf_plan.rc == 2
+      failed_when: tf_plan.rc not in [0, 2]
+
+    - name: Export Terraform plan as JSON
+      ansible.builtin.command: >-
+        terraform show -json {{ tfplan_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      register: tf_plan_json_cmd
+      changed_when: false
+
+    - name: Parse Terraform plan JSON
+      ansible.builtin.set_fact:
+        tf_plan_json: "{{ tf_plan_json_cmd.stdout | from_json }}"
+      changed_when: false
+
+    - name: Collect managed resource actions
+      ansible.builtin.set_fact:
+        tf_resource_changes: "{{ tf_plan_json.resource_changes | default([]) }}"
+        tf_non_create_changes: >-
+          {{
+            (tf_plan_json.resource_changes | default([]))
+            | selectattr('mode', 'equalto', 'managed')
+            | rejectattr('change.actions', 'equalto', ['create'])
+            | list
+          }}
+      changed_when: false
+
+    - name: Show plan gate summary
+      ansible.builtin.debug:
+        msg:
+          - "VM {{ fqdn }}"
+          - "Managed resource changes: {{ tf_resource_changes | length }}"
+          - "Non-create changes: {{ tf_non_create_changes | length }}"
+      changed_when: false
+
+    - name: Stop this attempt if plan contains non-create actions
+      ansible.builtin.fail:
+        msg: |-
+          Skipping {{ fqdn }} because Terraform plan contains non-create actions.
+
+          Offending resources:
+          {% for rc in tf_non_create_changes %}
+          - {{ rc.address }} -> {{ rc.change.actions | join(',') }}
+          {% endfor %}
+      when: tf_non_create_changes | length > 0
+
+    - name: Terraform apply for one VM state
+      ansible.builtin.command: >-
+        terraform apply
+        -auto-approve
+        -state={{ tfstate_file }}
+        -var-file={{ tfvars_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      environment:
+        TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+
+    - name: Wait for SSH on provisioned VM
+      ansible.builtin.wait_for:
+        host: "{{ vm_primary_ip }}"
+        port: 22
+        state: started
+        delay: 5
+        timeout: 120
+
+    - name: Add provisioned VM to runtime inventory
+      ansible.builtin.add_host:
+        name: "{{ vmvars.vm_name }}"
+        groups: provisioned_vms
+        ansible_host: "{{ vm_primary_ip }}"
+        ansible_user: "{{ default_user | default('hedcadm') }}"
+        build_vars_file: "{{ build_vars_dir }}/{{ fqdn }}.yml"
+
+  rescue:
+    - name: Mark VM skipped after unsafe plan or plan failure
+      ansible.builtin.debug:
+        msg: >-
+          Skipping {{ fqdn }} and continuing to next VM.
+          {{
+            ansible_failed_result.msg
+            | default(ansible_failed_result.stderr)
+            | default('Unknown failure')
+          }}
+      changed_when: false

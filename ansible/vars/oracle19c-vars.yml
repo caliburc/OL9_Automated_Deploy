@@ -1,0 +1,337 @@
+---
+# =============================================================================
+# Oracle 19c - Core Variable Definitions
+# Environment: Non-CDB (traditional single-instance databases)
+# =============================================================================
+
+# ── Oracle User / Group ──────────────────────────────────────────────────────
+oracle_user: oracle
+oracle_group: oinstall
+oracle_dba_group: dba
+
+# ── Oracle Home / Base ───────────────────────────────────────────────────────
+oracle_base: /app/oracle
+oracle_home: /app/oracle/db19
+oracle_inventory: /app/oracle/db19/oraInventory
+
+# ── Site Filesystem Layout ───────────────────────────────────────────────────
+# These match the paths in the site .dbt template.
+# Ensure these mount points exist before running the playbook.
+oracle_data_dir: /data/oracle/oradata        # datafiles + redo member A
+oracle_arch_dir: /data/oracle/arch           # redo member B, controlfile02, archive logs
+oracle_admin_dir: /app/oracle/admin          # controlfile03, adump, pfile
+
+# ── Installer Source ─────────────────────────────────────────────────────────
+oracle_installer_zip: db_home_2026-01-26_02-46-02PM.zip
+oracle_installer_src: /depot/software/Oracle/lnx/db/19c_64
+oracle_installer_stage: /app/oracle/tmp
+
+# ── runInstaller Settings ────────────────────────────────────────────────────
+oracle_edition: EE                           # EE | SE2
+oracle_install_type: INSTALL_DB_SWONLY
+
+# ── Domain ───────────────────────────────────────────────────────────────────
+# gdbName is built as <SID>.<oracle_domain> to match your site naming standard
+oracle_domain: my.domain.com
+
+# ── ORCL Seed Database ───────────────────────────────────────────────────────
+# Built immediately after the software install to validate the Oracle stack.
+# DBCA uses the built-in General_Purpose template (no site .dbt required).
+# The seed DB is shut down and its oratab entry set to N after creation.
+# Set oracle_seed_db_enabled: false to skip seed DB entirely.
+oracle_seed_db_enabled: false
+oracle_seed_sid: ORCL
+oracle_seed_sys_password: "{{ oracle_sys_default_pass }}"       # override with vault
+oracle_seed_system_password: "{{ oracle_system_default_pass }}"    # override with vault
+
+# ── Global DB Defaults (inherited when not set per-DB) ───────────────────────
+oracle_default_characterset: AL32UTF8
+oracle_default_national_characterset: AL16UTF16
+oracle_default_blocksize: 8                # size in KB (not Byte)
+oracle_default_memory_pct: 40              # % of total RAM for SGA
+oracle_default_processes: 300
+oracle_default_archivelog: true            # set true to enable archivelog after build
+oracle_default_fra_size_gb: 20             # pretty sure this isn't actually used anywhere
+
+# ── Kernel Parameters ────────────────────────────────────────────────────────
+oracle_shmall: 4294967296
+oracle_shmmax: 68719476736
+oracle_shmmni: 4096
+
+# ── Resource Limits ──────────────────────────────────────────────────────────
+oracle_nofile_soft: 1024
+oracle_nofile_hard: 65536
+oracle_nproc_soft: 2047
+oracle_nproc_hard: 16384
+oracle_stack_soft: 10240
+oracle_stack_hard: 32768
+
+
+# =============================================================================
+# Oracle 19c - Patching Variable Definitions
+# =============================================================================
+# ── Global patch toggle ───────────────────────────────────────────────────────
+oracle_patching_enabled: true
+
+# ── Staging paths ─────────────────────────────────────────────────────────────
+# Source on the Ansible controller where patch zips are stored
+oracle_patch_stage_src: /depot/software/Oracle/lnx/cpus
+oracle_patch_current_cpu_src: "26aprCPU/19c"
+
+# Temporary directory on the target server
+oracle_patch_stage_dir: /app/oracle/tmp/oracle_patches
+
+# ── OPatch upgrade ────────────────────────────────────────────────────────────
+# Download latest OPatch
+oracle_opatch_upgrade_enabled: true
+oracle_opatch_zip: "p6880880_190000_Linux-x86-64.zip"
+oracle_opatch_version_expected: "12.2.0.1.51"   # used for post-check assertion
+
+# ── Release Update (RU) ───────────────────────────────────────────────────────
+# Patch numbers change every quarter; update oracle_ru_patch_id and filename.
+oracle_ru_apply_enabled: true
+oracle_ru_patch_id: "39034528"                        # MOS patch number
+oracle_ru_zip: "p39034528_190000_Linux-x86-64.zip"   # filename on controller
+oracle_ru_description: "Oracle 19.31.0.0.260421 Database Release Update"
+
+# ── Release Update Revision (RUR) - optional ─────────────────────────────────
+# Apply a RUR on top of the RU (uncommon; leave enabled: false unless needed)
+oracle_rur_apply_enabled: false
+oracle_rur_patch_id: ""
+oracle_rur_zip: ""
+oracle_rur_description: ""
+
+# ── One-off patches - ordered list, applied after RU ─────────────────────────
+# Add / remove entries freely; the role iterates the list.
+# Set oracle_oneoff_patches: [] to skip entirely.
+oracle_oneoff_patches:
+  - patch_id: "38906621"
+    zip: "p38906621_190000_Linux-x86-64.zip"
+    description: "OJVM RELEASE UPDATE 19.31.0.0.260421"
+  - patch_id: "38930593"
+    zip: "p38930593_190000_Linux-x86-64.zip"
+    description: "Oracle JDK8u491"
+
+# ── Datapatch ─────────────────────────────────────────────────────────────────
+# Run datapatch after all patches are applied (required for SQL changes in RU)
+oracle_datapatch_enabled: true
+
+# ── OPatch conflict check ─────────────────────────────────────────────────────
+# Abort if OPatch conflict detected (recommended: true)
+oracle_opatch_conflict_check: true
+
+# ── Patch timeout (seconds) ───────────────────────────────────────────────────
+oracle_patch_timeout: 3600
+
+# =============================================================================
+# Oracle 19c DoD STIG Variables
+# STIG Reference: Oracle Database 19c STIG - Version 1, Release 5
+# Benchmark Date: 01 Apr 2026
+# DISA STIG ID prefix: O19C-00
+# Source: https://public.cyber.mil/stigs/downloads/
+# =============================================================================
+# Changes from V1R2 → V1R5:
+#   - Added stig_O19C_009400_enabled  (REMOTE_LOGIN_PASSWORDFILE EXCLUSIVE/NONE)
+#   - Added stig_O19C_011600_enabled  (cman.ora REMOTE_ADMIN=NO)
+#   - Added stig_O19C_011700_enabled  (SQLNET.ALLOWED_LOGON_VERSION min=12)
+#   - Added stig_O19C_012900_enabled  (Sample schemas / demo objects - expanded)
+#   - Added stig_O19C_014600_enabled  (Temporary account profile)
+#   - Added stig_O19C_014700_enabled  (Password verify function - 15-char min)
+#   - Added stig_O19C_012400_enabled  (max_idle_time init param - new in V1R5)
+#   - Added stig_O19C_014800_enabled  (INACTIVE_ACCOUNT_TIME ≤ 35 days)
+#   - stig_sqlnet_encryption_server / client changed from ACCEPTED → REQUIRED #HEDC Note, we're ignoring this for now
+#   - stig_sqlnet_crypto_checksum_server / client changed from ACCEPTED → REQUIRED #HEDC Note, we're ignoring this for now
+#   - stig_password_verify_function updated to ORA12C_STIG_VERIFY_FUNCTION (15-char)
+#   - SQLNET.ALLOWED_LOGON_VERSION_SERVER/CLIENT must now be 12 (was 11 in V1R2 playbook)
+# =============================================================================
+
+# ── Global STIG toggle ────────────────────────────────────────────────────────
+oracle_stig_enabled: true
+
+# Report-only mode: log findings but DO NOT remediate (dry-run audit)
+oracle_stig_report_only: false
+
+# Path where STIG remediation report is written on the target
+oracle_stig_report_dir: "{{ oracle_base }}/stig_reports"
+
+# ── Audit / STIG account settings ────────────────────────────────────────────
+# Oracle STIG Audit user and pass are located in the vault
+
+# =============================================================================
+# STIG Controls - O19C-00 series
+# Format: stig_<VULID>_enabled: true|false
+# Set false only for controls handled by compensating controls / risk deviation
+# =============================================================================
+
+# CAT I (HIGH)
+stig_O19C_000100_enabled: true   # OS auth - REMOTE_OS_AUTHENT must be FALSE
+stig_O19C_000200_enabled: true   # OS roles - REMOTE_OS_ROLES must be FALSE
+stig_O19C_000300_enabled: true   # Audit trail - AUDIT_TRAIL must not be NONE
+stig_O19C_000400_enabled: true   # Listener - no unsecured external procedures
+stig_O19C_001300_enabled: true   # DBMS_JAVA must be revoked/restricted
+stig_O19C_001400_enabled: true   # UTL_FILE directory access restrictions
+stig_O19C_002800_enabled: true   # Password complexity enforcement
+stig_O19C_003000_enabled: true   # Default passwords must be changed
+stig_O19C_010600_enabled: true   # Audit privileged actions (ALTER SYSTEM etc.)
+
+# CAT II (MEDIUM)
+stig_O19C_000500_enabled: true   # AUDIT_SYS_OPERATIONS must be TRUE
+stig_O19C_000600_enabled: true   # SQL92_SECURITY must be TRUE
+stig_O19C_000800_enabled: true   # UTL_TCP/HTTP/SMTP restricted
+stig_O19C_000900_enabled: true   # Idle session timeout (SQLNET.EXPIRE_TIME)
+stig_O19C_001000_enabled: true   # Failed login limit (SEC_MAX_FAILED_LOGIN_ATTEMPTS)
+stig_O19C_001100_enabled: true   # Profile FAILED_LOGIN_ATTEMPTS
+stig_O19C_001200_enabled: true   # Profile PASSWORD_LIFE_TIME
+stig_O19C_001500_enabled: true   # Profile PASSWORD_REUSE_TIME / MAX
+stig_O19C_001600_enabled: true   # Profile PASSWORD_LOCK_TIME
+stig_O19C_001700_enabled: true   # Profile PASSWORD_GRACE_TIME
+stig_O19C_001800_enabled: true   # Unlimited profile not assigned to non-admin users
+stig_O19C_001900_enabled: true   # DBA_SYS_PRIVS - excess system privileges
+stig_O19C_002000_enabled: true   # PUBLIC execute grants reviewed
+stig_O19C_002100_enabled: true   # Audit SELECT on SYS.USER$
+stig_O19C_002200_enabled: true   # Unified Audit policy for schema changes
+stig_O19C_002300_enabled: true   # Audit logon/logoff
+stig_O19C_002400_enabled: true   # Audit DML on sensitive tables (AUD$)
+stig_O19C_002500_enabled: true   # Audit ALTER/DROP USER
+stig_O19C_002600_enabled: true   # Audit GRANT/REVOKE
+stig_O19C_002700_enabled: true   # Audit CREATE/ALTER/DROP PROCEDURE
+stig_O19C_002900_enabled: true   # Encrypt data in transit (network encryption)
+stig_O19C_003100_enabled: true   # TDE or equivalent for data at rest
+stig_O19C_003200_enabled: true   # Network encryption - sqlnet.ora settings
+stig_O19C_003300_enabled: true   # SYSDBA/SYSOPER connections audited
+stig_O19C_004000_enabled: true   # Oracle label security / VPD evaluation
+stig_O19C_010100_enabled: true   # Audit trail protection - no delete on AUD$
+stig_O19C_010200_enabled: true   # DBA audit trail review procedures
+stig_O19C_010300_enabled: true   # Application roles - password-protected
+stig_O19C_010400_enabled: true   # EXEMPT ACCESS POLICY not granted publicly
+stig_O19C_010500_enabled: true   # Revoke CREATE EXTERNAL JOB from PUBLIC
+stig_O19C_010700_enabled: true   # Connections from app service accounts limited
+stig_O19C_010800_enabled: true   # Default Oracle sample schemas removed
+stig_O19C_010900_enabled: true   # EXECUTE ANY PROCEDURE not granted to PUBLIC
+stig_O19C_011000_enabled: true   # ALTER SESSION not granted to non-admin users
+stig_O19C_011100_enabled: true   # Separate DBA accounts (no shared SYSDBA)
+stig_O19C_011200_enabled: true   # SYS password must be changed from default
+stig_O19C_011300_enabled: true   # System schema objects not owned by SYS used by apps
+stig_O19C_011400_enabled: true   # Audit EXECUTE on DBMS_RLS
+stig_O19C_011500_enabled: true   # Audit CREATE SESSION with WHENEVER NOT SUCCESSFUL
+stig_O19C_012000_enabled: true   # Oracle Net encryption REQUIRED
+stig_O19C_012100_enabled: true   # Network checksum integrity REQUIRED
+stig_O19C_013000_enabled: true   # AUDIT_TRAIL purge procedures in place
+stig_O19C_017500_enabled: true   # DB links must be reviewed/restricted
+stig_O19C_017600_enabled: true   # Scheduler jobs reviewed
+stig_O19C_017700_enabled: true   # Synonyms to SYS objects reviewed
+stig_O19C_017800_enabled: true   # UTL_SMTP / UTL_TCP revoked from PUBLIC
+stig_O19C_017900_enabled: true   # Standalone audit trail (not DB) for high-sensitivity
+stig_O19C_016000_enabled: true   # Enablement of FIPS-140 TDE
+stig_O19C_009400_enabled: true   # O19C-00-009400 (V-270526) - REMOTE_LOGIN_PASSWORDFILE must be EXCLUSIVE or NONE
+stig_O19C_011600_enabled: false  # ← set true if CMAN is in use; set "REMOTE_ADMIN = NO" in cman.ora; Set variable false if con. manager not in us.
+stig_O19C_011700_enabled: true   # sqlnet.ora: SQLNET.ALLOWED_LOGON_VERSION_SERVER/CLIENT ≥ 12
+stig_O19C_012400_enabled: true   # adds an explicit init parameter check in addition to SQLNET.EXPIRE_TIME
+stig_max_idle_time: 15           # minutes - must be ≤ 15 per STIG  (stig_O19C_012400_enabled)
+
+# O19C-00-012900 (V-270552) - demo/sample schemas removed (expanded in V1R5)
+# V1R5 adds APEX_PUBLIC_USER, SPATIAL_* and XDB check to existing schema drop
+# Fix: stig_schemas.yml extended list (see stig_sample_schemas_to_drop below)
+stig_O19C_012900_enabled: true   #
+
+# O19C-00-012000 (V-270546) - Mechanism to identify temporary/emergency accounts- also creates lockout job - also creates lockout job
+# O19C-00-012100 (V-270547) - Automatically disable temporary accounts after 72 hours
+# O19C-00-014600 (V-270562) - Procedures for establishing temporary passwords
+stig_O19C_014600_enabled: true
+stig_temp_profile_name: "TEMPORARY_USERS"
+stig_temp_password_life_time: 1     # 1 day - force immediate change
+stig_temp_password_grace_time: 3    # 3-day grace to first login
+
+# O19C-00-014700 (V-270563) - Password verify function must enforce 15-char min via ORA12C_STIG_VERIFY_FUNCTION
+stig_O19C_014700_enabled: true
+
+# O19C-00-014800 (V-270585*) - INACTIVE_ACCOUNT_TIME ≤ 35 days in ORA_STIG_PROFILE
+stig_O19C_014800_enabled: true
+stig_inactive_account_time: 35   # days - must be ≤ 35 per STIG
+
+# =============================================================================
+# STIG Profile Values - ORA_STIG_PROFILE
+# =============================================================================
+stig_profile_name: "ORA_STIG_PROFILE"
+stig_failed_login_attempts: 3
+stig_password_life_time: 60
+stig_password_reuse_time: 365
+stig_password_reuse_max: 10
+stig_password_lock_time: "UNLIMITED"      # account locked until DBA unlocks
+stig_password_grace_time: 5
+# V1R5 CHANGE: was ORA12C_STRONG_VERIFY_FUNCTION (12-char); V1R5 requires 15-char function
+stig_password_verify_function: "ORA12C_STIG_VERIFY_FUNCTION"
+stig_idle_time: 15                        # minutes - PROFILE IDLE_TIME
+
+# =============================================================================
+# Network Encryption - sqlnet.ora
+# =============================================================================
+# V1R5 CHANGE: ENCRYPTION and CRYPTO_CHECKSUM must be REQUIRED (not ACCEPTED).
+# The V1R2 playbook had stig_sqlnet_encryption_server/client = ACCEPTED which
+# is non-compliant with V1R5 controls O19C-012000 and O19C-012100.
+# WARNING: Changing to REQUIRED will block any unencrypted SQL*Net client.
+# Test all application connections before applying in production.
+# We're using REQUESTED here to say we want encryption, but we're not going
+# to block non-encrypted connections, we'll keep it this way until
+# we're confident all connections are actually using encryption
+
+stig_sqlnet_encryption_server: REQUESTED #REQUIRED IS SUGGESTED, ACCEPTED IS ANOTHER SAFE VALUE BUT IS NOT SECURE
+stig_sqlnet_encryption_client: REQUESTED #REQUIRED IS SUGGESTED, ACCEPTED IS ANOTHER SAFE VALUE BUT IS NOT SECURE
+stig_sqlnet_encryption_types: "(AES256, AES192, AES128)"
+
+stig_sqlnet_crypto_checksum_server: REQUESTED #REQUIRED IS SUGGESTED, ACCEPTED IS ANOTHER SAFE VALUE BUT IS NOT SECURE
+stig_sqlnet_crypto_checksum_client: REQUESTED #REQUIRED IS SUGGESTED, ACCEPTED IS ANOTHER SAFE VALUE BUT IS NOT SECURE
+stig_sqlnet_crypto_checksum_types: "(SHA256, SHA384, SHA512)"
+
+# V1R5 - ALLOWED_LOGON_VERSION must be 12 minimum
+stig_sqlnet_allowed_logon_version_server: 12  
+stig_sqlnet_allowed_logon_version_client: 12  
+
+# =============================================================================
+# SEC_* init parameters
+# =============================================================================
+stig_sec_max_failed_login_attempts: 3
+stig_sec_protocol_error_further_action: "(DROP,3)"
+stig_sec_return_server_release_banner: FALSE
+
+# =============================================================================
+# Audit policy name
+# =============================================================================
+stig_unified_audit_policy_name: "ORA_STIG_AUDIT_POLICY"
+
+# =============================================================================
+# Sample schemas to drop - expanded in V1R5
+# V1R5 now also checks for APEX_PUBLIC_USER, ANONYMOUS, XDB objects
+# =============================================================================
+stig_sample_schemas_to_drop:
+  - HR
+  - OE
+  - PM
+  - IX
+  - SH
+  - BI
+  - SCOTT
+  # V1R5 additions - lock if cannot drop (owned by Oracle internals):
+  - APEX_PUBLIC_USER    # lock only; do not drop if APEX installed
+  - ANONYMOUS           # lock; controlled via ALTER USER ANONYMOUS ACCOUNT LOCK
+
+# =============================================================================
+# PUBLIC execute packages to revoke - unchanged from V1R2
+# =============================================================================
+stig_revoke_public_packages:
+  - UTL_FILE
+  - UTL_TCP
+  - UTL_HTTP
+  - UTL_SMTP
+  - DBMS_RANDOM
+  - DBMS_ADVISOR
+  - DBMS_CRYPTO
+  - EXECUTE_CATALOG_ROLE
+
+# =============================================================================
+# Password file permission (V1R5 O19C-009400)
+# =============================================================================
+# unix mode for $ORACLE_HOME/dbs/orapw${ORACLE_SID} - must exclude world (o=)
+stig_pwfile_mode: "0640"
+# Set REMOTE_LOGIN_PASSWORDFILE to EXCLUSIVE (recommended) or NONE
+stig_remote_login_passwordfile: "EXCLUSIVE"

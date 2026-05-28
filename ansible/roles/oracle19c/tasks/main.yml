@@ -1,0 +1,73 @@
+---
+# =============================================================================
+# Role: oracle19c (orchestrator)
+# Purpose: Prep Oracle data disks, then drive the full Oracle 19c pipeline
+#          by including the focused sub-roles in order.
+# =============================================================================
+
+# ── 1. Surface oracle_databases from per-host build file ─────────────────────
+- name: Surface oracle_databases from build_vm namespace
+  ansible.builtin.set_fact:
+    oracle_databases: "{{ build_vm.oracle_databases | default([]) }}"
+  tags: always
+
+- name: Verify at least one database is defined for this host
+  ansible.builtin.assert:
+    that:
+      - oracle_databases | length > 0
+    fail_msg: >
+      oracle_databases is empty. Define at least one customer DB in
+      vars/build/{{ inventory_hostname }}.yml.
+    success_msg: "{{ oracle_databases | length }} customer database(s) defined: {{ oracle_databases | map(attribute='sid') | join(', ') }}"
+  tags: always
+
+# ── 2. Load site-wide Oracle vars (patch cycle, STIG toggles, installer src) ─
+- name: Load Oracle19c Vars
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../vars/oracle19c-vars.yml"
+  tags: always
+
+# ── 3. Configure data disk (tasks within this role )──────────────────────────
+- name: Configure Oracle data disks
+  ansible.builtin.include_tasks: disk_setup.yml
+  tags:
+    - disk_config
+    - prereqs
+
+# ── 4. Run the Oracle install pipeline ───────────────────────────────────────
+- name: Install Oracle Prerequisites
+  ansible.builtin.include_role:
+    name: oracle19c_prereqs
+  tags: prereqs
+
+- name: Install Oracle 19c Software
+  ansible.builtin.include_role:
+    name: oracle19c_install
+  tags: install
+
+- name: Apply Oracle Release Update Patches
+  ansible.builtin.include_role:
+    name: oracle19c_patch
+  when: oracle_patching_enabled | bool
+  tags: patch
+
+- name: Configure Oracle Listeners
+  ansible.builtin.include_role:
+    name: oracle19c_listeners
+  tags: listener
+
+- name: Create Customer Databases
+  ansible.builtin.include_role:
+    name: oracle19c_db_create
+  tags: dbcreate
+
+- name: Post-install Oracle Configuration
+  ansible.builtin.include_role:
+    name: oracle19c_post_config
+  tags: postconfig
+
+- name: Apply Oracle STIG Hardening
+  ansible.builtin.include_role:
+    name: oracle19c_stig
+  when: oracle_stig_enabled | bool
+  tags: stig

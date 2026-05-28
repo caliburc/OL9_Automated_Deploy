@@ -1,0 +1,81 @@
+# sqlnet.ora - STIG-hardened
+# Managed by Ansible - do not edit manually
+# DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+# Controls: O19C-00-002900, O19C-00-003200, O19C-00-011700, O19C-00-012000, O19C-00-012100
+#
+# V1R5 Changes from V1R2:
+#   - ENCRYPTION_SERVER / CLIENT: ACCEPTED → REQUIRED  (O19C-012000)
+#   - CRYPTO_CHECKSUM_SERVER / CLIENT: ACCEPTED → REQUIRED  (O19C-012100)
+#   - ALLOWED_LOGON_VERSION_SERVER / CLIENT: 11 → 12  (O19C-011700, V-270543)
+# WARNING: REQUIRED encryption will reject unencrypted connections.
+#          Test all application connectivity before applying in production.
+
+NAMES.DIRECTORY_PATH= (TNSNAMES,LDAP)
+SQLNET.AUTHENTICATION_SERVICES = (TCPS,TCP,BEQ)
+DEFAULT_SDU_SIZE = 8761
+
+# ── SSL Version ───────────────────────────────────────────────────────────────
+SSL_VERSION=1.2
+
+# ── TDE Wallet ────────────────────────────────────────────────────────────────
+ENCRYPTION_WALLET_LOCATION=
+ (SOURCE=
+  (METHOD=FILE)
+   (METHOD_DATA=
+    (DIRECTORY=/etc/ORACLE/WALLETS/$ORACLE_SID/)
+   )
+ )
+
+# ── SSL Wallet ────────────────────────────────────────────────────────────────
+WALLET_LOCATION=
+ (SOURCE=
+  (METHOD=FILE)
+   (METHOD_DATA=
+    (DIRECTORY=/app/oracle/common/tns/wallet/${ORACLE_SID}/)
+   )
+ )
+
+# ── Idle session timeout (O19C-00-000900) ─────────────────────────────────────
+SQLNET.EXPIRE_TIME = {{ stig_idle_time }}
+
+# ── Network Encryption - Server (O19C-00-012000) ─────────────────────────────
+# V1R5: Must be REQUIRED - We're using ACCEPTED because... reasons
+SQLNET.ENCRYPTION_SERVER = {{ stig_sqlnet_encryption_server }}
+SQLNET.ENCRYPTION_TYPES_SERVER = {{ stig_sqlnet_encryption_types }}
+SQLNET.CRYPTO_SEED = 'bf712ac1013c9bc3f88fdec31d915395b44bedebb35c86347c9053a192994f86'
+
+# ── Network Encryption - Client (O19C-00-002900) ─────────────────────────────
+# V1R5: Must be REQUIRED (ACCEPTED was non-compliant in V1R2 playbook)
+SQLNET.ENCRYPTION_CLIENT = {{ stig_sqlnet_encryption_client }}
+SQLNET.ENCRYPTION_TYPES_CLIENT = {{ stig_sqlnet_encryption_types }}
+
+# ── Crypto Checksum - Server (O19C-00-012100) ────────────────────────────────
+# V1R5: Must be REQUIRED (ACCEPTED was non-compliant in V1R2 playbook)
+SQLNET.CRYPTO_CHECKSUM_SERVER = {{ stig_sqlnet_crypto_checksum_server }}
+SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER = {{ stig_sqlnet_crypto_checksum_types }}
+
+# ── Crypto Checksum - Client ──────────────────────────────────────────────────
+# V1R5: Must be REQUIRED
+SQLNET.CRYPTO_CHECKSUM_CLIENT = {{ stig_sqlnet_crypto_checksum_client }}
+SQLNET.CRYPTO_CHECKSUM_TYPES_CLIENT = {{ stig_sqlnet_crypto_checksum_types }}
+
+# ── Authentication version restriction (O19C-00-011700) ──────────────────────
+# V1R5 V-270543: Minimum version must be 12 (not 11).
+# Valid values: 12, 12a  (12a requires SHA-2 + TLS1.2)
+SQLNET.ALLOWED_LOGON_VERSION_SERVER = {{ stig_sqlnet_allowed_logon_version_server }}
+SQLNET.ALLOWED_LOGON_VERSION_CLIENT = {{ stig_sqlnet_allowed_logon_version_client }}
+
+# ── Inbound connect timeout ───────────────────────────────────────────────────
+SQLNET.INBOUND_CONNECT_TIMEOUT = 180
+
+# ── Tracing (disabled per STIG - no sensitive data in trace files) ───────────
+TRACE_LEVEL_SERVER = OFF
+TRACE_LEVEL_CLIENT = OFF
+
+# ── Misc hardening ────────────────────────────────────────────────────────────
+ADR_BASE = {{ oracle_base }}
+DIAG_SIGHANDLER_ENABLED = FALSE
+DIAG_ADR_ENABLED = ON
+
+# ── FIPS 140 ──────────────────────────────────────────────────────────────────
+SQLNET.FIPS_140 = TRUE

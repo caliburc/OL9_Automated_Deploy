@@ -1,0 +1,42 @@
+#cloud-config
+preserve_hostname: false
+hostname: ${hostname}
+fqdn: ${fqdn}
+manage_etc_hosts: false
+users:
+  - name: automationuser
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    groups: [wheel]
+    shell: /bin/bash
+    lock_passwd: false
+    ssh_authorized_keys:
+%{ for key in ssh_authorized_keys ~}
+      - ${key}
+%{ endfor ~}
+package_update: yes
+package_upgrade: yes
+
+write_files:
+  - path: /etc/NetworkManager/conf.d/90-dns.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [main]
+      dns=systemd-resolved
+
+runcmd:
+  - [ sh, -c, 'echo "Built by Terraform and cloud-init"' ]
+  - touch /etc/cloud/cloud-init.disabled
+  - |
+      nmcli -t -f NAME connection show | while IFS= read -r conn; do
+        case "$conn" in
+          System\ *)
+            new_name="$${conn#System }"
+            nmcli connection modify "$conn" connection.id "$new_name"
+            ;;
+        esac
+      done
+      nmcli connection reload
+  - rm -f /etc/NetworkManager/conf.d/99-cloud-init.conf
+  - systemctl restart NetworkManager
+final_message: "The system is finally up, after $UPTIME seconds"

@@ -1,0 +1,51 @@
+---
+template_name: "<TEMPLATE_NAME>" #REQUIRED
+
+vsphere_datacenter: "HEDC" #REQUIRED
+vsphere_cluster: "G00-HEDC-ADMIN-Stretch" #REQUIRED
+vsphere_datastore: "G00-HEDC-ADMIN-SA213-L253" #REQUIRED
+vsphere_folder: "Infrastructure_Services/HEDC_Templates" #REQUIRED
+vsphere_resource_pool: "" #OPTIONAL
+
+vm_name: jason-ol9-app1 #REQUIRED
+vm_domain: idm.hedc.mil #REQUIRED
+vm_type: app #TECHNICALL OPTIONAL, BUT REQUIRED
+annotation: "Oracle Linux 9 App server" #OPTIONAL
+
+dns_servers_csv: "10.61.0.19,10.61.0.150" #REQUIRED
+ipa_automount_location: "hedc-aphedc0p" #OPTIONAL, DEFAULTS TO "hedc"
+
+cpu_override: 0 #0 MEANS NO OVERRIDE
+memory_override_mb: 0 #0 MEANS NO OVERRIDE
+
+#OPTIONAL SERVER_ROLES OVERRIDE
+#example server_role override
+#server_roles:
+#  - baseline
+#  - weblogic_14c
+#  - cohesity_agent_deploy
+
+# REQUIRED AT LEAST ONE NIC, USE BACKEND FOR ENS33
+networks:
+  - name: ens33 #REQUIRED
+    portgroup: dv-HEDC-APP-WEB-PROD-506 #REQUIRED
+    adapter_type: vmxnet3 #REQUIRED
+    ipv4_address: 10.61.11.100 #REQUIRES
+    ipv4_gateway: 10.61.8.9 #REQUIRED
+    ipv4_prefix_length: 22 #REQUIRED
+    dhcp4: false #ASSUMES FALSE, OPTIONAL
+    default_gateway: true #ONLY 1 DEFAULT GATEWAY PER SYSTEM, OPTIONAL
+    routes: #ROUTES ARE OPTIONAL, BUT CONFIGURE THIS BY THE SUBNET
+      - to: 10.56.0.0/13
+        via: 10.61.8.1
+
+#  - name: ens35
+#    portgroup: dv-PUB-13
+#    adapter_type: vmxnet3
+#    ipv4_address: 137.241.13.252
+#    ipv4_prefix_length: 21
+#    ipv4_gateway: 137.241.13.1
+#    dhcp4: false
+#    default_gateway: true
+
+additional_disks: [] #OPTIONAL

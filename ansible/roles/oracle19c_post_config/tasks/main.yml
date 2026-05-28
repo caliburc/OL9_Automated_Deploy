@@ -1,0 +1,158 @@
+---
+# =============================================================================
+# Role: oracle_post_config
+# Purpose: Post-build configuration – listener, oratab, tnsnames, systemd,
+#          and per-DB post-SQL for all customer databases.
+# Non-CDB: no PDB references anywhere in this role.
+# =============================================================================
+
+# ── 1. /etc/oratab – customer DBs set to Y (auto-start) ─────────────────────
+- name: "Ensure oratab entry for {{ item.sid }} (auto-start = Y)"
+  ansible.builtin.lineinfile:
+    path: /etc/oratab
+    regexp: "^{{ item.sid }}:"
+    line: "{{ item.sid }}:{{ oracle_home }}:Y"
+    state: present
+    create: true
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_dba_group }}"
+    mode: "0664"
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  tags: oratab
+
+# # ── 2. Network – listener.ora ────────────────────────────────────────────────
+# - name: Check if listener.ora already exists
+#   ansible.builtin.stat:
+#     path: "{{ oracle_base }}/common/tns/listener.ora"
+#   register: listener_ora_stat
+#   tags: listener
+
+# - name: Deploy listener.ora
+#   ansible.builtin.template:
+#     src: listener.ora.j2
+#     dest: "{{ oracle_home }}/common/tns/listener.ora"
+#     owner: "{{ oracle_user }}"
+#     group: "{{ oracle_group }}"
+#     mode: "0640"
+#     backup: true
+#   when: not listener_ora_stat.stat.exists
+#   tags: listener
+
+# # ── 3. Network – tnsnames.ora (entry per customer DB) ───────────────────────
+# - name: Deploy tnsnames.ora
+#   ansible.builtin.template:
+#     src: tnsnames.ora.j2
+#     dest: "{{ oracle_home }}/common/tns/tnsnames.ora"
+#     owner: "{{ oracle_user }}"
+#     group: "{{ oracle_group }}"
+#     mode: "0640"
+#     backup: true
+#   tags: listener
+
+# # ── 4. Network – sqlnet.ora ──────────────────────────────────────────────────
+# - name: Deploy sqlnet.ora
+#   ansible.builtin.template:
+#     src: sqlnet.ora.j2
+#     dest: "{{ oracle_home }}/common/tns/sqlnet.ora"
+#     owner: "{{ oracle_user }}"
+#     group: "{{ oracle_group }}"
+#     mode: "0644"
+#     backup: true
+#   tags: listener
+
+# # ── 5. Start listener ────────────────────────────────────────────────────────
+# - name: Start Oracle listener
+#   ansible.builtin.shell: "{{ oracle_home }}/bin/lsnrctl start LMT"
+#   become: true
+#   become_user: "{{ oracle_user }}"
+#   environment:
+#     ORACLE_BASE: "{{ oracle_base }}"
+#     ORACLE_HOME: "{{ oracle_home }}"
+#     PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+#     LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+#   register: lsnrctl_start
+#   failed_when:
+#     - lsnrctl_start.rc != 0
+#     - "'already running' not in lsnrctl_start.stdout"
+#   changed_when: "'already running' not in lsnrctl_start.stdout"
+#   tags: listener
+
+# ── 6. systemd service per customer DB ──────────────────────────────────────
+- name: "Deploy systemd service for {{ item.sid }}"
+  ansible.builtin.template:
+    src: oracle-db.service.j2
+    dest: "/etc/systemd/system/oracle-db-{{ item.sid }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  tags: systemd
+
+- name: "Deploy start/stop control script for {{ item.sid }}"
+  ansible.builtin.template:
+    src: oracle_db_ctl.sh.j2
+    dest: "/usr/local/bin/oracle_db_ctl_{{ item.sid }}.sh"
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  tags: systemd
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  tags: systemd
+
+- name: "Enable and start systemd service for {{ item.sid }}"
+  ansible.builtin.systemd:
+    name: "oracle-db-{{ item.sid }}"
+    enabled: true
+    state: started
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  tags: systemd
+
+# ── 7. Final status report per customer DB ───────────────────────────────────
+- name: "Final status check – {{ item.sid }}"
+  ansible.builtin.shell: |
+    echo "=== Instance: {{ item.sid }} ==="
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    set lines 140 pages 30
+    col instance_name for a12
+    col host_name     for a30
+    col version       for a15
+    select instance_name, host_name, version, status, database_status
+    from v$instance;
+    select name, db_unique_name, open_mode, log_mode, created
+    from v$database;
+    exit
+    EOF
+    echo "=== Listener ==="
+    {{ oracle_home }}/bin/lsnrctl status LMT
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    TNS_ADMIN: "{{ oracle_base }}/common/tns"
+    ORACLE_SID: "{{ item.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: final_status
+  changed_when: false
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  tags: final_status
+
+- name: Print final status
+  ansible.builtin.debug:
+    var: final_status.results | map(attribute='stdout_lines') | list
+  tags: final_status

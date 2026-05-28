@@ -1,0 +1,2833 @@
+- name: populate package facts
+  package_facts:
+# R-271634 OL09-00-001110
+- name: Enable hardened authselect profile and apply
+  ansible.builtin.shell: >
+    authselect select custom/hardening &&
+    authselect enable-feature with-sudo &&
+    authselect enable-feature with-mkhomedir &&
+    authselect enable-feature with-faillock &&
+    authselect enable-feature with-silent-lastlog &&
+    authselect enable-feature with-smartcard &&
+    authselect enable-feature without-nullok &&
+    authselect apply-changes
+  register: authselect_result
+  changed_when: authselect_result.rc == 0
+  failed_when: authselect_result.rc != 0
+  ignore_errors: true
+
+# R-271441 OL09-00-000025
+- name: stigrule_271441__usr_lib_systemd_system_emergency_service
+  ini_file:
+    path: /usr/lib/systemd/system/emergency.service
+    section: Service
+    option: ExecStart
+    value: "{{ ol9STIG_stigrule_271441__usr_lib_systemd_system_emergency_service_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271441_Manage
+# R-271442 OL09-00-000030
+- name: stigrule_271442__usr_lib_systemd_system_rescue_service
+  ini_file:
+    path: /usr/lib/systemd/system/rescue.service
+    section: Service
+    option: ExecStart
+    value: "{{ ol9STIG_stigrule_271442__usr_lib_systemd_system_rescue_service_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271442_Manage
+# R-271443 OL09-00-000040
+- name: stigrule_271443__etc_modprobe_d_atm_conf_install_atm__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/atm.conf
+    line: "{{ ol9STIG_stigrule_271443__etc_modprobe_d_atm_conf_install_atm__bin_false_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271443_Manage
+# R-271443 OL09-00-000040
+- name: stigrule_271443__etc_modprobe_d_atm_conf_blacklist_atm
+  lineinfile:
+    path: /etc/modprobe.d/atm.conf
+    line: "{{ ol9STIG_stigrule_271443__etc_modprobe_d_atm_conf_blacklist_atm_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271443_Manage
+# R-271444 OL09-00-000041
+- name: stigrule_271444__etc_modprobe_d_can_conf_install_can__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/can.conf
+    line: "{{ ol9STIG_stigrule_271444__etc_modprobe_d_can_conf_install_can__bin_false_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271444_Manage
+# R-271444 OL09-00-000041
+- name: stigrule_271444__etc_modprobe_d_can_conf_blacklist_can
+  lineinfile:
+    path: /etc/modprobe.d/can.conf
+    line: "{{ ol9STIG_stigrule_271444__etc_modprobe_d_can_conf_blacklist_can_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271444_Manage
+# R-271445 OL09-00-000042
+- name: stigrule_271445__etc_modprobe_d_firewire_core_conf_install_firewire_core__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/firewire-core.conf
+    line: "{{ ol9STIG_stigrule_271445__etc_modprobe_d_firewire_core_conf_install_firewire_core__bin_false_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271445_Manage
+# R-271445 OL09-00-000042
+- name: stigrule_271445__etc_modprobe_d_firewire_core_conf_blacklist_firewire_core
+  lineinfile:
+    path: /etc/modprobe.d/firewire-core.conf
+    line: "{{ ol9STIG_stigrule_271445__etc_modprobe_d_firewire_core_conf_blacklist_firewire_core_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271445_Manage
+# R-271446 OL09-00-000043
+- name: stigrule_271446__etc_modprobe_d_sctp_conf_install_sctp__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/sctp.conf
+    line: "{{ ol9STIG_stigrule_271446__etc_modprobe_d_sctp_conf_install_sctp__bin_false_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271446_Manage
+# R-271446 OL09-00-000043
+- name: stigrule_271446__etc_modprobe_d_sctp_conf_blacklist_sctp
+  lineinfile:
+    path: /etc/modprobe.d/sctp.conf
+    line: "{{ ol9STIG_stigrule_271446__etc_modprobe_d_sctp_conf_blacklist_sctp_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271446_Manage
+# R-271447 OL09-00-000044
+- name: stigrule_271447__etc_modprobe_d_tipc_conf_install_tipc__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/tipc.conf
+    line: "{{ ol9STIG_stigrule_271447__etc_modprobe_d_tipc_conf_install_tipc__bin_false_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271447_Manage
+# R-271447 OL09-00-000044
+- name: stigrule_271447__etc_modprobe_d_tipc_conf_blacklist_tipc
+  lineinfile:
+    path: /etc/modprobe.d/tipc.conf
+    line: "{{ ol9STIG_stigrule_271447__etc_modprobe_d_tipc_conf_blacklist_tipc_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271447_Manage
+# R-271448 OL09-00-000045
+- name: stigrule_271448__etc_modprobe_d_cramfs_conf_install_cramfs__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/cramfs.conf
+    line: "{{ ol9STIG_stigrule_271448__etc_modprobe_d_cramfs_conf_install_cramfs__bin_false_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271448_Manage
+# R-271448 OL09-00-000045
+- name: stigrule_271448__etc_modprobe_d_cramfs_conf_blacklist_cramfs
+  lineinfile:
+    path: /etc/modprobe.d/cramfs.conf
+    line: "{{ ol9STIG_stigrule_271448__etc_modprobe_d_cramfs_conf_blacklist_cramfs_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271448_Manage
+# R-271449 OL09-00-000046
+- name: stigrule_271449__etc_modprobe_d_bluetooth_conf_install_bluetooth__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/bluetooth.conf
+    line: "{{ ol9STIG_stigrule_271449__etc_modprobe_d_bluetooth_conf_install_bluetooth__bin_false_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271449_Manage
+# R-271449 OL09-00-000046
+- name: stigrule_271449__etc_modprobe_d_bluetooth_conf_blacklist_bluetooth
+  lineinfile:
+    path: /etc/modprobe.d/bluetooth.conf
+    line: "{{ ol9STIG_stigrule_271449__etc_modprobe_d_bluetooth_conf_blacklist_bluetooth_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271449_Manage
+# R-271450 OL09-00-000047
+- name: stigrule_271450__etc_modprobe_d_usb_storage_conf_install_usb_storage__bin_false
+  lineinfile:
+    path: /etc/modprobe.d/usb-storage.conf
+    line: "{{ ol9STIG_stigrule_271450__etc_modprobe_d_usb_storage_conf_install_usb_storage__bin_false_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271450_Manage
+# R-271450 OL09-00-000047
+- name: stigrule_271450__etc_modprobe_d_usb_storage_conf_blacklist_usb_storage
+  lineinfile:
+    path: /etc/modprobe.d/usb-storage.conf
+    line: "{{ ol9STIG_stigrule_271450__etc_modprobe_d_usb_storage_conf_blacklist_usb_storage_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271450_Manage
+# R-271452 OL09-00-000060
+- name: stigrule_271452__etc_selinux_config
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: "{{ ol9STIG_stigrule_271452__etc_selinux_config_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271452_Manage
+# R-271453 OL09-00-000065
+- name: stigrule_271453__etc_selinux_config
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUXTYPE='
+    line: "{{ ol9STIG_stigrule_271453__etc_selinux_config_Line }}"
+    create: yes
+  notify: do_reboot
+  when:
+    - ol9STIG_stigrule_271453_Manage
+# R-271455 OL09-00-000090
+- name: stigrule_271455__etc_issue
+  copy:
+    dest: "{{ ol9STIG_stigrule_271455__etc_issue_Dest }}"
+    content: "{{ ol9STIG_stigrule_271455__etc_issue_Content }}"
+  when:
+    - ol9STIG_stigrule_271455_Manage
+# R-271456 OL09-00-000100
+- name: stigrule_271456_nfs_utils
+  yum:
+    name: nfs-utils
+    state: "{{ ol9STIG_stigrule_271456_nfs_utils_State }}"
+  when: ol9STIG_stigrule_271456_Manage
+# R-271457 OL09-00-000105
+- name: stigrule_271457_epel_release
+  yum:
+    name: epel-release
+    state: "{{ ol9STIG_stigrule_271457_epel_release_State }}"
+  when: ol9STIG_stigrule_271457_Manage
+# R-271458 OL09-00-000110
+- name: stigrule_271458_telnet_server
+  yum:
+    name: telnet-server
+    state: "{{ ol9STIG_stigrule_271458_telnet_server_State }}"
+  when: ol9STIG_stigrule_271458_Manage
+# R-271459 OL09-00-000115
+- name: stigrule_271459_gssproxy
+  yum:
+    name: gssproxy
+    state: "{{ ol9STIG_stigrule_271459_gssproxy_State }}"
+  when: ol9STIG_stigrule_271459_Manage
+# R-271460 OL09-00-000120
+- name: stigrule_271460_iprutils
+  yum:
+    name: iprutils
+    state: "{{ ol9STIG_stigrule_271460_iprutils_State }}"
+  when: ol9STIG_stigrule_271460_Manage
+# R-271461 OL09-00-000125
+- name: stigrule_271461_tuned
+  yum:
+    name: tuned
+    state: "{{ ol9STIG_stigrule_271461_tuned_State }}"
+  when: ol9STIG_stigrule_271461_Manage
+# R-271462 OL09-00-000130
+- name: stigrule_271462_vsftpd
+  yum:
+    name: vsftpd
+    state: "{{ ol9STIG_stigrule_271462_vsftpd_State }}"
+  when: ol9STIG_stigrule_271462_Manage
+# R-271463 OL09-00-000135
+- name: stigrule_271463_tftp_server
+  yum:
+    name: tftp-server
+    state: "{{ ol9STIG_stigrule_271463_tftp_server_State }}"
+  when: ol9STIG_stigrule_271463_Manage
+# R-271466 OL09-00-000150
+- name: stigrule_271466_sendmail
+  yum:
+    name: sendmail
+    state: "{{ ol9STIG_stigrule_271466_sendmail_State }}"
+  when: ol9STIG_stigrule_271466_Manage
+# R-271467 OL09-00-000200
+- name: stigrule_271467_policycoreutils
+  yum:
+    name: policycoreutils
+    state: "{{ ol9STIG_stigrule_271467_policycoreutils_State }}"
+  when: ol9STIG_stigrule_271467_Manage
+# R-271468 OL09-00-000210
+- name: stigrule_271468_policycoreutils_python_utils
+  yum:
+    name: policycoreutils-python-utils
+    state: "{{ ol9STIG_stigrule_271468_policycoreutils_python_utils_State }}"
+  when: ol9STIG_stigrule_271468_Manage
+# R-271469 OL09-00-000220
+- name: stigrule_271469_firewalld
+  yum:
+    name: firewalld
+    state: "{{ ol9STIG_stigrule_271469_firewalld_State }}"
+  when: ol9STIG_stigrule_271469_Manage
+# R-271470 OL09-00-000221
+- name: check if firewalld.service is installed
+  shell: ! systemctl list-unit-files | grep "^firewalld.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271470_firewalld_enable
+  service:
+    name: firewalld.service
+    enabled: "{{ ol9STIG_stigrule_271470_firewalld_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271470_Manage
+    - result.rc == 0
+# R-271470 OL09-00-000221
+- name: check if firewalld.service is installed
+  shell: ! systemctl list-unit-files | grep "^firewalld.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271470_firewalld_start
+  service:
+    name: firewalld.service
+    state: "{{ ol9STIG_stigrule_271470_firewalld_start_State }}"
+  when:
+    - ol9STIG_stigrule_271470_Manage
+    - result.rc == 0
+# R-271474 OL09-00-000230
+- name: stigrule_271474_sudo
+  yum:
+    name: sudo
+    state: "{{ ol9STIG_stigrule_271474_sudo_State }}"
+  when: ol9STIG_stigrule_271474_Manage
+# R-271477 OL09-00-000240
+- name: stigrule_271477_crypto_policies
+  yum:
+    name: crypto-policies
+    state: "{{ ol9STIG_stigrule_271477_crypto_policies_State }}"
+  when: ol9STIG_stigrule_271477_Manage
+# R-271482 OL09-00-000250
+- name: stigrule_271482_openssh_server
+  yum:
+    name: openssh-server
+    state: "{{ ol9STIG_stigrule_271482_openssh_server_State }}"
+  when: ol9STIG_stigrule_271482_Manage
+# R-271483 OL09-00-000251
+- name: check if sshd.service is installed
+  shell: ! systemctl list-unit-files | grep "^sshd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271483_sshd_enable
+  service:
+    name: sshd.service
+    enabled: "{{ ol9STIG_stigrule_271483_sshd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271483_Manage
+    - result.rc == 0
+# R-271487 OL09-00-000256
+- name: stigrule_271487_Banner
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*Banner\s+'
+    line: "{{ ol9STIG_stigrule_271487_Banner_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271487_Manage
+    - packages['openssh-server'] is defined
+# R-271488 OL09-00-000260
+- name: stigrule_271488_openssh_clients
+  yum:
+    name: openssh-clients
+    state: "{{ ol9STIG_stigrule_271488_openssh_clients_State }}"
+  when: ol9STIG_stigrule_271488_Manage
+# R-271491 OL09-00-000270
+- name: stigrule_271491_openssl_pkcs11
+  yum:
+    name: openssl-pkcs11
+    state: "{{ ol9STIG_stigrule_271491_openssl_pkcs11_State }}"
+  when: ol9STIG_stigrule_271491_Manage
+# R-271493 OL09-00-000285
+- name: stigrule_271493_sssd
+  yum:
+    name: sssd
+    state: "{{ ol9STIG_stigrule_271493_sssd_State }}"
+  when: ol9STIG_stigrule_271493_Manage
+# R-271494 OL09-00-000286
+- name: check if sssd.service is installed
+  shell: ! systemctl list-unit-files | grep "^sssd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271494_sssd_enable
+  service:
+    name: sssd.service
+    enabled: "{{ ol9STIG_stigrule_271494_sssd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271494_Manage
+    - result.rc == 0
+# R-271494 OL09-00-000286
+- name: check if sssd.service is installed
+  shell: ! systemctl list-unit-files | grep "^sssd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271494_sssd_start
+  service:
+    name: sssd.service
+    state: "{{ ol9STIG_stigrule_271494_sssd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271494_Manage
+    - result.rc == 0
+# R-271495 OL09-00-000290
+- name: stigrule_271495_s_nail
+  yum:
+    name: s-nail
+    state: "{{ ol9STIG_stigrule_271495_s_nail_State }}"
+  when: ol9STIG_stigrule_271495_Manage
+# R-271501 OL09-00-000310
+- name: stigrule_271501_chrony
+  yum:
+    name: chrony
+    state: "{{ ol9STIG_stigrule_271501_chrony_State }}"
+  when: ol9STIG_stigrule_271501_Manage
+# R-271502 OL09-00-000311
+- name: check if chronyd.service is installed
+  shell: ! systemctl list-unit-files | grep "^chronyd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271502_chronyd_enable
+  service:
+    name: chronyd.service
+    enabled: "{{ ol9STIG_stigrule_271502_chronyd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271502_Manage
+    - result.rc == 0
+# R-271502 OL09-00-000311
+- name: check if chronyd.service is installed
+  shell: ! systemctl list-unit-files | grep "^chronyd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271502_chronyd_start
+  service:
+    name: chronyd.service
+    state: "{{ ol9STIG_stigrule_271502_chronyd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271502_Manage
+    - result.rc == 0
+# R-271503 OL09-00-000320
+- name: stigrule_271503_usbguard
+  yum:
+    name: usbguard
+    state: "{{ ol9STIG_stigrule_271503_usbguard_State }}"
+  when: ol9STIG_stigrule_271503_Manage
+# R-271504 OL09-00-000321
+- name: check if usbguard.service is installed
+  shell: ! systemctl list-unit-files | grep "^usbguard.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271504_usbguard_enable
+  service:
+    name: usbguard.service
+    enabled: "{{ ol9STIG_stigrule_271504_usbguard_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271504_Manage
+    - result.rc == 0
+# R-271504 OL09-00-000321
+- name: check if usbguard.service is installed
+  shell: ! systemctl list-unit-files | grep "^usbguard.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271504_usbguard_start
+  service:
+    name: usbguard.service
+    state: "{{ ol9STIG_stigrule_271504_usbguard_start_State }}"
+  when:
+    - ol9STIG_stigrule_271504_Manage
+    - result.rc == 0
+# R-271506 OL09-00-000340
+- name: stigrule_271506_fapolicyd
+  yum:
+    name: fapolicyd
+    state: "{{ ol9STIG_stigrule_271506_fapolicyd_State }}"
+  when: ol9STIG_stigrule_271506_Manage
+# R-271507 OL09-00-000341
+- name: check if fapolicyd.service is installed
+  shell: ! systemctl list-unit-files | grep "^fapolicyd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271507_fapolicyd_enable
+  service:
+    name: fapolicyd.service
+    enabled: "{{ ol9STIG_stigrule_271507_fapolicyd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271507_Manage
+    - result.rc == 0
+# R-271507 OL09-00-000341
+- name: check if fapolicyd.service is installed
+  shell: ! systemctl list-unit-files | grep "^fapolicyd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271507_fapolicyd_start
+  service:
+    name: fapolicyd.service
+    state: "{{ ol9STIG_stigrule_271507_fapolicyd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271507_Manage
+    - result.rc == 0
+# R-271508 OL09-00-000350
+- name: stigrule_271508_rsyslog
+  yum:
+    name: rsyslog
+    state: "{{ ol9STIG_stigrule_271508_rsyslog_State }}"
+  when: ol9STIG_stigrule_271508_Manage
+# R-271509 OL09-00-000351
+- name: check if rsyslog.service is installed
+  shell: ! systemctl list-unit-files | grep "^rsyslog.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271509_rsyslog_enable
+  service:
+    name: rsyslog.service
+    enabled: "{{ ol9STIG_stigrule_271509_rsyslog_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271509_Manage
+    - result.rc == 0
+# R-271509 OL09-00-000351
+- name: check if rsyslog.service is installed
+  shell: ! systemctl list-unit-files | grep "^rsyslog.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271509_rsyslog_start
+  service:
+    name: rsyslog.service
+    state: "{{ ol9STIG_stigrule_271509_rsyslog_start_State }}"
+  when:
+    - ol9STIG_stigrule_271509_Manage
+    - result.rc == 0
+# R-271510 OL09-00-000355
+- name: stigrule_271510_rsyslog_gnutls
+  yum:
+    name: rsyslog-gnutls
+    state: "{{ ol9STIG_stigrule_271510_rsyslog_gnutls_State }}"
+  when: ol9STIG_stigrule_271510_Manage
+# R-271511 OL09-00-000360
+- name: stigrule_271511_rng_tools
+  yum:
+    name: rng-tools
+    state: "{{ ol9STIG_stigrule_271511_rng_tools_State }}"
+  when: ol9STIG_stigrule_271511_Manage
+# R-271511 OL09-00-000360
+- name: check if rngd.service is installed
+  shell: ! systemctl list-unit-files | grep "^rngd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271511_rngd_enable
+  service:
+    name: rngd.service
+    enabled: "{{ ol9STIG_stigrule_271511_rngd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271511_Manage
+    - result.rc == 0
+# R-271511 OL09-00-000360
+- name: check if rngd.service is installed
+  shell: ! systemctl list-unit-files | grep "^rngd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271511_rngd_start
+  service:
+    name: rngd.service
+    state: "{{ ol9STIG_stigrule_271511_rngd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271511_Manage
+    - result.rc == 0
+# R-271512 OL09-00-000370
+- name: stigrule_271512_rng_tools
+  yum:
+    name: rng-tools
+    state: "{{ ol9STIG_stigrule_271512_rng_tools_State }}"
+  when: ol9STIG_stigrule_271512_Manage
+# R-271513 OL09-00-000380
+- name: stigrule_271513_nss_tools
+  yum:
+    name: nss-tools
+    state: "{{ ol9STIG_stigrule_271513_nss_tools_State }}"
+  when: ol9STIG_stigrule_271513_Manage
+# R-271514 OL09-00-000390
+- name: stigrule_271514_pcsc_lite
+  yum:
+    name: pcsc-lite
+    state: "{{ ol9STIG_stigrule_271514_pcsc_lite_State }}"
+  when: ol9STIG_stigrule_271514_Manage
+# R-271515 OL09-00-000400
+- name: stigrule_271515_opensc
+  yum:
+    name: opensc
+    state: "{{ ol9STIG_stigrule_271515_opensc_State }}"
+  when: ol9STIG_stigrule_271515_Manage
+# R-271516 OL09-00-000401
+- name: check if pcscd.service is installed
+  shell: ! systemctl list-unit-files | grep "^pcscd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271516_pcscd_enable
+  service:
+    name: pcscd.service
+    enabled: "{{ ol9STIG_stigrule_271516_pcscd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271516_Manage
+    - result.rc == 0
+# R-271516 OL09-00-000401
+- name: check if pcscd.service is installed
+  shell: ! systemctl list-unit-files | grep "^pcscd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271516_pcscd_start
+  service:
+    name: pcscd.service
+    state: "{{ ol9STIG_stigrule_271516_pcscd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271516_Manage
+    - result.rc == 0
+# R-271517 OL09-00-000410
+- name: stigrule_271517_libreswan
+  yum:
+    name: libreswan
+    state: "{{ ol9STIG_stigrule_271517_libreswan_State }}"
+  when: ol9STIG_stigrule_271517_Manage
+# R-271518 OL09-00-000430
+- name: stigrule_271518_gnutls_utils
+  yum:
+    name: gnutls-utils
+    state: "{{ ol9STIG_stigrule_271518_gnutls_utils_State }}"
+  when: ol9STIG_stigrule_271518_Manage
+# R-271519 OL09-00-000440
+- name: stigrule_271519_audit
+  yum:
+    name: audit
+    state: "{{ ol9STIG_stigrule_271519_audit_State }}"
+  when: ol9STIG_stigrule_271519_Manage
+# R-271520 OL09-00-000441
+- name: check if auditd.service is installed
+  shell: ! systemctl list-unit-files | grep "^auditd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271520_auditd_enable
+  service:
+    name: auditd.service
+    enabled: "{{ ol9STIG_stigrule_271520_auditd_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271520_Manage
+    - result.rc == 0
+# R-271520 OL09-00-000441
+- name: check if auditd.service is installed
+  shell: ! systemctl list-unit-files | grep "^auditd.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271520_auditd_start
+  service:
+    name: auditd.service
+    state: "{{ ol9STIG_stigrule_271520_auditd_start_State }}"
+  when:
+    - ol9STIG_stigrule_271520_Manage
+    - result.rc == 0
+# R-271521 OL09-00-000450
+- name: stigrule_271521_audispd_plugins
+  yum:
+    name: audispd-plugins
+    state: "{{ ol9STIG_stigrule_271521_audispd_plugins_State }}"
+  when: ol9STIG_stigrule_271521_Manage
+# R-271522 OL09-00-000495
+- name: stigrule_271522__etc_dnf_dnf_conf
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: clean_requirements_on_remove
+    value: "{{ ol9STIG_stigrule_271522__etc_dnf_dnf_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271522_Manage
+# R-271523 OL09-00-000496
+- name: stigrule_271523__etc_dnf_dnf_conf
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: localpkg_gpgcheck
+    value: "{{ ol9STIG_stigrule_271523__etc_dnf_dnf_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271523_Manage
+# R-271524 OL09-00-000497
+- name: stigrule_271524__etc_dnf_dnf_conf
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: gpgcheck
+    value: "{{ ol9STIG_stigrule_271524__etc_dnf_dnf_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271524_Manage
+# R-271527 OL09-00-000500
+- name: stigrule_271527__etc_audit_rules_d_audit_rules__etc_sudoers
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/sudoers -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271527__etc_audit_rules_d_audit_rules__etc_sudoers_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271527_Manage
+# R-271528 OL09-00-000505
+- name: stigrule_271528__etc_audit_rules_d_audit_rules__etc_sudoers_d_
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/sudoers.d/ -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271528__etc_audit_rules_d_audit_rules__etc_sudoers_d__Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271528_Manage
+# R-271529 OL09-00-000510
+- name: stigrule_271529__etc_audit_rules_d_audit_rules__etc_group
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/group -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271529__etc_audit_rules_d_audit_rules__etc_group_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271529_Manage
+# R-271530 OL09-00-000515
+- name: stigrule_271530__etc_audit_rules_d_audit_rules__etc_gshadow
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/gshadow -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271530__etc_audit_rules_d_audit_rules__etc_gshadow_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271530_Manage
+# R-271531 OL09-00-000520
+- name: stigrule_271531__etc_audit_rules_d_audit_rules__etc_security_opasswd
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/security/opasswd -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271531__etc_audit_rules_d_audit_rules__etc_security_opasswd_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271531_Manage
+# R-271532 OL09-00-000525
+- name: stigrule_271532__etc_audit_rules_d_audit_rules__etc_passwd
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/passwd -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271532__etc_audit_rules_d_audit_rules__etc_passwd_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271532_Manage
+# R-271533 OL09-00-000530
+- name: stigrule_271533__etc_audit_rules_d_audit_rules__etc_shadow
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/shadow -p wa -k identity$'
+    line: "{{ ol9STIG_stigrule_271533__etc_audit_rules_d_audit_rules__etc_shadow_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271533_Manage
+# R-271534 OL09-00-000535
+- name: stigrule_271534__etc_audit_rules_d_audit_rules__usr_sbin_unix_update
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271534__etc_audit_rules_d_audit_rules__usr_sbin_unix_update_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271534_Manage
+# R-271535 OL09-00-000540
+- name: stigrule_271535__etc_audit_rules_d_audit_rules__usr_bin_su
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change$'
+    line: "{{ ol9STIG_stigrule_271535__etc_audit_rules_d_audit_rules__usr_bin_su_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271535_Manage
+# R-271536 OL09-00-000545
+- name: stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32_unset
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32_unset_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271536_Manage
+# R-271536 OL09-00-000545
+- name: stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64_unset
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64_unset_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271536_Manage
+# R-271536 OL09-00-000545
+- name: stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271536_Manage
+# R-271536 OL09-00-000545
+- name: stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271536_Manage
+# R-271537 OL09-00-000550
+- name: stigrule_271537__etc_audit_rules_d_audit_rules__usr_bin_chage
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage$'
+    line: "{{ ol9STIG_stigrule_271537__etc_audit_rules_d_audit_rules__usr_bin_chage_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271537_Manage
+# R-271538 OL09-00-000555
+- name: stigrule_271538__etc_audit_rules_d_audit_rules__usr_bin_chcon
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271538__etc_audit_rules_d_audit_rules__usr_bin_chcon_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271538_Manage
+# R-271539 OL09-00-000560
+- name: stigrule_271539__etc_audit_rules_d_audit_rules__usr_bin_setfacl
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271539__etc_audit_rules_d_audit_rules__usr_bin_setfacl_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271539_Manage
+# R-271540 OL09-00-000565
+- name: stigrule_271540__etc_audit_rules_d_audit_rules__usr_bin_chsh
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd$'
+    line: "{{ ol9STIG_stigrule_271540__etc_audit_rules_d_audit_rules__usr_bin_chsh_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271540_Manage
+# R-271541 OL09-00-000570
+- name: stigrule_271541__etc_audit_rules_d_audit_rules__usr_bin_crontab
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-crontab$'
+    line: "{{ ol9STIG_stigrule_271541__etc_audit_rules_d_audit_rules__usr_bin_crontab_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271541_Manage
+# R-271542 OL09-00-000575
+- name: stigrule_271542__etc_audit_rules_d_audit_rules__usr_bin_gpasswd
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-gpasswd$'
+    line: "{{ ol9STIG_stigrule_271542__etc_audit_rules_d_audit_rules__usr_bin_gpasswd_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271542_Manage
+# R-271543 OL09-00-000580
+- name: stigrule_271543__etc_audit_rules_d_audit_rules__usr_bin_newgrp
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd$'
+    line: "{{ ol9STIG_stigrule_271543__etc_audit_rules_d_audit_rules__usr_bin_newgrp_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271543_Manage
+# R-271544 OL09-00-000585
+- name: stigrule_271544__etc_audit_rules_d_audit_rules__usr_sbin_pam_timestamp_check
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam_timestamp_check$'
+    line: "{{ ol9STIG_stigrule_271544__etc_audit_rules_d_audit_rules__usr_sbin_pam_timestamp_check_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271544_Manage
+# R-271545 OL09-00-000590
+- name: stigrule_271545__etc_audit_rules_d_audit_rules__usr_bin_passwd
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd$'
+    line: "{{ ol9STIG_stigrule_271545__etc_audit_rules_d_audit_rules__usr_bin_passwd_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271545_Manage
+# R-271546 OL09-00-000595
+- name: stigrule_271546__etc_audit_rules_d_audit_rules__usr_sbin_postdrop
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271546__etc_audit_rules_d_audit_rules__usr_sbin_postdrop_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271546_Manage
+# R-271547 OL09-00-000600
+- name: stigrule_271547__etc_audit_rules_d_audit_rules__usr_sbin_postqueue
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271547__etc_audit_rules_d_audit_rules__usr_sbin_postqueue_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271547_Manage
+# R-271548 OL09-00-000605
+- name: stigrule_271548__etc_audit_rules_d_audit_rules__usr_bin_ssh_agent
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh$'
+    line: "{{ ol9STIG_stigrule_271548__etc_audit_rules_d_audit_rules__usr_bin_ssh_agent_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271548_Manage
+# R-271549 OL09-00-000610
+- name: stigrule_271549__etc_audit_rules_d_audit_rules__usr_libexec_openssh_ssh_keysign
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh$'
+    line: "{{ ol9STIG_stigrule_271549__etc_audit_rules_d_audit_rules__usr_libexec_openssh_ssh_keysign_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271549_Manage
+# R-271550 OL09-00-000615
+- name: stigrule_271550__etc_audit_rules_d_audit_rules__usr_bin_sudoedit
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd$'
+    line: "{{ ol9STIG_stigrule_271550__etc_audit_rules_d_audit_rules__usr_bin_sudoedit_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271550_Manage
+# R-271551 OL09-00-000620
+- name: stigrule_271551__etc_audit_rules_d_audit_rules__usr_sbin_unix_chkpwd
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271551__etc_audit_rules_d_audit_rules__usr_sbin_unix_chkpwd_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271551_Manage
+# R-271552 OL09-00-000625
+- name: stigrule_271552__etc_audit_rules_d_audit_rules__usr_sbin_userhelper
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271552__etc_audit_rules_d_audit_rules__usr_sbin_userhelper_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271552_Manage
+# R-271553 OL09-00-000630
+- name: stigrule_271553__etc_audit_rules_d_audit_rules__usr_bin_mount
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount$'
+    line: "{{ ol9STIG_stigrule_271553__etc_audit_rules_d_audit_rules__usr_bin_mount_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271553_Manage
+# R-271554 OL09-00-000635
+- name: stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access$'
+    line: "{{ ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271554_Manage
+# R-271554 OL09-00-000635
+- name: stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access$'
+    line: "{{ ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271554_Manage
+# R-271554 OL09-00-000635
+- name: stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access$'
+    line: "{{ ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271554_Manage
+# R-271554 OL09-00-000635
+- name: stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access$'
+    line: "{{ ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271554_Manage
+# R-271555 OL09-00-000640
+- name: stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271555_Manage
+# R-271555 OL09-00-000640
+- name: stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271555_Manage
+# R-271556 OL09-00-000645
+- name: stigrule_271556__etc_audit_rules_d_audit_rules_chown_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271556__etc_audit_rules_d_audit_rules_chown_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271556_Manage
+# R-271556 OL09-00-000645
+- name: stigrule_271556__etc_audit_rules_d_audit_rules_chown_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271556__etc_audit_rules_d_audit_rules_chown_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271556_Manage
+# R-271557 OL09-00-000650
+- name: stigrule_271557__etc_audit_rules_d_audit_rules__usr_sbin_semanage
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271557__etc_audit_rules_d_audit_rules__usr_sbin_semanage_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271557_Manage
+# R-271558 OL09-00-000655
+- name: stigrule_271558__etc_audit_rules_d_audit_rules__usr_sbin_setfiles
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271558__etc_audit_rules_d_audit_rules__usr_sbin_setfiles_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271558_Manage
+# R-271559 OL09-00-000660
+- name: stigrule_271559__etc_audit_rules_d_audit_rules__usr_sbin_setsebool
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update$'
+    line: "{{ ol9STIG_stigrule_271559__etc_audit_rules_d_audit_rules__usr_sbin_setsebool_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271559_Manage
+# R-271560 OL09-00-000665
+- name: stigrule_271560__etc_audit_rules_d_audit_rules__usr_bin_chacl
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271560__etc_audit_rules_d_audit_rules__usr_bin_chacl_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271560_Manage
+# R-271561 OL09-00-000670
+- name: stigrule_271561__etc_audit_rules_d_audit_rules__usr_bin_sudo
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd$'
+    line: "{{ ol9STIG_stigrule_271561__etc_audit_rules_d_audit_rules__usr_bin_sudo_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271561_Manage
+# R-271562 OL09-00-000675
+- name: stigrule_271562__etc_audit_rules_d_audit_rules__usr_sbin_usermod
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod$'
+    line: "{{ ol9STIG_stigrule_271562__etc_audit_rules_d_audit_rules__usr_sbin_usermod_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271562_Manage
+# R-271563 OL09-00-000680
+- name: stigrule_271563__etc_audit_rules_d_audit_rules_rename_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete$'
+    line: "{{ ol9STIG_stigrule_271563__etc_audit_rules_d_audit_rules_rename_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271563_Manage
+# R-271563 OL09-00-000680
+- name: stigrule_271563__etc_audit_rules_d_audit_rules_rename_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete$'
+    line: "{{ ol9STIG_stigrule_271563__etc_audit_rules_d_audit_rules_rename_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271563_Manage
+# R-271564 OL09-00-000685
+- name: stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng$'
+    line: "{{ ol9STIG_stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271564_Manage
+# R-271564 OL09-00-000685
+- name: stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng$'
+    line: "{{ ol9STIG_stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271564_Manage
+# R-271565 OL09-00-000690
+- name: stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng$'
+    line: "{{ ol9STIG_stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271565_Manage
+# R-271565 OL09-00-000690
+- name: stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng$'
+    line: "{{ ol9STIG_stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271565_Manage
+# R-271566 OL09-00-000695
+- name: stigrule_271566__etc_audit_rules_d_audit_rules__usr_bin_kmod
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>=1000 -F auid!=unset -k modules$'
+    line: "{{ ol9STIG_stigrule_271566__etc_audit_rules_d_audit_rules__usr_bin_kmod_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271566_Manage
+# R-271567 OL09-00-000700
+- name: stigrule_271567__etc_audit_rules_d_audit_rules__var_log_lastlog
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /var/log/lastlog -p wa -k logins$'
+    line: "{{ ol9STIG_stigrule_271567__etc_audit_rules_d_audit_rules__var_log_lastlog_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271567_Manage
+# R-271568 OL09-00-000705
+- name: stigrule_271568__etc_audit_rules_d_audit_rules__usr_bin_umount
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount$'
+    line: "{{ ol9STIG_stigrule_271568__etc_audit_rules_d_audit_rules__usr_bin_umount_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271568_Manage
+# R-271570 OL09-00-000715
+- name: stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 key=execpriv$'
+    line: "{{ ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271570_Manage
+# R-271570 OL09-00-000715
+- name: stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 key=execpriv $'
+    line: "{{ ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271570_Manage
+# R-271570 OL09-00-000715
+- name: stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S execve -C gid!=egid -F euid=0 key=execpriv$'
+    line: "{{ ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271570_Manage
+# R-271570 OL09-00-000715
+- name: stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S execve -C gid!=egid -F euid=0 key=execpriv$'
+    line: "{{ ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271570_Manage
+# R-271571 OL09-00-000720
+- name: stigrule_271571__etc_audit_rules_d_audit_rules__var_log_faillock
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /var/log/faillock -p wa -k logins$'
+    line: "{{ ol9STIG_stigrule_271571__etc_audit_rules_d_audit_rules__var_log_faillock_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271571_Manage
+# R-271572 OL09-00-000725
+- name: stigrule_271572__etc_audit_rules_d_audit_rules__var_log_tallylog
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /var/log/tallylog -p wa -k logins$'
+    line: "{{ ol9STIG_stigrule_271572__etc_audit_rules_d_audit_rules__var_log_tallylog_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271572_Manage
+# R-271573 OL09-00-000730
+- name: stigrule_271573__etc_audit_rules_d_audit_rules__usr_sbin_init
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/init -F perm=x -F auid>=1000 -F auid!=unset -k privileged-init$'
+    line: "{{ ol9STIG_stigrule_271573__etc_audit_rules_d_audit_rules__usr_sbin_init_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271573_Manage
+# R-271574 OL09-00-000735
+- name: stigrule_271574__etc_audit_rules_d_audit_rules__usr_sbin_poweroff
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/poweroff -F perm=x -F auid>=1000 -F auid!=unset -k privileged-poweroff$'
+    line: "{{ ol9STIG_stigrule_271574__etc_audit_rules_d_audit_rules__usr_sbin_poweroff_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271574_Manage
+# R-271575 OL09-00-000740
+- name: stigrule_271575__etc_audit_rules_d_audit_rules__usr_sbin_reboot
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/reboot -F perm=x -F auid>=1000 -F auid!=unset -k privileged-reboot$'
+    line: "{{ ol9STIG_stigrule_271575__etc_audit_rules_d_audit_rules__usr_sbin_reboot_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271575_Manage
+# R-271576 OL09-00-000745
+- name: stigrule_271576__etc_audit_rules_d_audit_rules__usr_sbin_shutdown
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F path=/usr/sbin/shutdown -F perm=x -F auid>=1000 -F auid!=unset -k privileged-shutdown$'
+    line: "{{ ol9STIG_stigrule_271576__etc_audit_rules_d_audit_rules__usr_sbin_shutdown_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271576_Manage
+# R-271578 OL09-00-000755
+- name: stigrule_271578__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^name_format = '
+    line: "{{ ol9STIG_stigrule_271578__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271578_Manage
+# R-271579 OL09-00-000760
+- name: stigrule_271579__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^disk_error_action = '
+    line: "{{ ol9STIG_stigrule_271579__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271579_Manage
+# R-271580 OL09-00-000765
+- name: stigrule_271580__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^disk_full_action = '
+    line: "{{ ol9STIG_stigrule_271580__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271580_Manage
+# R-271581 OL09-00-000770
+- name: stigrule_271581__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file_action = '
+    line: "{{ ol9STIG_stigrule_271581__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271581_Manage
+# R-271582 OL09-00-000775
+- name: stigrule_271582__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^freq = '
+    line: "{{ ol9STIG_stigrule_271582__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271582_Manage
+# R-271586 OL09-00-000800
+- name: stigrule_271586__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^local_events = '
+    line: "{{ ol9STIG_stigrule_271586__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271586_Manage
+# R-271589 OL09-00-000815
+- name: stigrule_271589__etc_aliases
+  lineinfile:
+    path: /etc/aliases
+    regexp: '^postmaster:'
+    line: "{{ ol9STIG_stigrule_271589__etc_aliases_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271589_Manage
+# R-271590 OL09-00-000820
+- name: stigrule_271590__etc_audit_rules_d_audit_rules_f2
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-f 2$'
+    line: "{{ ol9STIG_stigrule_271590__etc_audit_rules_d_audit_rules_f2_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271590_Manage
+# R-271591 OL09-00-000825
+- name: stigrule_271591__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^action_mail_acct = '
+    line: "{{ ol9STIG_stigrule_271591__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271591_Manage
+# R-271593 OL09-00-000835
+- name: stigrule_271593__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^log_format = '
+    line: "{{ ol9STIG_stigrule_271593__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271593_Manage
+# R-271594 OL09-00-000840
+- name: stigrule_271594__etc_audit_rules_d_audit_rules_umount_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S umount -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271594__etc_audit_rules_d_audit_rules_umount_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271594_Manage
+# R-271594 OL09-00-000840
+- name: stigrule_271594__etc_audit_rules_d_audit_rules_umount_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S umount -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271594__etc_audit_rules_d_audit_rules_umount_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271594_Manage
+# R-271595 OL09-00-000845
+- name: stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b32
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b32 -S umount2 -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b32_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271595_Manage
+# R-271595 OL09-00-000845
+- name: stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b64
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-a always,exit -F arch=b64 -S umount2 -F auid>=1000 -F auid!=unset -k perm_mod$'
+    line: "{{ ol9STIG_stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b64_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271595_Manage
+# R-271597 OL09-00-000855
+- name: stigrule_271597__etc_audit_plugins_d_syslog_conf_active
+  lineinfile:
+    path: /etc/audit/plugins.d/syslog.conf
+    regexp: '^active = '
+    line: "{{ ol9STIG_stigrule_271597__etc_audit_plugins_d_syslog_conf_active_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271597_Manage
+# R-271598 OL09-00-000860
+- name: stigrule_271598__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^overflow_action = '
+    line: "{{ ol9STIG_stigrule_271598__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271598_Manage
+# R-271599 OL09-00-000865
+- name: stigrule_271599__etc_audit_auditd_conf_space_left
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^space_left = '
+    line: "{{ ol9STIG_stigrule_271599__etc_audit_auditd_conf_space_left_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271599_Manage
+# R-271600 OL09-00-000870
+- name: stigrule_271600__etc_audit_auditd_conf_space_left_action
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^space_left_action = '
+    line: "{{ ol9STIG_stigrule_271600__etc_audit_auditd_conf_space_left_action_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271600_Manage
+# R-271601 OL09-00-000875
+- name: stigrule_271601__etc_audit_auditd_conf_admin_space_left
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^admin_space_left = '
+    line: "{{ ol9STIG_stigrule_271601__etc_audit_auditd_conf_admin_space_left_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271601_Manage
+# R-271602 OL09-00-000880
+- name: stigrule_271602__etc_audit_auditd_conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^write_logs = '
+    line: "{{ ol9STIG_stigrule_271602__etc_audit_auditd_conf_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271602_Manage
+# R-271603 OL09-00-000885
+- name: stigrule_271603__etc_audit_auditd_conf_admin_space_left_action
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^admin_space_left_action = '
+    line: "{{ ol9STIG_stigrule_271603__etc_audit_auditd_conf_admin_space_left_action_Line }}"
+    create: yes
+  notify: auditd_restart
+  when:
+    - ol9STIG_stigrule_271603_Manage
+# R-271607 OL09-00-000925
+- name: stigrule_271607__etc_sssd_sssd_conf
+  ini_file:
+    path: /etc/sssd/sssd.conf
+    section: pam
+    option: pam_cert_auth
+    value: "{{ ol9STIG_stigrule_271607__etc_sssd_sssd_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271607_Manage
+# R-271609 OL09-00-000935
+- name: stigrule_271609__etc_sssd_sssd_conf
+  ini_file:
+    path: /etc/sssd/sssd.conf
+    section: pam
+    option: offline_credentials_expiration
+    value: "{{ ol9STIG_stigrule_271609__etc_sssd_sssd_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271609_Manage
+# R-271610 OL09-00-000940
+- name: stigrule_271610__etc_opensc_conf
+  lineinfile:
+    path: /etc/opensc.conf
+    regexp: '^\s*card_drivers\s*='
+    line: "{{ ol9STIG_stigrule_271610__etc_opensc_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271610_Manage
+# R-271613 OL09-00-001005
+- name: stigrule_271613__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*ucredit'
+    line: "{{ ol9STIG_stigrule_271613__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271613_Manage
+# R-271615 OL09-00-001015
+- name: stigrule_271615__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*lcredit'
+    line: "{{ ol9STIG_stigrule_271615__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271615_Manage
+# R-271616 OL09-00-001020
+- name: stigrule_271616__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*dcredit'
+    line: "{{ ol9STIG_stigrule_271616__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271616_Manage
+# R-271617 OL09-00-001025
+- name: stigrule_271617__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*difok'
+    line: "{{ ol9STIG_stigrule_271617__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271617_Manage
+# R-271618 OL09-00-001030
+- name: stigrule_271618__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*maxclassrepeat'
+    line: "{{ ol9STIG_stigrule_271618__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271618_Manage
+# R-271619 OL09-00-001035
+- name: stigrule_271619__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*maxrepeat'
+    line: "{{ ol9STIG_stigrule_271619__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271619_Manage
+# R-271620 OL09-00-001040
+- name: stigrule_271620__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*minclass'
+    line: "{{ ol9STIG_stigrule_271620__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271620_Manage
+# R-271621 OL09-00-001045
+- name: stigrule_271621__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*enforce_for_root'
+    line: "{{ ol9STIG_stigrule_271621__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271621_Manage
+# R-271622 OL09-00-001050
+- name: stigrule_271622__etc_libuser_conf
+  ini_file:
+    path: /etc/libuser.conf
+    section: defaults
+    option: crypt_style
+    value: "{{ ol9STIG_stigrule_271622__etc_libuser_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271622_Manage
+# R-271623 OL09-00-001055
+- name: stigrule_271623__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^ENCRYPT_METHOD'
+    line: "{{ ol9STIG_stigrule_271623__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271623_Manage
+# R-271627 OL09-00-001075
+- name: stigrule_271627__etc_login_defs_SHA_CRYPT_MIN_ROUNDS
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^SHA_CRYPT_MIN_ROUNDS'
+    line: "{{ ol9STIG_stigrule_271627__etc_login_defs_SHA_CRYPT_MIN_ROUNDS_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271627_Manage
+# R-271627 OL09-00-001075 
+- name: stigrule_271627__etc_login_defs_SHA_CRYPT_MAX_ROUNDS
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^SHA_CRYPT_MAX_ROUNDS'
+    line: "{{ ol9STIG_stigrule_271627__etc_login_defs_SHA_CRYPT_MAX_ROUNDS_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271627_Manage
+# R-271629 OL09-00-001085
+- name: stigrule_271629__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^PASS_MIN_DAYS'
+    line: "{{ ol9STIG_stigrule_271629__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271629_Manage
+# R-271631 OL09-00-001095
+- name: stigrule_271631__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^PASS_MAX_DAYS'
+    line: "{{ ol9STIG_stigrule_271631__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271631_Manage
+# R-271633 OL09-00-001105
+- name: stigrule_271633__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*minlen'
+    line: "{{ ol9STIG_stigrule_271633__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271633_Manage
+# R-271636 OL09-00-001120
+- name: stigrule_271636__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*ocredit'
+    line: "{{ ol9STIG_stigrule_271636__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271636_Manage
+# R-271637 OL09-00-001125
+- name: stigrule_271637__etc_security_pwquality_conf
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*dictcheck'
+    line: "{{ ol9STIG_stigrule_271637__etc_security_pwquality_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271637_Manage
+# R-271639 OL09-00-002000
+- name: check if autofs.service is installed
+  shell: ! systemctl list-unit-files | grep "^autofs.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271639_autofs_service_disable
+  systemd_service:
+    name: autofs.service
+    enabled: "{{ ol9STIG_stigrule_271639_autofs_service_disable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271639_Manage
+    - result.rc == 0
+# R-271639 OL09-00-002000
+- name: check if autofs.service is installed
+  shell: ! systemctl list-unit-files | grep "^autofs.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271639_autofs_service_mask
+  systemd_service:
+    name: autofs.service
+    masked: "{{ ol9STIG_stigrule_271639_autofs_service_mask_Masked }}"
+  when:
+    - ol9STIG_stigrule_271639_Manage
+    - result.rc == 0
+# R-271670 OL09-00-002100
+- name: stigrule_271670__etc_dconf_db_local_d_00_security_settings
+  ini_file:
+    path: /etc/dconf/db/local.d/00-security-settings
+    section: org/gnome/desktop/media-handling
+    option: automount-open
+    value: "{{ ol9STIG_stigrule_271670__etc_dconf_db_local_d_00_security_settings_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271670_Manage
+    - packages['dconf'] is defined
+# R-271671 OL09-00-002101
+- name: stigrule_271671__etc_dconf_db_local_d_00_security_settings
+  ini_file:
+    path: /etc/dconf/db/local.d/00-security-settings
+    section: org/gnome/desktop/media-handling
+    option: autorun-never
+    value: "{{ ol9STIG_stigrule_271671__etc_dconf_db_local_d_00_security_settings_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271671_Manage
+    - packages['dconf'] is defined
+# R-271672 OL09-00-002102
+- name: stigrule_271672__etc_dconf_db_local_d_02_login_screen
+  ini_file:
+    path: /etc/dconf/db/local.d/02-login-screen
+    section: org/gnome/login-screen
+    option: disable-user-list
+    value: "{{ ol9STIG_stigrule_271672__etc_dconf_db_local_d_02_login_screen_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271672_Manage
+    - packages['dconf'] is defined
+# R-271673 OL09-00-002103
+- name: stigrule_271673__etc_dconf_db_local_d_00_screensaver
+  ini_file:
+    path: /etc/dconf/db/local.d/00-screensaver
+    section: org/gnome/desktop/screensaver
+    option: lock-delay
+    value: "{{ ol9STIG_stigrule_271673__etc_dconf_db_local_d_00_screensaver_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271673_Manage
+    - packages['dconf'] is defined
+# R-271674 OL09-00-002104
+- name: stigrule_271674__etc_dconf_db_local_d_00_screensaver
+  ini_file:
+    path: /etc/dconf/db/local.d/00-screensaver
+    section: org/gnome/desktop/session
+    option: idle-delay
+    value: "{{ ol9STIG_stigrule_271674__etc_dconf_db_local_d_00_screensaver_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271674_Manage
+    - packages['dconf'] is defined
+# R-271676 OL09-00-002106
+- name: stigrule_271676__etc_dconf_db_local_d_00_security_settings
+  ini_file:
+    path: /etc/dconf/db/local.d/00-security-settings
+    section: org/gnome/desktop/screensaver
+    option: picture-uri
+    value: "{{ ol9STIG_stigrule_271676__etc_dconf_db_local_d_00_security_settings_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271676_Manage
+    - packages['dconf'] is defined
+# R-271676 OL09-00-002106
+- name: stigrule_271676__etc_dconf_db_local_d_locks_00_security_settings_lock_picture_uri
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/00-security-settings-lock
+    line: "{{ ol9STIG_stigrule_271676__etc_dconf_db_local_d_locks_00_security_settings_lock_picture_uri_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271676_Manage
+    - packages['dconf'] is defined
+# R-271677 OL09-00-002107
+- name: stigrule_271677__etc_dconf_db_local_d_00_security_settings
+  ini_file:
+    path: /etc/dconf/db/local.d/00-security-settings
+    section: org/gnome/settings-daemon/plugins/media-keys
+    option: logout
+    value: "{{ ol9STIG_stigrule_271677__etc_dconf_db_local_d_00_security_settings_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271677_Manage
+    - packages['dconf'] is defined
+# R-271678 OL09-00-002120
+- name: stigrule_271678__etc_dconf_db_local_d_locks_00_security_settings_lock_automount_open
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/00-security-settings-lock
+    line: "{{ ol9STIG_stigrule_271678__etc_dconf_db_local_d_locks_00_security_settings_lock_automount_open_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271678_Manage
+    - packages['dconf'] is defined
+# R-271679 OL09-00-002121
+- name: stigrule_271679__etc_dconf_db_local_d_locks_00_security_settings_lock_autorun_never
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/00-security-settings-lock
+    line: "{{ ol9STIG_stigrule_271679__etc_dconf_db_local_d_locks_00_security_settings_lock_autorun_never_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271679_Manage
+    - packages['dconf'] is defined
+# R-271680 OL09-00-002122
+- name: stigrule_271680__etc_dconf_db_local_d_locks_session_banner_message_enable
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271680__etc_dconf_db_local_d_locks_session_banner_message_enable_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271680_Manage
+    - packages['dconf'] is defined
+# R-271681 OL09-00-002123
+- name: stigrule_271681__etc_dconf_db_local_d_locks_session_lock_enabled
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271681__etc_dconf_db_local_d_locks_session_lock_enabled_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271681_Manage
+    - packages['dconf'] is defined
+# R-271682 OL09-00-002124
+- name: stigrule_271682__etc_dconf_db_local_d_locks_session_idle_delay
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session idle-delay
+    line: "{{ ol9STIG_stigrule_271682__etc_dconf_db_local_d_locks_session_idle_delay_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271682_Manage
+# R-271683 OL09-00-002125
+- name: stigrule_271683__etc_dconf_db_local_d_locks_session_lock_delay
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271683__etc_dconf_db_local_d_locks_session_lock_delay_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271683_Manage
+    - packages['dconf'] is defined
+# R-271684 OL09-00-002126
+- name: stigrule_271684__etc_dconf_db_local_d_locks_00_security_settings_lock_removal_action
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/00-security-settings-lock
+    line: "{{ ol9STIG_stigrule_271684__etc_dconf_db_local_d_locks_00_security_settings_lock_removal_action_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271684_Manage
+    - packages['dconf'] is defined
+# R-271685 OL09-00-002127
+- name: stigrule_271685__etc_dconf_db_local_d_locks_session_disable_restart_buttons
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271685__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271685_Manage
+    - packages['dconf'] is defined
+# R-271686 OL09-00-002128
+- name: stigrule_271686__etc_dconf_db_local_d_locks_session_disable_restart_buttons
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271686__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271686_Manage
+    - packages['dconf'] is defined
+# R-271687 OL09-00-002129
+- name: stigrule_271687__etc_dconf_db_local_d_locks_session_logout
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: "{{ ol9STIG_stigrule_271687__etc_dconf_db_local_d_locks_session_logout_Line }}"
+    create: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271687_Manage
+    - packages['dconf'] is defined
+# R-271688 OL09-00-002150
+- name: stigrule_271688__etc_dconf_db_local_d_01_banner_message
+  ini_file:
+    path: /etc/dconf/db/local.d/01-banner-message
+    section: org/gnome/login-screen
+    option: banner-message-enable
+    value: "{{ ol9STIG_stigrule_271688__etc_dconf_db_local_d_01_banner_message_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271688_Manage
+    - packages['dconf'] is defined
+# R-271689 OL09-00-002151
+- name: stigrule_271689__etc_dconf_db_local_d_01_banner_message
+  ini_file:
+    path: /etc/dconf/db/local.d/01-banner-message
+    section: org/gnome/login-screen
+    option: banner-message-text
+    value: "{{ ol9STIG_stigrule_271689__etc_dconf_db_local_d_01_banner_message_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271689_Manage
+    - packages['dconf'] is defined
+# R-271690 OL09-00-002160
+- name: stigrule_271690__etc_dconf_db_local_d_00_security_settings
+  ini_file:
+    path: /etc/dconf/db/local.d/00-security-settings
+    section: org/gnome/settings-daemon/peripherals/smartcard
+    option: removal-action
+    value: "{{ ol9STIG_stigrule_271690__etc_dconf_db_local_d_00_security_settings_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271690_Manage
+    - packages['dconf'] is defined
+# R-271691 OL09-00-002161
+- name: stigrule_271691__etc_gdm_custom_conf
+  ini_file:
+    path: /etc/gdm/custom.conf
+    section: daemon
+    option: AutomaticLoginEnable
+    value: "{{ ol9STIG_stigrule_271691__etc_gdm_custom_conf_Value }}"
+    no_extra_spaces: yes
+  when:
+    - ol9STIG_stigrule_271691_Manage
+    - packages['gdm'] is defined
+# R-271693 OL09-00-002301
+- name: stigrule_271693__etc_bashrc
+  lineinfile:
+    path: /etc/bashrc
+    regexp: '^umask\s+\d+'
+    line: "{{ ol9STIG_stigrule_271693__etc_bashrc_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271693_Manage
+# R-271694 OL09-00-002302
+- name: stigrule_271694__etc_csh_cshrc
+  lineinfile:
+    path: /etc/csh.cshrc
+    regexp: '^umask\s+\d+'
+    line: "{{ ol9STIG_stigrule_271694__etc_csh_cshrc_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271694_Manage
+# R-271695 OL09-00-002303
+- name: stigrule_271695__etc_profile
+  lineinfile:
+    path: /etc/profile
+    regexp: '^umask\s+\d+'
+    line: "{{ ol9STIG_stigrule_271695__etc_profile_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271695_Manage
+# R-271696 OL09-00-002304
+- name: stigrule_271696__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^UMASK'
+    line: "{{ ol9STIG_stigrule_271696__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271696_Manage
+# R-271697 OL09-00-002320
+- name: stigrule_271697__etc_chrony_conf
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^\s*port\s+\d+'
+    line: "{{ ol9STIG_stigrule_271697__etc_chrony_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271697_Manage
+# R-271698 OL09-00-002321
+- name: stigrule_271698__etc_chrony_conf
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^\s*cmdport\s+\d+'
+    line: "{{ ol9STIG_stigrule_271698__etc_chrony_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271698_Manage
+# R-271699 OL09-00-002323
+- name: stigrule_271699__etc_chrony_conf_get_server_lines
+  ansible.builtin.shell: 'grep -n "^server\s" /etc/chrony.conf | cut -d: -f2'
+  register: chrony_server_lines
+  changed_when: false
+  when:
+    - ol9STIG_stigrule_271699_Manage
+- name: stigrule_271699__etc_chrony_conf_maxpoll
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^({{ item | regex_escape }})(\s+maxpoll\s+\d+)?(\s*)$'
+    line: '{{ item | regex_replace("\s+maxpoll\s+\d+", "") | trim }} {{ ol9STIG_stigrule_271699__etc_chrony_conf_Value }}'
+    backrefs: yes
+  loop: "{{ chrony_server_lines.stdout_lines }}"
+  when:
+    - ol9STIG_stigrule_271699_Manage
+    - chrony_server_lines.stdout_lines | length > 0
+# R-271700 OL09-00-002330
+- name: stigrule_271700__etc_usbguard_usbguard_daemon_conf
+  lineinfile:
+    path: /etc/usbguard/usbguard-daemon.conf
+    regexp: '^\s*AuditBackend\s*='
+    line: "{{ ol9STIG_stigrule_271700__etc_usbguard_usbguard_daemon_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271700_Manage
+# R-271703 OL09-00-002340
+- name: stigrule_271703_LogLevel
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*LogLevel\s+'
+    line: "{{ ol9STIG_stigrule_271703_LogLevel_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271703_Manage
+    - packages['openssh-server'] is defined
+# R-271704 OL09-00-002341
+- name: stigrule_271704_GSSAPIAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*GSSAPIAuthentication\s+'
+    line: "{{ ol9STIG_stigrule_271704_GSSAPIAuthentication_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271704_Manage
+    - packages['openssh-server'] is defined
+# R-271705 OL09-00-002342
+- name: stigrule_271705_RekeyLimit
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*RekeyLimit\s+'
+    line: "{{ ol9STIG_stigrule_271705_RekeyLimit_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271705_Manage
+    - packages['openssh-server'] is defined
+# R-271706 OL09-00-002343
+- name: stigrule_271706_PermitEmptyPasswords
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*PermitEmptyPasswords\s+'
+    line: "{{ ol9STIG_stigrule_271706_PermitEmptyPasswords_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271706_Manage
+    - packages['openssh-server'] is defined
+# R-271707 OL09-00-002344
+- name: stigrule_271707_UsePAM
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*UsePAM\s+'
+    line: "{{ ol9STIG_stigrule_271707_UsePAM_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271707_Manage
+    - packages['openssh-server'] is defined
+# R-271708 OL09-00-002345
+- name: stigrule_271708_PermitRootLogin
+  lineinfile:
+    path: "{{ item }}"
+    regexp: '(?i)^\s*PermitRootLogin\s+'
+    line: "{{ ol9STIG_stigrule_271708_PermitRootLogin_Line }}"
+  loop:
+    - /etc/ssh/sshd_config
+    - /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271708_Manage
+    - packages['openssh-server'] is defined
+# R-271709 OL09-00-002346
+- name: stigrule_271709_ClientAliveCountMax
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*ClientAliveCountMax\s+'
+    line: "{{ ol9STIG_stigrule_271709_ClientAliveCountMax_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271709_Manage
+    - packages['openssh-server'] is defined
+# R-271710 OL09-00-002347
+- name: stigrule_271710_ClientAliveInterval
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*ClientAliveInterval\s+'
+    line: "{{ ol9STIG_stigrule_271710_ClientAliveInterval_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271710_Manage
+    - packages['openssh-server'] is defined
+# R-271711 OL09-00-002348
+- name: stigrule_271711_IgnoreRhosts
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*IgnoreRhosts\s+'
+    line: "{{ ol9STIG_stigrule_271711_IgnoreRhosts_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271711_Manage
+    - packages['openssh-server'] is defined
+# R-271712 OL09-00-002349
+- name: stigrule_271712_IgnoreUserKnownHosts
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*IgnoreUserKnownHosts\s+'
+    line: "{{ ol9STIG_stigrule_271712_IgnoreUserKnownHosts_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271712_Manage
+    - packages['openssh-server'] is defined
+# R-271713 OL09-00-002350
+- name: stigrule_271713_X11Forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*X11Forwarding\s+'
+    line: "{{ ol9STIG_stigrule_271713_X11Forwarding_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271713_Manage
+    - packages['openssh-server'] is defined
+# R-271714 OL09-00-002351
+- name: stigrule_271714_StrictModes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*StrictModes\s+'
+    line: "{{ ol9STIG_stigrule_271714_StrictModes_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271714_Manage
+    - packages['openssh-server'] is defined
+# R-271715 OL09-00-002352
+- name: stigrule_271715_PrintLastLog
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*PrintLastLog\s+'
+    line: "{{ ol9STIG_stigrule_271715_PrintLastLog_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271715_Manage
+    - packages['openssh-server'] is defined
+# R-271716 OL09-00-002354
+- name: stigrule_271716_X11UseLocalhost
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*X11UseLocalhost\s+'
+    line: "{{ ol9STIG_stigrule_271716_X11UseLocalhost_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271716_Manage
+    - packages['openssh-server'] is defined
+# R-271717 OL09-00-002355
+- name: stigrule_271717_Compression
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*Compression\s+'
+    line: "{{ ol9STIG_stigrule_271717_Compression_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271717_Manage
+    - packages['openssh-server'] is defined
+# R-271718 OL09-00-002356
+- name: stigrule_271718_KerberosAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*KerberosAuthentication\s+'
+    line: "{{ ol9STIG_stigrule_271718_KerberosAuthentication_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271718_Manage
+    - packages['openssh-server'] is defined
+# R-271719 OL09-00-002357
+- name: stigrule_271719_HostbasedAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*HostbasedAuthentication\s+'
+    line: "{{ ol9STIG_stigrule_271719_HostbasedAuthentication_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271719_Manage
+    - packages['openssh-server'] is defined
+# R-271720 OL09-00-002358
+- name: stigrule_271720_PermitUserEnvironment
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*PermitUserEnvironment\s+'
+    line: "{{ ol9STIG_stigrule_271720_PermitUserEnvironment_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271720_Manage
+    - packages['openssh-server'] is defined
+# R-271721 OL09-00-002359
+- name: stigrule_271721_PubkeyAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '(?i)^\s*PubkeyAuthentication\s+'
+    line: "{{ ol9STIG_stigrule_271721_PubkeyAuthentication_Line }}"
+  notify: ssh_restart
+  when:
+    - ol9STIG_stigrule_271721_Manage
+    - packages['openssh-server'] is defined
+# R-271722 OL09-00-002360
+- name: stigrule_271722__etc_sudoers
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^\s*Defaults\s+timestamp_timeout\s*='
+    line: "{{ ol9STIG_stigrule_271722__etc_sudoers_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271722_Manage
+# R-271727 OL09-00-002370
+- name: stigrule_271727_user_max_user_namespaces
+  sysctl:
+    name: user.max_user_namespaces
+    value: "{{ ol9STIG_stigrule_271727_user_max_user_namespaces_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271727_user_max_user_namespaces_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271727_Manage
+# R-271728 OL09-00-002380
+- name: stigrule_271728_kernel_core_pattern
+  sysctl:
+    name: kernel.core_pattern
+    value: "{{ ol9STIG_stigrule_271728_kernel_core_pattern_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271728_kernel_core_pattern_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271728_Manage
+# R-271729 OL09-00-002381
+- name: stigrule_271729__etc_systemd_coredump_conf
+  lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: '^ProcessSizeMax='
+    line: "{{ ol9STIG_stigrule_271729__etc_systemd_coredump_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271729_Manage
+# R-271730 OL09-00-002382
+- name: stigrule_271730__etc_systemd_coredump_conf
+  lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: '^Storage='
+    line: "{{ ol9STIG_stigrule_271730__etc_systemd_coredump_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271730_Manage
+# R-271731 OL09-00-002383
+- name: stigrule_271731__etc_security_limits_conf
+  lineinfile:
+    path: /etc/security/limits.conf
+    regexp: '^\* hard core'
+    line: "{{ ol9STIG_stigrule_271731__etc_security_limits_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271731_Manage
+# R-271732 OL09-00-002384
+- name: check if systemd-coredump.socket is installed
+  shell: ! systemctl list-unit-files | grep "^systemd-coredump.socket[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271732_systemd_coredump_socket_disable
+  systemd_service:
+    name: systemd-coredump.socket
+    enabled: "{{ ol9STIG_stigrule_271732_systemd_coredump_socket_disable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271732_Manage
+    - result.rc == 0
+# R-271732 OL09-00-002384
+- name: check if systemd-coredump.socket is installed
+  shell: ! systemctl list-unit-files | grep "^systemd-coredump.socket[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271732_systemd_coredump_socket_mask
+  systemd_service:
+    name: systemd-coredump.socket
+    daemon_reload: "{{ ol9STIG_stigrule_271732_systemd_coredump_socket_mask_Daemon_Reload }}"
+    masked: "{{ ol9STIG_stigrule_271732_systemd_coredump_socket_mask_Masked }}"
+  when:
+    - ol9STIG_stigrule_271732_Manage
+    - result.rc == 0
+# R-271733 OL09-00-002385
+- name: check if kdump.service is installed
+  shell: ! systemctl list-unit-files | grep "^kdump.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271733_kdump_disable
+  systemd_service:
+    name: kdump.service
+    enabled: "{{ ol9STIG_stigrule_271733_kdump_disable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271733_Manage
+    - result.rc == 0
+# R-271733 OL09-00-002385
+- name: check if kdump.service is installed
+  shell: ! systemctl list-unit-files | grep "^kdump.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271733_kdump_mask
+  systemd_service:
+    name: kdump.service
+    masked: "{{ ol9STIG_stigrule_271733_kdump_mask_Masked }}"
+  when:
+    - ol9STIG_stigrule_271733_Manage
+    - result.rc == 0
+# R-271739 OL09-00-002400
+- name: check if systemd-journald.service is installed
+  shell: ! systemctl list-unit-files | grep "^systemd-journald.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271739_systemd_journald_enable
+  service:
+    name: systemd-journald.service
+    enabled: "{{ ol9STIG_stigrule_271739_systemd_journald_enable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271739_Manage
+    - result.rc == 0
+# R-271739 OL09-00-002400
+- name: check if systemd-journald.service is installed
+  shell: ! systemctl list-unit-files | grep "^systemd-journald.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271739_systemd_journald_start
+  service:
+    name: systemd-journald.service
+    state: "{{ ol9STIG_stigrule_271739_systemd_journald_start_State }}"
+  when:
+    - ol9STIG_stigrule_271739_Manage
+    - result.rc == 0
+# R-271740 OL09-00-002401
+- name: stigrule_271740_fs_protected_hardlinks
+  sysctl:
+    name: fs.protected_hardlinks
+    value: "{{ ol9STIG_stigrule_271740_fs_protected_hardlinks_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271740_fs_protected_hardlinks_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271740_Manage
+# R-271741 OL09-00-002402
+- name: stigrule_271741_fs_protected_symlinks
+  sysctl:
+    name: fs.protected_symlinks
+    value: "{{ ol9STIG_stigrule_271741_fs_protected_symlinks_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271741_fs_protected_symlinks_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271741_Manage
+# R-271742 OL09-00-002403
+- name: check if debug-shell.service is installed
+  shell: ! systemctl list-unit-files | grep "^debug-shell.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271742_debug_shell_service_disable
+  systemd_service:
+    name: debug-shell.service
+    enabled: "{{ ol9STIG_stigrule_271742_debug_shell_service_disable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271742_Manage
+    - result.rc == 0
+# R-271742 OL09-00-002403
+- name: check if debug-shell.service is installed
+  shell: ! systemctl list-unit-files | grep "^debug-shell.service[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271742_debug_shell_service_mask
+  systemd_service:
+    name: debug-shell.service
+    masked: "{{ ol9STIG_stigrule_271742_debug_shell_service_mask_Masked }}"
+  when:
+    - ol9STIG_stigrule_271742_Manage
+    - result.rc == 0
+# R-271744 OL09-00-002405
+- name: stigrule_271744__etc_aliases
+  lineinfile:
+    path: /etc/aliases
+    regexp: '^root:'
+    line: "{{ ol9STIG_stigrule_271744__etc_aliases_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271744_Manage
+# R-271745 OL09-00-002406
+- name: stigrule_271745_kernel_dmesg_restrict
+  sysctl:
+    name: kernel.dmesg_restrict
+    value: "{{ ol9STIG_stigrule_271745_kernel_dmesg_restrict_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271745_kernel_dmesg_restrict_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271745_Manage
+# R-271746 OL09-00-002407
+- name: stigrule_271746_kernel_perf_event_paranoid
+  sysctl:
+    name: kernel.perf_event_paranoid
+    value: "{{ ol9STIG_stigrule_271746_kernel_perf_event_paranoid_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271746_kernel_perf_event_paranoid_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271746_Manage
+# R-271747 OL09-00-002408
+- name: stigrule_271747_kernel_kptr_restrict
+  sysctl:
+    name: kernel.kptr_restrict
+    value: "{{ ol9STIG_stigrule_271747_kernel_kptr_restrict_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271747_kernel_kptr_restrict_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271747_Manage
+# R-271748 OL09-00-002409
+- name: stigrule_271748_kernel_unprivileged_bpf_disabled
+  sysctl:
+    name: kernel.unprivileged_bpf_disabled
+    value: "{{ ol9STIG_stigrule_271748_kernel_unprivileged_bpf_disabled_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271748_kernel_unprivileged_bpf_disabled_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271748_Manage
+# R-271749 OL09-00-002410
+- name: stigrule_271749_kernel_yama_ptrace_scope
+  sysctl:
+    name: kernel.yama.ptrace_scope
+    value: "{{ ol9STIG_stigrule_271749_kernel_yama_ptrace_scope_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271749_kernel_yama_ptrace_scope_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271749_Manage
+# R-271750 OL09-00-002411
+- name: stigrule_271750__etc_profile_d_tmout_sh
+  copy:
+    dest: "{{ ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Dest }}"
+    content: "{{ ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Content }}"
+  when:
+    - ol9STIG_stigrule_271750_Manage
+# R-271751 OL09-00-002412
+- name: stigrule_271751__etc_systemd_system_conf_d_55_CtrlAltDel_BurstAction_conf
+  ini_file:
+    path: /etc/systemd/system.conf.d/55-CtrlAltDel-BurstAction.conf
+    section: Manager
+    option: CtrlAltDelBurstAction
+    value: "{{ ol9STIG_stigrule_271751__etc_systemd_system_conf_d_55_CtrlAltDel_BurstAction_conf_Value }}"
+    no_extra_spaces: yes
+  notify: dconf_update
+  when:
+    - ol9STIG_stigrule_271751_Manage
+    - packages['dconf'] is defined
+# R-271752 OL09-00-002413
+- name: check if ctrl-alt-del.target is installed
+  shell: ! systemctl list-unit-files | grep "^ctrl-alt-del.target[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271752_ctrl_alt_del_target_disable
+  systemd_service:
+    name: ctrl-alt-del.target
+    enabled: "{{ ol9STIG_stigrule_271752_ctrl_alt_del_target_disable_Enabled }}"
+  when:
+    - ol9STIG_stigrule_271752_Manage
+    - result.rc == 0
+# R-271752 OL09-00-002413
+- name: check if ctrl-alt-del.target is installed
+  shell: ! systemctl list-unit-files | grep "^ctrl-alt-del.target[ \t]\+"
+  changed_when: False
+  check_mode: no
+  register: result
+  failed_when: result.rc > 1
+- name: stigrule_271752_ctrl_alt_del_target_mask
+  systemd_service:
+    name: ctrl-alt-del.target
+    masked: "{{ ol9STIG_stigrule_271752_ctrl_alt_del_target_mask_Masked }}"
+  when:
+    - ol9STIG_stigrule_271752_Manage
+    - result.rc == 0
+# R-271753 OL09-00-002415
+- name: stigrule_271753__etc_security_limits_conf
+  lineinfile:
+    path: /etc/security/limits.conf
+    regexp: '^\* hard maxlogins'
+    line: "{{ ol9STIG_stigrule_271753__etc_security_limits_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271753_Manage
+# R-271761 OL09-00-002423
+- name: stigrule_271761_kernel_randomize_va_space
+  sysctl:
+    name: kernel.randomize_va_space
+    value: "{{ ol9STIG_stigrule_271761_kernel_randomize_va_space_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271761_kernel_randomize_va_space_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271761_Manage
+# R-271766 OL09-00-002428
+- name: stigrule_271766_kernel_kexec_load_disabled
+  sysctl:
+    name: kernel.kexec_load_disabled
+    value: "{{ ol9STIG_stigrule_271766_kernel_kexec_load_disabled_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271766_kernel_kexec_load_disabled_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271766_Manage
+# R-271768 OL09-00-002430
+- name: stigrule_271768_net_core_bpf_jit_harden
+  sysctl:
+    name: net.core.bpf_jit_harden
+    value: "{{ ol9STIG_stigrule_271768_net_core_bpf_jit_harden_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271768_net_core_bpf_jit_harden_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271768_Manage
+# R-271846 OL09-00-003052
+- name: stigrule_271846__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^CREATE_HOME'
+    line: "{{ ol9STIG_stigrule_271846__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271846_Manage
+# R-271849 OL09-00-003065
+- name: "run [[ $(sudo grep -i inactive /etc/default/useradd) != 'INACTIVE=35' ]] and register the result"
+  shell: "[[ $(sudo grep -i inactive /etc/default/useradd) != 'INACTIVE=35' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271849_sudo_useradd__D__f_35
+  shell: "{{ ol9STIG_stigrule_271849_sudo_useradd__D__f_35_Command }}"
+  when:
+    - ol9STIG_stigrule_271849_Manage
+    - cmd_result.rc == 0
+# R-271850 OL09-00-003070
+- name: stigrule_271850__etc_login_defs
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^[#\s]*FAIL_DELAY\s*\d+\s*$'
+    line: "{{ ol9STIG_stigrule_271850__etc_login_defs_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271850_Manage
+# R-271851 OL09-00-005000
+- name: stigrule_271851__etc_rsyslog_conf
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: "{{ ol9STIG_stigrule_271851__etc_rsyslog_conf_Line }}"
+    create: yes
+  notify: rsyslog_restart
+  when:
+    - ol9STIG_stigrule_271851_Manage
+# R-271853 OL09-00-005010
+- name: stigrule_271853__etc_rsyslog_conf
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: "{{ ol9STIG_stigrule_271853__etc_rsyslog_conf_Line }}"
+    create: yes
+  notify: rsyslog_restart
+  when:
+    - ol9STIG_stigrule_271853_Manage
+# R-271854 OL09-00-005015
+- name: stigrule_271854__etc_rsyslog_conf_DefaultNetstreamDriver
+  lineinfile:
+    path: /etc/rsyslog.conf DefaultNetstreamDriver
+    line: "{{ ol9STIG_stigrule_271854__etc_rsyslog_conf_DefaultNetstreamDriver_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271854_Manage
+# R-271855 OL09-00-005020
+- name: stigrule_271855__etc_rsyslog_conf_ActionSendStreamDriverMode
+  lineinfile:
+    path: /etc/rsyslog.conf ActionSendStreamDriverMode
+    line: "{{ ol9STIG_stigrule_271855__etc_rsyslog_conf_ActionSendStreamDriverMode_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271855_Manage
+# R-271856 OL09-00-005025
+- name: stigrule_271856__etc_rsyslog_conf_DefaultNetstreamDriver
+  lineinfile:
+    path: /etc/rsyslog.conf DefaultNetstreamDriver
+    line: "{{ ol9STIG_stigrule_271856__etc_rsyslog_conf_DefaultNetstreamDriver_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271856_Manage
+# R-271858 OL09-00-006000
+- name: stigrule_271858__etc_firewalld_firewalld_conf
+  lineinfile:
+    path: /etc/firewalld/firewalld.conf
+    regexp: '^\s*FirewallBackend\s*='
+    line: "{{ ol9STIG_stigrule_271858__etc_firewalld_firewalld_conf_Line }}"
+    create: yes
+  when:
+    - ol9STIG_stigrule_271858_Manage
+# R-271859 OL09-00-006001
+- name: check if wireless network adapters are disabled
+  shell: "[[ $(nmcli radio wifi) == 'enabled' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271859_nmcli_radio_wifi_off
+  shell: "{{ ol9STIG_stigrule_271859_nmcli_radio_wifi_off_Command }}"
+  when:
+    - ol9STIG_stigrule_271859_Manage
+    - cmd_result.rc == 0
+# R-271860 OL09-00-006002
+- name: stigrule_271860__etc_NetworkManager_NetworkManager_conf
+  ini_file:
+    path: /etc/NetworkManager/NetworkManager.conf
+    section: main
+    option: dns
+    value: "{{ ol9STIG_stigrule_271860__etc_NetworkManager_NetworkManager_conf_Value }}"
+    no_extra_spaces: yes
+  notify: networkmanager_reload
+  when:
+    - ol9STIG_stigrule_271860_Manage
+# R-271864 OL09-00-006020
+- name: stigrule_271864_net_ipv4_conf_all_accept_redirects
+  sysctl:
+    name: net.ipv4.conf.all.accept_redirects
+    value: "{{ ol9STIG_stigrule_271864_net_ipv4_conf_all_accept_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271864_net_ipv4_conf_all_accept_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271864_Manage
+# R-271865 OL09-00-006021
+- name: stigrule_271865_net_ipv4_conf_all_accept_source_route
+  sysctl:
+    name: net.ipv4.conf.all.accept_source_route
+    value: "{{ ol9STIG_stigrule_271865_net_ipv4_conf_all_accept_source_route_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271865_net_ipv4_conf_all_accept_source_route_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271865_Manage
+# R-271866 OL09-00-006022
+- name: stigrule_271866_net_ipv4_conf_all_log_martians
+  sysctl:
+    name: net.ipv4.conf.all.log_martians
+    value: "{{ ol9STIG_stigrule_271866_net_ipv4_conf_all_log_martians_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271866_net_ipv4_conf_all_log_martians_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271866_Manage
+# R-271867 OL09-00-006023
+- name: stigrule_271867_net_ipv4_conf_default_log_martians
+  sysctl:
+    name: net.ipv4.conf.default.log_martians
+    value: "{{ ol9STIG_stigrule_271867_net_ipv4_conf_default_log_martians_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271867_net_ipv4_conf_default_log_martians_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271867_Manage
+# R-271868 OL09-00-006024
+- name: stigrule_271868_net_ipv4_conf_all_rp_filter
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: "{{ ol9STIG_stigrule_271868_net_ipv4_conf_all_rp_filter_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271868_net_ipv4_conf_all_rp_filter_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271868_Manage
+# R-271869 OL09-00-006025
+- name: stigrule_271869_net_ipv4_conf_default_accept_redirects
+  sysctl:
+    name: net.ipv4.conf.default.accept_redirects
+    value: "{{ ol9STIG_stigrule_271869_net_ipv4_conf_default_accept_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271869_net_ipv4_conf_default_accept_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271869_Manage
+# R-271870 OL09-00-006026
+- name: stigrule_271870_net_ipv4_conf_default_accept_source_route
+  sysctl:
+    name: net.ipv4.conf.default.accept_source_route
+    value: "{{ ol9STIG_stigrule_271870_net_ipv4_conf_default_accept_source_route_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271870_net_ipv4_conf_default_accept_source_route_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271870_Manage
+# R-271871 OL09-00-006027
+- name: stigrule_271871_net_ipv4_conf_default_rp_filter
+  sysctl:
+    name: net.ipv4.conf.default.rp_filter
+    value: "{{ ol9STIG_stigrule_271871_net_ipv4_conf_default_rp_filter_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271871_net_ipv4_conf_default_rp_filter_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271871_Manage
+# R-271872 OL09-00-006028
+- name: stigrule_271872_net_ipv4_conf_all_forwarding
+  sysctl:
+    name: net.ipv4.conf.all.forwarding
+    value: "{{ ol9STIG_stigrule_271872_net_ipv4_conf_all_forwarding_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271872_net_ipv4_conf_all_forwarding_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271872_Manage
+# R-271873 OL09-00-006030
+- name: stigrule_271873_net_ipv4_icmp_echo_ignore_broadcasts
+  sysctl:
+    name: net.ipv4.icmp_echo_ignore_broadcasts
+    value: "{{ ol9STIG_stigrule_271873_net_ipv4_icmp_echo_ignore_broadcasts_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271873_net_ipv4_icmp_echo_ignore_broadcasts_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271873_Manage
+# R-271874 OL09-00-006031
+- name: stigrule_271874_net_ipv4_icmp_ignore_bogus_error_responses
+  sysctl:
+    name: net.ipv4.icmp_ignore_bogus_error_responses
+    value: "{{ ol9STIG_stigrule_271874_net_ipv4_icmp_ignore_bogus_error_responses_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271874_net_ipv4_icmp_ignore_bogus_error_responses_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271874_Manage
+# R-271875 OL09-00-006032
+- name: stigrule_271875_net_ipv4_conf_all_send_redirects
+  sysctl:
+    name: net.ipv4.conf.all.send_redirects
+    value: "{{ ol9STIG_stigrule_271875_net_ipv4_conf_all_send_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271875_net_ipv4_conf_all_send_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271875_Manage
+# R-271876 OL09-00-006033
+- name: stigrule_271876_net_ipv4_conf_default_send_redirects
+  sysctl:
+    name: net.ipv4.conf.default.send_redirects
+    value: "{{ ol9STIG_stigrule_271876_net_ipv4_conf_default_send_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271876_net_ipv4_conf_default_send_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271876_Manage
+# R-271877 OL09-00-006040
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271877_net_ipv6_conf_all_accept_ra
+  sysctl:
+    name: net.ipv6.conf.all.accept_ra
+    value: "{{ ol9STIG_stigrule_271877_net_ipv6_conf_all_accept_ra_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271877_net_ipv6_conf_all_accept_ra_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271877_Manage
+    - cmd_result.rc == 0
+# R-271878 OL09-00-006041
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271878_net_ipv6_conf_all_accept_redirects
+  sysctl:
+    name: net.ipv6.conf.all.accept_redirects
+    value: "{{ ol9STIG_stigrule_271878_net_ipv6_conf_all_accept_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271878_net_ipv6_conf_all_accept_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271878_Manage
+    - cmd_result.rc == 0
+# R-271879 OL09-00-006042
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271879_net_ipv6_conf_all_accept_source_route
+  sysctl:
+    name: net.ipv6.conf.all.accept_source_route
+    value: "{{ ol9STIG_stigrule_271879_net_ipv6_conf_all_accept_source_route_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271879_net_ipv6_conf_all_accept_source_route_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271879_Manage
+    - cmd_result.rc == 0
+# R-271880 OL09-00-006043
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271880_net_ipv6_conf_all_forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "{{ ol9STIG_stigrule_271880_net_ipv6_conf_all_forwarding_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271880_net_ipv6_conf_all_forwarding_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271880_Manage
+    - cmd_result.rc == 0
+# R-271881 OL09-00-006044
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271881_net_ipv6_conf_default_accept_ra
+  sysctl:
+    name: net.ipv6.conf.default.accept_ra
+    value: "{{ ol9STIG_stigrule_271881_net_ipv6_conf_default_accept_ra_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271881_net_ipv6_conf_default_accept_ra_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271881_Manage
+    - cmd_result.rc == 0
+# R-271882 OL09-00-006045
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271882_net_ipv6_conf_default_accept_redirects
+  sysctl:
+    name: net.ipv6.conf.default.accept_redirects
+    value: "{{ ol9STIG_stigrule_271882_net_ipv6_conf_default_accept_redirects_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271882_net_ipv6_conf_default_accept_redirects_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271882_Manage
+    - cmd_result.rc == 0
+# R-271883 OL09-00-006046
+- name: check if ipv6 is enabled
+  shell: "[[ $(cat /sys/module/ipv6/parameters/disable) == '0' ]]"
+  changed_when: False
+  check_mode: no
+  register: cmd_result
+  failed_when: cmd_result.rc > 1
+- name: stigrule_271883_net_ipv6_conf_default_accept_source_route
+  sysctl:
+    name: net.ipv6.conf.default.accept_source_route
+    value: "{{ ol9STIG_stigrule_271883_net_ipv6_conf_default_accept_source_route_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271883_net_ipv6_conf_default_accept_source_route_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271883_Manage
+    - cmd_result.rc == 0
+# R-271884 OL09-00-006050
+- name: stigrule_271884_net_ipv4_tcp_syncookies
+  sysctl:
+    name: net.ipv4.tcp_syncookies
+    value: "{{ ol9STIG_stigrule_271884_net_ipv4_tcp_syncookies_Value }}"
+    sysctl_file: "{{ ol9STIG_stigrule_271884_net_ipv4_tcp_syncookies_File }}"
+  notify: sysctl_load_settings
+  when:
+    - ol9STIG_stigrule_271884_Manage
+# R-271885 OL09-00-008000
+- name: stigrule_271885__etc_audit_rules_d_audit_rules_loginuid_immutable
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^--loginuid-immutable$'
+    line: "{{ ol9STIG_stigrule_271885__etc_audit_rules_d_audit_rules_loginuid_immutable_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271885_Manage
+# R-271886 OL09-00-008005
+- name: stigrule_271886__etc_audit_rules_d_audit_rules_e2
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-e 2$'
+    line: "{{ ol9STIG_stigrule_271886__etc_audit_rules_d_audit_rules_e2_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_271886_Manage
+# R-278952 OL09-00-002584
+- name: stigrule_278952__etc_audit_rules_d_audit_rules__etc_cron_d__cronjobs
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /etc/cron.d/ -p wa -k cronjobs$'
+    line: "{{ ol9STIG_stigrule_278952__etc_audit_rules_d_audit_rules__etc_cron_d__cronjobs_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_278952_Manage
+# R-278952 OL09-00-002584
+- name: stigrule_278952__etc_audit_rules_d_audit_rules__var_spool_cron__cronjobs
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: '^-w /var/spool/cron/ -p wa -k cronjobs$'
+    line: "{{ ol9STIG_stigrule_278952__etc_audit_rules_d_audit_rules__var_spool_cron__cronjobs_Line }}"
+  notify: auditd_restart
+  when: ol9STIG_stigrule_278952_Manage
+
+- name: Include eSTIG tasks
+  ansible.builtin.include_tasks: run_estig.yml
+  tags: stig

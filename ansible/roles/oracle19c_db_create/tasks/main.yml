@@ -1,0 +1,164 @@
+---
+# =============================================================================
+# Role: oracle_db_create
+# Purpose: Build databases using the site DBCA pattern:
+#
+#   Phase 1 – Seed DB (ORCL)
+#     DBCA with built-in General_Purpose template to validate the Oracle stack.
+#     DB is shut down after creation; oratab entry set to N.
+#
+#   Phase 2 – Customer DBs (loop over oracle_databases list)
+#     For each DB:
+#       a) Build per-DB directory tree (matching site .dbt paths)
+#       b) Render the site .dbt template → $OH/assistants/dbca/templates/<SID>.dbt
+#       c) Render the .rsp response file → $OH/assistants/dbca/<SID>.rsp
+#       d) Run DBCA with site command pattern:
+#            dbca -J-Doracle.assistants.dbca.validate.ConfigurationParams=false
+#                 -silent -createDatabase
+#                 -gdbName <SID>.<domain>
+#                 -responseFile $OH/assistants/dbca/<SID>.rsp
+#                 -templateName $OH/assistants/dbca/templates/<SID>.dbt
+#                 -databaseConfigType SINGLE
+#                 -sampleSchema false
+#                 -honorControlFileInitParam
+#       e) Enable archivelog if requested
+#       f) Verify instance is OPEN
+# =============================================================================
+
+# ============================================================================
+# PHASE 1 – SEED DATABASE (ORCL)
+# ============================================================================
+
+- name: "[Seed] Check if seed DB ({{ oracle_seed_sid }}) already exists"
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/dbs/spfile{{ oracle_seed_sid }}.ora"
+  register: seed_spfile
+  when: oracle_seed_db_enabled | bool
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Create seed DB admin directory"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  loop:
+    - "{{ oracle_admin_dir }}/{{ oracle_seed_sid }}/adump"
+    - "{{ oracle_admin_dir }}/{{ oracle_seed_sid }}/pfile"
+    - "{{ oracle_admin_dir }}/{{ oracle_seed_sid }}/controlfile"
+    - "{{ oracle_data_dir }}/{{ oracle_seed_sid }}"
+    - "{{ oracle_arch_dir }}/{{ oracle_seed_sid }}/redo"
+    - "{{ oracle_arch_dir }}/{{ oracle_seed_sid }}/controlfile"
+  when:
+    - oracle_seed_db_enabled | bool
+    - not seed_spfile.stat.exists
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Deploy seed DB response file"
+  ansible.builtin.template:
+    src: seed_db.rsp.j2
+    dest: "{{ oracle_home }}/assistants/dbca/{{ oracle_seed_sid }}.rsp"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+  when:
+    - oracle_seed_db_enabled | bool
+    - not seed_spfile.stat.exists
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Run DBCA to create seed database {{ oracle_seed_sid }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/dbca \
+      -J-Doracle.assistants.dbca.validate.ConfigurationParams=false \
+      -silent \
+      -createDatabase \
+      -gdbName {{ oracle_seed_sid }}.{{ oracle_domain }} \
+      -responseFile {{ oracle_home }}/assistants/dbca/{{ oracle_seed_sid }}.rsp \
+      -templateName {{ oracle_home }}/assistants/dbca/templates/General_Purpose.dbc \
+      -databaseConfigType SINGLE \
+      -sampleSchema false \
+      -createAsContainerDatabase false
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ oracle_seed_sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: seed_dbca_result
+  failed_when: seed_dbca_result.rc not in [0]
+  changed_when: seed_dbca_result.rc == 0
+  when:
+    - oracle_seed_db_enabled | bool
+    - not seed_spfile.stat.exists
+  async: 5400
+  poll: 60
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Show seed DBCA output"
+  ansible.builtin.debug:
+    var: seed_dbca_result.stdout_lines
+  when:
+    - oracle_seed_db_enabled | bool
+    - seed_dbca_result is defined
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Shut down seed database {{ oracle_seed_sid }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    SHUTDOWN IMMEDIATE;
+    EXIT 0;
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ oracle_seed_sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  when:
+    - oracle_seed_db_enabled | bool
+    - not seed_spfile.stat.exists
+  tags:
+    - dbca
+    - seed_db
+
+- name: "[Seed] Set oratab entry to N (seed DB – do not auto-start)"
+  ansible.builtin.lineinfile:
+    path: /etc/oratab
+    regexp: "^{{ oracle_seed_sid }}:"
+    line: "{{ oracle_seed_sid }}:{{ oracle_home }}:N"
+    state: present
+    create: true
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_dba_group }}"
+    mode: "0664"
+  when: oracle_seed_db_enabled | bool
+  tags:
+    - dbca
+    - seed_db
+
+# ============================================================================
+# PHASE 2 – CUSTOMER DATABASES (loop over oracle_databases)
+# ============================================================================
+
+- name: "[CustomerDB] Build directories and databases"
+  ansible.builtin.include_tasks: create_customer_db.yml
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    loop_var: db
+    label: "{{ db.sid }}"
+  tags: customer_db

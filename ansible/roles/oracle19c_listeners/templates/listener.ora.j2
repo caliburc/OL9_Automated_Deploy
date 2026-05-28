@@ -1,0 +1,42 @@
+# listener.ora – Managed by Ansible
+
+LMT =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = 1521)(RATE_LIMIT=yes))
+    )
+  )
+
+SID_LIST_LMT =
+  (SID_LIST =
+{% for db in oracle_databases %}
+    (SID_DESC =
+      (GLOBAL_DBNAME = {{ db.sid }}.{{ oracle_domain }})
+      (ORACLE_HOME   = {{ oracle_home }})
+      (SID_NAME      = {{ db.sid }})
+    )
+{% endfor %}
+  )
+
+WALLET_LOCATION =
+  (SOURCE =
+    (METHOD = FILE)
+    (METHOD_DATA =
+      (DIRECTORY = /app/oracle/common/tns/wallet/listener)
+    )
+  )
+
+ADR_BASE_LISTENER = {{ oracle_base }}
+
+# Auto-registration from the DB
+ENABLE_GLOBAL_DYNAMIC_ENDPOINT_LISTENER=ON
+
+CONNECTION_RATE_LMT = 10
+INBOUND_CONNECT_TIMEOUT_LMT = 120
+STARTUP_WAIT_TIME_LMT = 0
+CONNECT_TIMEOUT_LMT = 120
+TRACE_LEVEL_LMT = OFF
+SUBSCRIBE_FOR_NODE_DOWN_EVENT_LMT=OFF
+SECURE_REGISTER_LMT = (TCP)
+SECURE_CONTROL_LMT = (TCP)
+ADMIN_RESTRICTIONS_LMT = ON

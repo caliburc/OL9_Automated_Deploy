@@ -1,0 +1,194 @@
+-- =============================================================================
+-- STIG Privilege and Grant Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2
+-- Generated: Ansible - do not edit manually
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- ── O19C-00-001300 - DBMS_JAVA revoked from PUBLIC (CAT I) ──────────────────
+{% if stig_O19C_001300_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_tab_privs
+  WHERE table_name = 'DBMS_JAVA' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE EXECUTE ON DBMS_JAVA FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001300: DBMS_JAVA EXECUTE revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001300: DBMS_JAVA not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001400 - UTL_FILE revoked from PUBLIC (CAT I) ───────────────────
+{% if stig_O19C_001400_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_tab_privs
+  WHERE table_name = 'UTL_FILE' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE EXECUTE ON UTL_FILE FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001400: UTL_FILE EXECUTE revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001400: UTL_FILE not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000800 / O19C-00-017800 - UTL_TCP, UTL_HTTP, UTL_SMTP ───────────
+{% if stig_O19C_000800_enabled %}
+DECLARE
+  v_count NUMBER := 0;
+BEGIN
+  FOR pkg IN (
+    SELECT DISTINCT table_name FROM dba_tab_privs
+    WHERE table_name IN ('UTL_TCP','UTL_HTTP','UTL_SMTP')
+      AND grantee = 'PUBLIC'
+    ORDER BY table_name
+  ) LOOP
+    EXECUTE IMMEDIATE 'REVOKE EXECUTE ON ' || pkg.table_name || ' FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000800: ' || pkg.table_name || ' EXECUTE revoked from PUBLIC');
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000800: UTL_TCP/HTTP/SMTP not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-002000 - Revoke sensitive packages from PUBLIC ───────────────────
+{% if stig_O19C_002000_enabled %}
+DECLARE
+  v_count NUMBER := 0;
+  v_exists NUMBER;
+BEGIN
+{% for pkg in stig_revoke_public_packages %}
+  BEGIN
+    SELECT COUNT(*) INTO v_exists FROM dba_tab_privs
+    WHERE table_name = '{{ pkg }}' AND grantee = 'PUBLIC';
+    IF v_exists > 0 THEN
+      EXECUTE IMMEDIATE 'REVOKE EXECUTE ON {{ pkg }} FROM PUBLIC';
+      DBMS_OUTPUT.PUT_LINE('STIG O19C-002000: Revoked {{ pkg }} from PUBLIC');
+      v_count := v_count + 1;
+    END IF;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE NOT IN (-1927, -4042) THEN
+        DBMS_OUTPUT.PUT_LINE('STIG O19C-002000: Note {{ pkg }}: ' || SQLERRM);
+      END IF;
+  END;
+{% endfor %}
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-002000: No sensitive PUBLIC grants found - COMPLIANT');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-002000: ' || v_count || ' PUBLIC grant(s) revoked');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-010300 - EXEMPT ACCESS POLICY not granted to PUBLIC ──────────────
+{% if stig_O19C_010300_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_sys_privs
+  WHERE privilege = 'EXEMPT ACCESS POLICY' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE EXEMPT ACCESS POLICY FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010300: EXEMPT ACCESS POLICY revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010300: EXEMPT ACCESS POLICY not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-010500 - CREATE EXTERNAL JOB revoked from PUBLIC ─────────────────
+{% if stig_O19C_010500_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_sys_privs
+  WHERE privilege = 'CREATE EXTERNAL JOB' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE CREATE EXTERNAL JOB FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010500: CREATE EXTERNAL JOB revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010500: CREATE EXTERNAL JOB not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-010900 - EXECUTE ANY PROCEDURE not granted to PUBLIC ──────────────
+{% if stig_O19C_010900_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_sys_privs
+  WHERE privilege = 'EXECUTE ANY PROCEDURE' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE EXECUTE ANY PROCEDURE FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010900: EXECUTE ANY PROCEDURE revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010900: EXECUTE ANY PROCEDURE not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-011000 - ALTER SESSION - report non-admin holders ────────────────
+{% if stig_O19C_011000_enabled %}
+DECLARE
+  v_count NUMBER := 0;
+BEGIN
+  FOR r IN (
+    SELECT grantee FROM dba_sys_privs
+    WHERE privilege = 'ALTER SESSION'
+      AND grantee NOT IN (
+        'SYS','SYSTEM','DBA','IMP_FULL_DATABASE','EXP_FULL_DATABASE',
+        'DBSNMP','SYSMAN','WMSYS','MDSYS','LBACSYS','OLAPSYS',
+        'PUBLIC','{{ oracle_stig_audit_user }}'
+      )
+      AND grantee NOT IN (SELECT role FROM dba_roles)
+    ORDER BY grantee
+  ) LOOP
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-011000: WARNING - ALTER SESSION granted to: ' || r.grantee || ' - review manually');
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-011000: No unexpected ALTER SESSION grants found - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-011400 - DBMS_RLS revoked from PUBLIC ────────────────────────────
+{% if stig_O19C_011400_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_tab_privs
+  WHERE table_name = 'DBMS_RLS' AND grantee = 'PUBLIC';
+  IF v_exists > 0 THEN
+    EXECUTE IMMEDIATE 'REVOKE EXECUTE ON DBMS_RLS FROM PUBLIC';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-011400: DBMS_RLS EXECUTE revoked from PUBLIC');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-011400: DBMS_RLS not granted to PUBLIC - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+COMMIT;
+EXIT 0;

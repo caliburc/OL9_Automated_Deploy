@@ -1,0 +1,9 @@
+- name: restart fapolicyd
+  ansible.builtin.service:
+    name: fapolicyd
+    state: restarted
+
+- name: reload fapolicyd
+  ansible.builtin.shell: |
+    fagenrules --load
+    systemctl restart fapolicyd

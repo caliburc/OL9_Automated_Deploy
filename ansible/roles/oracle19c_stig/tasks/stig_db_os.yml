@@ -1,0 +1,162 @@
+---
+# =============================================================================
+# STIG Sub-tasks: Per-DB OS-level Controls (Non-CDB)
+# File       : roles/oracle_stig/tasks/stig_db_os.yml
+# Called by  : main.yml inside the per-DB loop (loop_var: stig_db)
+# STIG Ref   : DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+#
+# WHY THIS FILE EXISTS:
+#   stig_os.yml runs ONCE at host level with no stig_db context.
+#   These controls are DB-specific (they reference stig_db.sid) but operate
+#   at the OS or SQL level rather than being pure STIG parameter/profile SQL.
+#   Keeping them here instead of in stig_os.yml prevents the
+#   "'stig_db' is undefined" error that occurs when stig_db.sid is referenced
+#   outside the per-DB loop.
+#
+# VULs covered:
+#   O19C-009400 (V1R5) - Password file permissions
+#   O19C-014700 (V1R5) - Install password verify functions (catpvf.sql)
+#   O19C-012900 (V1R5) - Lock ANONYMOUS account
+# =============================================================================
+
+# ── O19C-009400 (V1R5) - Password file permissions ───────────────────────────
+# V-270526: $ORACLE_HOME/dbs/orapw${SID} must exclude world (o=) access.
+# The password file name matches the ORACLE_SID exactly.
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-009400 - Find Oracle password file"
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/dbs/orapw{{ stig_db.sid }}"
+  register: pwfile_stat
+  when: stig_O19C_009400_enabled | bool
+  tags:
+    - stig_db_os
+    - stig_pwfile
+    - O19C-009400
+
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-009400 - Set password file permissions to {{ stig_pwfile_mode }}"
+  ansible.builtin.file:
+    path: "{{ oracle_home }}/dbs/orapw{{ stig_db.sid }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "{{ stig_pwfile_mode }}"
+  when:
+    - stig_O19C_009400_enabled | bool
+    - pwfile_stat.stat.exists
+    - not oracle_stig_report_only | bool
+  tags:
+    - stig_db_os
+    - stig_pwfile
+    - O19C-009400
+
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-009400 - Report: password file not found"
+  ansible.builtin.debug:
+    msg: >
+      STIG O19C-009400: Password file {{ oracle_home }}/dbs/orapw{{ stig_db.sid }}
+      not found. If REMOTE_LOGIN_PASSWORDFILE=NONE this is acceptable.
+      Verify: select value from v$parameter where name='remote_login_passwordfile';
+  when:
+    - stig_O19C_009400_enabled | bool
+    - not pwfile_stat.stat.exists
+  tags:
+    - stig_db_os
+    - stig_pwfile
+    - O19C-009400
+
+# ── O19C-014700 (V1R5) - Install password verify functions via catpvf.sql ─────
+# catpvf.sql creates ORA12C_STIG_VERIFY_FUNCTION (15-char minimum).
+# Must run before stig_profiles.yml so the function exists when the profile
+# ALTER references it. Safe to re-run -- Oracle replaces existing functions.
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-014700 - Install password verify functions (catpvf.sql)"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba \
+      @{{ oracle_home }}/rdbms/admin/catpvf.sql
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID:  "{{ stig_db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: catpvf_result
+  changed_when: >
+    'Function created' in catpvf_result.stdout or
+    'replaced' in catpvf_result.stdout
+  failed_when: false
+  when:
+    - stig_O19C_014700_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags:
+    - stig_db_os
+    - stig_profiles
+    - O19C-014700
+
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-014700 - Display catpvf.sql output"
+  ansible.builtin.debug:
+    var: catpvf_result.stdout_lines
+  when:
+    - stig_O19C_014700_enabled | bool
+    - catpvf_result is defined
+  tags:
+    - stig_db_os
+    - stig_profiles
+    - O19C-014700
+
+# ── O19C-012900 (V1R5) - Lock ANONYMOUS account ───────────────────────────────
+# ANONYMOUS is an Oracle-internal account used by XML DB and HTTP.
+# V1R5 requires it to be locked if not explicitly required and documented.
+# Locking rather than dropping preserves XML DB functionality.
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-012900 - Lock ANONYMOUS account"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'SQLEOF'
+    SET SERVEROUTPUT ON SIZE UNLIMITED
+    SET FEEDBACK OFF
+    DECLARE
+      v_status VARCHAR2(32);
+    BEGIN
+      BEGIN
+        SELECT account_status INTO v_status
+        FROM   dba_users
+        WHERE  username = 'ANONYMOUS';
+        IF v_status NOT LIKE '%LOCKED%' THEN
+          EXECUTE IMMEDIATE 'ALTER USER ANONYMOUS ACCOUNT LOCK';
+          DBMS_OUTPUT.PUT_LINE('STIG O19C-012900: ANONYMOUS account LOCKED');
+        ELSE
+          DBMS_OUTPUT.PUT_LINE('STIG O19C-012900: ANONYMOUS already LOCKED -- COMPLIANT');
+        END IF;
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          DBMS_OUTPUT.PUT_LINE('STIG O19C-012900: ANONYMOUS user not found -- COMPLIANT');
+      END;
+    END;
+    /
+    EXIT 0;
+    SQLEOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID:  "{{ stig_db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: anon_lock_result
+  changed_when: "'ANONYMOUS account LOCKED' in anon_lock_result.stdout"
+  failed_when: false
+  when:
+    - stig_O19C_012900_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags:
+    - stig_db_os
+    - stig_schemas
+    - O19C-012900
+
+- name: "[STIG db_os – {{ stig_db.sid }}] O19C-012900 - Display ANONYMOUS lock result"
+  ansible.builtin.debug:
+    var: anon_lock_result.stdout_lines
+  when:
+    - stig_O19C_012900_enabled | bool
+    - anon_lock_result is defined
+  tags:
+    - stig_db_os
+    - stig_schemas
+    - O19C-012900

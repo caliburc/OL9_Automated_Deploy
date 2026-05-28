@@ -1,0 +1,62 @@
+---
+# =============================================================================
+# STIG Sub-tasks: Unified Audit Policy Controls (Non-CDB)
+# VULs: O19C-00-002100, 002200, 002300, 002400, 002500, 002600, 002700,
+#        010100, 010600, 011500
+# Uses loop_var: stig_db  (set in main.yml)
+# SQL logic lives in templates/sql/stig_audit.sql.j2
+# =============================================================================
+
+- name: "[STIG audit – {{ stig_db.sid }}] Deploy audit SQL script"
+  ansible.builtin.template:
+    src: sql/stig_audit.sql.j2
+    dest: "/tmp/stig_audit_{{ stig_db.sid }}.sql"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_dba_group }}"
+    mode: "0640"
+  when: not oracle_stig_report_only | bool
+  tags: stig_audit
+
+- name: "[STIG audit – {{ stig_db.sid }}] Execute audit SQL script"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba @/tmp/stig_audit_{{ stig_db.sid }}.sql
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID:  "{{ stig_db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: stig_audit_result
+  changed_when: stig_audit_result.rc == 0
+  failed_when: false
+  when: not oracle_stig_report_only | bool
+  tags: stig_audit
+
+- name: "[STIG audit – {{ stig_db.sid }}] Display output"
+  ansible.builtin.debug:
+    var: stig_audit_result.stdout_lines
+  when: not oracle_stig_report_only | bool
+  tags: stig_audit
+
+- name: "[STIG audit – {{ stig_db.sid }}] Remove audit SQL script"
+  ansible.builtin.file:
+    path: "/tmp/stig_audit_{{ stig_db.sid }}.sql"
+    state: absent
+  when: not oracle_stig_report_only | bool
+  tags: stig_audit
+
+- name: "[STIG audit – {{ stig_db.sid }}] Assert main STIG audit policy is enabled"
+  ansible.builtin.assert:
+    that:
+      - stig_unified_audit_policy_name in stig_audit_result.stdout
+    fail_msg: >
+      STIG audit policy {{ stig_unified_audit_policy_name }} was not found in
+      audit_unified_enabled_policies for {{ stig_db.sid }}. Review the script
+      output above for errors.
+    success_msg: "STIG audit policy {{ stig_unified_audit_policy_name }} is enabled on {{ stig_db.sid }}"
+  when: not oracle_stig_report_only | bool
+  tags: stig_audit
+
+

@@ -1,0 +1,171 @@
+-- =============================================================================
+-- STIG Compliance Report
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2
+-- Generated: Ansible -- do not edit manually
+-- =============================================================================
+-- NOTE ON DESIGN:
+-- This report uses DBMS_OUTPUT.PUT_LINE for section headers instead of the
+-- SQLPlus PROMPT command. When SQLPlus runs a script in silent mode (-s flag
+-- with SET FEEDBACK OFF), the PROMPT command and any immediately following
+-- SELECT statement can be concatenated into a single echoed line, causing the
+-- SELECT text to appear as output rather than executing. Using DBMS_OUTPUT
+-- for headers avoids this entirely and produces clean, consistent output.
+-- =============================================================================
+
+SET LINESIZE 200
+SET PAGESIZE 200
+SET HEADING ON
+SET FEEDBACK OFF
+SET ECHO OFF
+SET TRIMSPOOL ON
+SET SERVEROUTPUT ON SIZE UNLIMITED
+
+COLUMN name            FORMAT A40
+COLUMN value           FORMAT A40
+COLUMN profile         FORMAT A25
+COLUMN resource_name   FORMAT A40
+COLUMN limit           FORMAT A25
+COLUMN username        FORMAT A30
+COLUMN account_status  FORMAT A20
+COLUMN grantee         FORMAT A20
+COLUMN table_name      FORMAT A30
+COLUMN privilege       FORMAT A30
+COLUMN policy_name     FORMAT A55
+COLUMN enabled_option  FORMAT A20
+COLUMN success         FORMAT A8
+COLUMN failure         FORMAT A8
+COLUMN owner           FORMAT A20
+COLUMN db_link         FORMAT A30
+COLUMN host            FORMAT A30
+COLUMN job_name        FORMAT A40
+COLUMN job_type        FORMAT A20
+COLUMN enabled         FORMAT A8
+COLUMN db_unique_name  FORMAT A20
+COLUMN open_mode       FORMAT A12
+COLUMN log_mode        FORMAT A14
+COLUMN cdb             FORMAT A4
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+  DBMS_OUTPUT.PUT_LINE(' Oracle 19c STIG Compliance Report (Non-CDB)');
+  DBMS_OUTPUT.PUT_LINE(' Generated : {{ stig_run_timestamp }}');
+  DBMS_OUTPUT.PUT_LINE(' Database  : {{ stig_db.sid }}');
+  DBMS_OUTPUT.PUT_LINE(' Host      : {{ ansible_hostname }}');
+  DBMS_OUTPUT.PUT_LINE(' STIG      : DISA Oracle 19c STIG V1R2');
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+END;
+/
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-000100] REMOTE_OS_AUTHENT (must be FALSE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'remote_os_authent';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-000200] REMOTE_OS_ROLES (must be FALSE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'remote_os_roles';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-000300] AUDIT_TRAIL (must not be NONE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'audit_trail';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-000500] AUDIT_SYS_OPERATIONS (must be TRUE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'audit_sys_operations';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-000600] SQL92_SECURITY (must be TRUE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'sql92_security';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-001000] SEC_MAX_FAILED_LOGIN_ATTEMPTS (must be <= 3) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'sec_max_failed_login_attempts';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- SEC_PROTOCOL_ERROR_FURTHER_ACTION ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'sec_protocol_error_further_action';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- SEC_RETURN_SERVER_RELEASE_BANNER (must be FALSE) ---'); END;
+/
+SELECT name, value FROM v$parameter WHERE name = 'sec_return_server_release_banner';
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-002800] STIG Password Profile ---'); END;
+/
+SELECT profile, resource_name, limit
+FROM   dba_profiles
+WHERE  profile = '{{ stig_profile_name }}'
+ORDER BY resource_name;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-001800] Non-SYS users NOT on STIG profile ---'); END;
+/
+SELECT username, profile, account_status
+FROM   dba_users
+WHERE  profile NOT IN ('{{ stig_profile_name }}','DEFAULT')
+  AND  username NOT IN (
+         'SYS','SYSTEM','DBSNMP','SYSMAN','OUTLN','MDSYS','ORDSYS',
+         'EXFSYS','DMSYS','WMSYS','CTXSYS','ANONYMOUS','XDB','ORDPLUGINS',
+         'LBACSYS','SYSKM','SYSDG','SYSBACKUP','AUDSYS','GGSYS','OJVMSYS',
+         'OLAPSYS','ORDDATA','GSMADMIN_INTERNAL','GSMCATUSER','GSMUSER',
+         'APPQOSSYS','DBSFWUSER','SYS$UMF','SYSRAC'
+       )
+ORDER BY username;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-003000] Accounts with Default Passwords ---'); END;
+/
+SELECT username
+FROM   dba_users_with_defpwd
+WHERE  username != 'XS$NULL'
+ORDER BY username;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-002000] Sensitive Packages Granted to PUBLIC ---'); END;
+/
+SELECT grantee, table_name, privilege
+FROM   dba_tab_privs
+WHERE  grantee = 'PUBLIC'
+  AND  table_name IN (
+         'UTL_FILE','UTL_TCP','UTL_HTTP','UTL_SMTP',
+         'DBMS_JAVA','DBMS_RANDOM','DBMS_ADVISOR','DBMS_CRYPTO','DBMS_RLS'
+       )
+ORDER BY table_name;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- Enabled STIG Audit Policies ---'); END;
+/
+SELECT policy_name, enabled_option, success, failure
+FROM   audit_unified_enabled_policies
+WHERE  policy_name LIKE '{{ stig_unified_audit_policy_name }}%'
+ORDER BY policy_name;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-010800] Sample Schemas (should return no rows) ---'); END;
+/
+SELECT username, account_status
+FROM   dba_users
+WHERE  username IN ('HR','OE','PM','IX','SH','BI','SCOTT')
+ORDER BY username;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-017500] Database Links ---'); END;
+/
+SELECT owner, db_link, username, host
+FROM   dba_db_links
+ORDER BY owner;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- [O19C-017600] Scheduler Jobs (non-SYS/SYSTEM) ---'); END;
+/
+SELECT owner, job_name, job_type, enabled
+FROM   dba_scheduler_jobs
+WHERE  owner NOT IN ('SYS','SYSTEM','DBSNMP','ORACLE_OCM','EXFSYS','AUDSYS','OJVMSYS')
+ORDER BY owner, job_name;
+
+BEGIN DBMS_OUTPUT.PUT_LINE(''); DBMS_OUTPUT.PUT_LINE('--- Database Mode ---'); END;
+/
+SELECT name, db_unique_name, open_mode, log_mode, cdb
+FROM   v$database;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('');
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+  DBMS_OUTPUT.PUT_LINE(' End of STIG Compliance Report -- {{ stig_db.sid }}');
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+END;
+/
+
+EXIT 0;

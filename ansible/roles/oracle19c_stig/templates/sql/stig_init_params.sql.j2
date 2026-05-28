@@ -1,0 +1,147 @@
+-- =============================================================================
+-- STIG Init Parameter Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+-- Generated: Ansible -- do not edit manually
+-- =============================================================================
+-- V1R5 Changes vs V1R2:
+--   Added O19C-00-009400: REMOTE_LOGIN_PASSWORDFILE = EXCLUSIVE
+--   Added O19C-00-012400: max_idle_time = 15 (new init param requirement)
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- ── O19C-00-000100 (V-270437) -- REMOTE_OS_AUTHENT = FALSE (CAT I) ──────────
+{% if stig_O19C_000100_enabled %}
+ALTER SYSTEM SET REMOTE_OS_AUTHENT = FALSE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000100: REMOTE_OS_AUTHENT=FALSE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000200 (V-270438) -- REMOTE_OS_ROLES = FALSE (CAT I) ────────────
+{% if stig_O19C_000200_enabled %}
+ALTER SYSTEM SET REMOTE_OS_ROLES = FALSE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000200: REMOTE_OS_ROLES=FALSE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000300 (V-270439) -- AUDIT_TRAIL != NONE (CAT I) ────────────────
+{% if stig_O19C_000300_enabled %}
+ALTER SYSTEM SET AUDIT_TRAIL = OS SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000300: AUDIT_TRAIL=OS (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000500 (V-270441) -- AUDIT_SYS_OPERATIONS = TRUE (CAT II) ───────
+{% if stig_O19C_000500_enabled %}
+ALTER SYSTEM SET AUDIT_SYS_OPERATIONS = TRUE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000500: AUDIT_SYS_OPERATIONS=TRUE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000600 (V-270442) -- SQL92_SECURITY = TRUE (CAT II) ─────────────
+{% if stig_O19C_000600_enabled %}
+ALTER SYSTEM SET SQL92_SECURITY = TRUE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000600: SQL92_SECURITY=TRUE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001000 -- SEC_MAX_FAILED_LOGIN_ATTEMPTS (CAT II) ─────────────────
+{% if stig_O19C_001000_enabled %}
+ALTER SYSTEM SET SEC_MAX_FAILED_LOGIN_ATTEMPTS = {{ stig_sec_max_failed_login_attempts }} SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001000: SEC_MAX_FAILED_LOGIN_ATTEMPTS={{ stig_sec_max_failed_login_attempts }}');
+END;
+/
+{% endif %}
+
+-- ── SEC_PROTOCOL_ERROR_FURTHER_ACTION ────────────────────────────────────────
+ALTER SYSTEM SET SEC_PROTOCOL_ERROR_FURTHER_ACTION = '{{ stig_sec_protocol_error_further_action }}' SCOPE = BOTH;
+ALTER SYSTEM SET SEC_RETURN_SERVER_RELEASE_BANNER = {{ stig_sec_return_server_release_banner }} SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG: SEC_PROTOCOL_ERROR_FURTHER_ACTION and SEC_RETURN_SERVER_RELEASE_BANNER set');
+END;
+/
+
+-- ── O19C-00-009400 (V1R5 NEW) -- REMOTE_LOGIN_PASSWORDFILE (CAT II) ──────────
+-- V1R5 V-270526: Must be EXCLUSIVE or NONE. SHARED is a finding.
+-- EXCLUSIVE is required for auditing individual SYSDBA logons.
+{% if stig_O19C_009400_enabled %}
+DECLARE
+  v_current VARCHAR2(20);
+BEGIN
+  SELECT value INTO v_current
+  FROM   v$parameter
+  WHERE  name = 'remote_login_passwordfile';
+  IF UPPER(v_current) IN ('EXCLUSIVE','NONE') THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-009400: REMOTE_LOGIN_PASSWORDFILE=' || v_current || ' -- COMPLIANT');
+  ELSE
+    EXECUTE IMMEDIATE 'ALTER SYSTEM SET REMOTE_LOGIN_PASSWORDFILE=''{{ stig_remote_login_passwordfile }}'' SCOPE=SPFILE';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-009400: REMOTE_LOGIN_PASSWORDFILE set to {{ stig_remote_login_passwordfile }} (SPFILE -- restart required)');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-012400 (V1R5 NEW) -- max_idle_time ≤ 15 minutes (CAT II) ─────────
+-- V1R5 V-270550 adds an explicit check on the max_idle_time init parameter
+-- in addition to the existing SQLNET.EXPIRE_TIME / PROFILE IDLE_TIME controls.
+-- Query: SELECT gp.inst_id, gp.con_id, gp.value FROM sys.gv_$parameter gp
+--        WHERE gp.name = 'max_idle_time';
+-- If value=0 or >15, this is a finding.
+{% if stig_O19C_012400_enabled %}
+ALTER SYSTEM SET max_idle_time = {{ stig_max_idle_time }}
+  COMMENT = 'STIG V1R5 O19C-012400 - set {{ ansible_date_time.date }}'
+  SID = '*'
+  SCOPE = BOTH;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-012400 (V1R5): max_idle_time={{ stig_max_idle_time }} minutes -- APPLIED');
+END;
+/
+{% endif %}
+
+{% if stig_O19C_016000_enabled %}
+DECLARE
+  v_current VARCHAR2(10);
+BEGIN
+  BEGIN
+    SELECT value INTO v_current
+    FROM   v$parameter
+    WHERE  name = 'dbfips_140';
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      v_current := 'NOT_FOUND';
+  END;
+  IF UPPER(v_current) = 'TRUE' THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-016000/015500 (V-270571/V-270569): DBFIPS_140=TRUE -- COMPLIANT');
+  ELSE
+    EXECUTE IMMEDIATE 'ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-016000/015500 (V-270571/V-270569): DBFIPS_140=TRUE set (SPFILE -- restart required)');
+  END IF;
+END;
+/
+{% endif %}
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('');
+  DBMS_OUTPUT.PUT_LINE('NOTE: Parameters set with SCOPE=SPFILE require a DB restart:');
+  DBMS_OUTPUT.PUT_LINE('  REMOTE_OS_AUTHENT, REMOTE_OS_ROLES, AUDIT_TRAIL,');
+  DBMS_OUTPUT.PUT_LINE('  AUDIT_SYS_OPERATIONS, SQL92_SECURITY,');
+  DBMS_OUTPUT.PUT_LINE('  SEC_MAX_FAILED_LOGIN_ATTEMPTS, SEC_RETURN_SERVER_RELEASE_BANNER');
+  DBMS_OUTPUT.PUT_LINE('  Plan a maintenance window before restarting.');
+END;
+/
+
+EXIT 0;

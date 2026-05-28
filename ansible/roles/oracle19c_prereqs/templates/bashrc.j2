@@ -1,0 +1,163 @@
+{% raw %}
+# .bashrc
+
+# User specific aliases and functions
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+if [ -f /etc/bash.local ]; then
+    . /etc/bash.local
+fi
+
+## add additions/changes/overrides here
+
+# History settings
+export HISTSIZE=5000
+export HISTTIMEFORMAT="%F %T"
+
+unset LS_COLORS
+unset USERNAME
+unset LESSOPEN
+unset VNCDESKTOP
+set -o vi
+
+## requested by Oracle
+export OPATCH_NO_FUSER=FALSE
+export NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1
+export EDITOR=vi
+
+if [ -z "$ORIG_PATH" ]; then
+    export ORIG_PATH=$PATH
+fi
+umask 022
+
+export PATH=$PATH:$HOME/bin:$ORACLE_HOME/bin:$ORACLE_HOME/jdk/bin:$ORACLE_HOME/OPatch:/usr/local/bin
+
+unset TWO_TASK
+BITS=`uname -i`
+if [ ! -f /etc/ld.so.conf.d/oracle-$BITS.conf ]; then
+#    echo "... Cannot find /etc/ld.so.conf.d/oracle-$BITS.conf"
+    if [ `uname -i` = x86_64 ]; then
+        FORCE_BITS=x64
+    else
+        FORCE_BITS=x32
+    fi
+fi
+
+if [ "$FORCE_BITS" = x32 ]; then
+#    echo "... Forcing 32-bit LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH=$OH/lib32:$OH/lib:$OH/ctx/lib:$OH/jdk/jre/lib/i386:$OH/jdk/jre/lib/i386/server:$OH/jdk/jre/lib/i386/client:$OH/jdk/jre/lib/i386/native_threads:$OH/jre/1.4.2/lib/i386:$OH/jre/1.4.2/lib/i386/server:$OH/jre/1.4.2/lib/i386/client:$OH/jre/1.4.2/lib/i386/native_threads:/usr/lib
+elif [ "$FORCE_BITS" = x64 ]; then
+#    echo "... Forcing 64-bit LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH=/lib/i686:$OH/lib:$OH/lib32:$OH/ctx/lib:$OH/jdk/jre/lib/amd64:$OH/jdk/jre/lib/amd64/server:$OH/jdk/jre/lib/amd64/native_threads:$OH/jdk/jre/lib/i386:$OH/jdk/jre/lib/i386/server:$OH/jdk/jre/lib/i386/client:$OH/jdk/jre/lib/i386/native_threads:$OH/jre/1.4.2/lib/i386:$OH/jre/1.4.2/lib/i386/server:$OH/jre/1.4.2/lib/i386/client:$OH/jre/1.4.2/lib/i386/native_threads:/usr/lib
+fi
+
+if [[ $- == *i* ]]
+then
+   ORACLE_SID=`ps -ef | grep pmon | grep -v grep | awk '{print $8}' | head -1 | cut -f3 -d "_"`
+   if [ -z "$ORACLE_SID" ]; then
+      echo
+      echo "***** NO DATABASE RUNNING... *****"
+      echo
+      export ORACLE_SID=`grep -m 1 :Y$ /etc/oratab | awk  -F ":" '{print $1}'`
+   fi
+   #export SID to lowercase for commands that need it
+   export ORACLE_SID_LOWER="${ORACLE_SID,,}"
+   ORAENV_ASK=NO
+   . oraenv $1
+   ORAENV_ASK=YES
+fi
+
+export TNS_ADMIN=/app/oracle/common/tns
+export OH=$ORACLE_HOME
+export JAVA_HOME=/app/oracle/java
+export BDUMP=$OH/admin/$ORACLE_SID/bdump
+export PATH=$ORIG_PATH:$HOME/bin:$ORACLE_HOME/opmn/bin:$ORACLE_HOME/dcm/bin:$ORACLE_HOME/bin:$ORACLE_HOME/ctx/bin:$ORACLE_HOME/perl/bin:$ORACLE_HOME/jdk/bin:$ORACLE_HOME/OPatch:.
+export CLASSPATH=.:$OH/JRE/lib/ext:$OH/JRE/lib:$OH/jlib:$OH/rdbms/jlib:$OH/jdbc/lib/classes12.zip:$OH/jdbc/lib/nls_charset12.zip:$OH/jlib/jewt4.jar:$OH/jlib/shar.jar:$JAVA_HOME/lib/tools.jar
+export APACHE_HOME=$ORACLE_HOME/Apache/Apache
+export WEB_ORACLE_HOME=$ORACLE_HOME
+export TNS_ADMIN=/app/oracle/common/tns
+export LDAP_ADMIN=$TNS_ADMIN
+export CDUMP=$OH/admin/$ORACLE_SID/cdump
+export BDUMP=$OH/admin/$ORACLE_SID/bdump
+export UDUMP=$OH/admin/$ORACLE_SID/udump
+export SQLPATH=~/sql
+export FPATH=$HOME/func
+
+
+alias sp="sqlplus /nolog"
+alias spdba="sqlplus \"/ as sysdba\""
+alias dfu="df -k | grep u |grep -v swap | sort"
+alias psg="ps -ef | grep -v grep | grep"
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias al='/app/home/oracle/scripts/al.sh'
+alias alf='/app/home/oracle/scripts/alf.sh'
+alias cdal='cd $ORACLE_BASE/diag/rdbms/$lowercaseSID/$ORACLE_SID/trace'
+alias cdo='cd $ORACLE_HOME'
+alias ce='crontab -e'
+alias cl='crontab -l'
+alias diag='cd $ORACLE_BASE/diag'
+alias dotpath='export PATH=$PATH:.;path'
+alias egrep='egrep --color=no'
+alias grep='grep --color=no'
+alias hm='history | more'
+alias hog='du -ka | sort -n | tail -100'
+alias l.='ls -ld .* --color=no'
+alias ll='ls -al --color=no'
+alias ltr='ls -lrt --color=no'
+alias na='cd /app/oracle/common/tns'
+alias ops='opatch lsinventory | egrep -i "created|applied|description"'
+alias path='echo $PATH | tr \: \\n'
+alias p='pwd'
+alias pso='ps -ef | grep -v grep | grep ora | sort'
+alias psp='ps -ef | grep -v grep | grep pmon | sort'
+alias psr='ps -ef | grep -v grep | grep rman | sort'
+alias pst='ps -ef | grep -v grep | grep tns | sort'
+alias sid='echo $ORACLE_SID'
+alias s='sqlplus / as sysdba'
+alias suo='list_current_session; echo "(sudo -i -u oracle)"; sudo -s -u oracle'
+alias sur='list_current_session; echo "(sudo -i -u root)"; sudo -s -u root'
+alias t='cat /etc/oratab | grep ":[Y,N]"'
+alias tvi='vi /etc/oratab'
+alias v='cat /etc/redhat-release'
+alias ot='cat /etc/oratab | grep -v "#"'
+alias t='cat /etc/oratab | grep ":[N,Y]"'
+alias tvi='vi /etc/oratab'
+alias r='rman target /'
+alias sc="cd /app/home/oracle/scripts"
+
+alias sus='cd /depot/sustainment/Oracle_Admins/Lindsay/scripts'
+
+alias c="clear"
+alias ll="ls -la"
+alias pso="ps -ef | egrep 'lsnr|ora_pmon|asm_pmon' | grep -v grep | sort -k 9"
+alias psoo="ps -ef | grep LOCAL="
+alias psoc="ps -ef | grep -c LOCAL="
+alias oh="cd $ORACLE_HOME"
+alias ema="ps -ef | grep 'agent' | grep ora | grep nohup | grep -v grep"
+alias whom="who -u | grep hawk"
+alias cdp="cd /db_stage/patches"
+alias sysdba="sqlplus / as sysdba"
+##alias menu="set_sid; . ~/.jwh"
+
+export PS1="
+\D{%T} [\e[36;01m\u\]\e[m@\h:\e[36;01m\$ORACLE_SID\]\e[m]:\$PWD
+$ "
+cd ~
+
+if [[ $- == *i* ]]
+then
+   stty erase ^?
+   psp
+#else
+#   echo "Not Interactive"
+fi
+
+{% endraw %}

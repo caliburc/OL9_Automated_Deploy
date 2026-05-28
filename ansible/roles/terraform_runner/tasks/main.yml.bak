@@ -1,0 +1,136 @@
+---
+- name: Parse requested VM FQDNs from survey
+  ansible.builtin.set_fact:
+    requested_vms: >-
+      {{
+        vm_fqdns
+        | default('')
+        | split(',')
+        | map('trim')
+        | reject('equalto', '')
+        | list
+      }}
+
+- name: Fail if no VMs requested
+  ansible.builtin.fail:
+    msg: "No VM names were provided in vm_fqdns."
+  when: requested_vms | length == 0
+
+- name: Check that requested vars files exist
+  ansible.builtin.stat:
+    path: "{{ build_vars_dir }}/{{ item }}.yml"
+  loop: "{{ requested_vms }}"
+  register: requested_vm_files
+
+- name: Fail if any vars file is missing
+  ansible.builtin.fail:
+    msg: >-
+      Missing build definition file(s):
+      {{
+        requested_vm_files.results
+        | rejectattr('stat.exists')
+        | map(attribute='item')
+        | list
+        | join(', ')
+      }}
+  when: >
+    (requested_vm_files.results | rejectattr('stat.exists') | list | length) > 0
+
+- name: Load per-VM vars files
+  ansible.builtin.include_vars:
+    file: "{{ build_vars_dir }}/{{ item }}.yml"
+    name: "build_vm"
+  loop: "{{ requested_vms }}"
+  register: loaded_vm_vars
+
+- name: Debug loaded_vm_vars
+  ansible.builtin.debug:
+    msg: "{{ loaded_vm_vars }}"
+
+- name: Build Terraform vms map
+  ansible.builtin.set_fact:
+    terraform_vms: >-
+      {{
+        terraform_vms | default({}) |
+        combine(
+          {
+            fqdn: {
+              'vm_name': short_name,
+              'vm_type': vmvars.vm_type | default('generic'),
+              'annotation': vmvars.annotation | default(''),
+              'networks': vmvars.networks | default([]),
+              'additional_disks': vmvars.additional_disks | default([]),
+              'cpu_override': vmvars.cpu_override | default(0) | int,
+              'memory_mb_override': vmvars.memory_override_mb | default(0) | int,
+              'disk0_gb_override': vmvars.disk0_gb_override | default(0) | int,
+              'vsphere_datacenter': vmvars.vsphere_datacenter,
+              'vsphere_cluster': vmvars.vsphere_cluster,
+              'vsphere_datastore': vmvars.vsphere_datastore,
+              'vsphere_folder': vmvars.vsphere_folder | default(''),
+              'vsphere_resource_pool': vmvars.vsphere_resource_pool | default(''),
+              'template_name': vmvars.template_name,
+              'vm_domain': vmvars.vm_domain | default(vm_domain | default('idm.hedc.mil')),
+              'dns_servers_csv': vmvars.dns_servers_csv | default('')
+            }
+          },
+          recursive=True
+        )
+      }}
+  vars:
+    vmvars: "{{ item.ansible_facts.build_vm }}"
+    fqdn: "{{ [vmvars.vm_name, (vmvars.vm_domain | default(vm_domain | default('idm.hedc.mil')))] | join('.') }}"
+    short_name: "{{ vmvars.vm_name }}"
+  loop: "{{ loaded_vm_vars.results }}"
+
+- name: Debug terraform_vms
+  ansible.builtin.debug:
+    var: terraform_vms
+
+- name: Build Terraform variables file
+  ansible.builtin.template:
+    src: terraform.auto.tfvars.json.j2
+    dest: "{{ terraform_project_dir }}/terraform.auto.tfvars.json"
+    mode: "0600"
+
+- name: Terraform init
+  ansible.builtin.command: terraform init
+  args:
+    chdir: "{{ terraform_project_dir }}"
+  environment:
+    TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+
+- name: Terraform apply
+  ansible.builtin.command: terraform apply -auto-approve
+  args:
+    chdir: "{{ terraform_project_dir }}"
+  environment:
+    TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+
+- name: Wait for SSH on provisioned VMs
+  ansible.builtin.wait_for:
+    host: "{{ vm_primary_ip }}"
+    port: 22
+    state: started
+    delay: 5           # initial delay before first check
+    timeout: 120        # overall timeout in seconds
+  vars:
+    vmvars: "{{ item.ansible_facts.build_vm }}"
+    vm_primary_ip: "{{ vmvars.networks[0].ipv4_address }}"
+  loop: "{{ loaded_vm_vars.results }}"
+  loop_control:
+    label: "{{ vmvars.vm_name }}"
+
+- name: Add provisioned VMs to runtime inventory
+  ansible.builtin.add_host:
+    name: "{{ vmvars.vm_name }}"
+    groups: provisioned_vms
+    ansible_host: "{{ vm_primary_ip }}"
+    ansible_user: "{{ default_user | default('hedcadm') }}"
+    build_vars_file: "{{ build_vars_dir }}/{{ item.item }}.yml"
+  vars:
+    vmvars: "{{ item.ansible_facts.build_vm }}"
+    # pick first NIC’s IPv4 address, adapt if you need a specific one
+    vm_primary_ip: "{{ vmvars.networks[0].ipv4_address }}"
+  loop: "{{ loaded_vm_vars.results }}"
+  loop_control:
+    label: "{{ vmvars.vm_name }}"

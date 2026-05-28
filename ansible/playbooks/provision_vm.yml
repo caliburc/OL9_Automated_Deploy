@@ -1,0 +1,102 @@
+---
+# =============================================================================
+# provision_vm.yml
+#
+# Two-play playbook for VM provisioning and server configuration.
+#
+# TAGS
+# ----
+# provision    - Run only the Terraform provisioning play (Play 1)
+# configure    - Run only the Ansible configuration play (Play 2)
+#
+# USAGE EXAMPLES
+# --------------
+# Full run (provision + configure):
+#   ansible-playbook provision_vm.yml -e vm_fqdns="host1.idm.hedc.mil"
+#
+# Provision only (deploy VMs, no role configuration):
+#   ansible-playbook provision_vm.yml --tags provision \
+#     -e vm_fqdns="host1.idm.hedc.mil"
+#
+# Configure only (skip Terraform, re-run Ansible roles against existing VMs):
+#   ansible-playbook provision_vm.yml --tags configure \
+#     -e vm_fqdns="host1.idm.hedc.mil" \
+#     -e skip_terraform=true
+#
+#   Note: skip_terraform=true tells deploy_one_vm.yml to bypass all Terraform
+#   steps and go straight to adding the host to the runtime inventory so that
+#   Play 2 can run against it. The VM must already exist and be reachable.
+# =============================================================================
+
+- name: Provision OEL9 VM with Terraform
+  hosts: localhost
+  gather_facts: false
+  tags:
+    - provision
+  vars_files:
+    - ../vars/common-vars.yml
+    - ../vault/vault.yml
+  vars:
+    #  vm_fqdns: "apatljira01t.idm.hedc.mil,apatljira02t.idm.hedc.mil"
+    build_vars_dir: "{{ playbook_dir }}/../vars/build"
+    terraform_project_dir: "{{ playbook_dir }}/../../terraform"
+    terraform_state_dir: "{{ terraform_project_dir }}/state"
+    terraform_tfvars_dir: "{{ terraform_project_dir }}/tfvars"
+    # Set to true to skip Terraform entirely and only populate the runtime
+    # inventory (useful for re-running Ansible roles against existing VMs).
+    skip_terraform: false
+  roles:
+    - terraform_runner
+
+
+- name: Run Server Configuration Roles Based on Server Type
+  hosts: provisioned_vms
+  gather_facts: true
+  become: true
+  tags:
+    - configure
+  vars_files:
+    - ../vars/common-vars.yml
+    - ../vault/vault.yml
+
+  pre_tasks:
+    - name: Load per-host build vars
+      ansible.builtin.include_vars:
+        file: "{{ build_vars_file }}"
+        name: build_vm
+      tags:
+        - always
+      # build_vars_file is set on each host by add_host in deploy_one_vm.yml.
+      # If running --tags configure with skip_terraform=true, the host must
+      # already be in provisioned_vms (populated by the terraform_runner role
+      # running in the first play even when skip_terraform=true).
+
+    - name: Set fact for server roles based on vm_type or explicit server_roles
+      ansible.builtin.set_fact:
+        effective_server_roles: >-
+          {{
+            (build_vm.server_roles
+             | default(vm_type_role_map[build_vm.vm_type] | default(['baseline'])))
+            | difference(skip_roles | default([]))
+          }}
+      tags:
+        - always
+      # Priority: explicit server_roles in build file > vm_type role map > baseline
+
+    - name: Display host summary
+      ansible.builtin.debug:
+        msg:
+          - "Hostname:     {{ ansible_hostname | default('Unknown-Host') }}"
+          - "FQDN:         {{ ansible_fqdn | default('Unknown FQDN') }}"
+          - "Distribution: {{ ansible_distribution | default('Unknown OS') }} {{ ansible_distribution_version | default('Unknown Version') }}"
+          - "IP Addresses: {{ ansible_all_ipv4_addresses | default(['No IPs Configured']) | join(', ') }}"
+      tags:
+        - debug
+        - configure
+
+    - name: Run roles for this server
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ effective_server_roles }}"
+      tags:
+        - configure

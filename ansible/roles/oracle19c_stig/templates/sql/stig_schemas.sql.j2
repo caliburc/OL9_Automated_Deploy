@@ -1,0 +1,32 @@
+-- =============================================================================
+-- STIG Sample Schema Removal
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2 - O19C-00-010800
+-- Generated: Ansible - do not edit manually
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+{% for schema in stig_sample_schemas_to_drop %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists FROM dba_users WHERE username = '{{ schema }}';
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP USER {{ schema }} CASCADE';
+      DBMS_OUTPUT.PUT_LINE('STIG O19C-010800: Schema {{ schema }} DROPPED');
+    EXCEPTION
+      WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('STIG O19C-010800: ERROR dropping {{ schema }}: ' || SQLERRM);
+    END;
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010800: Schema {{ schema }} not present - COMPLIANT');
+  END IF;
+END;
+/
+{% endfor %}
+
+EXIT 0;

@@ -1,0 +1,67 @@
+---
+# =============================================================================
+# STIG Init Parameter Task – V1R5 additions
+# Appended to roles/oracle_stig/tasks/stig_init_params.yml
+# STIG Ref: DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+# =============================================================================
+# Replace the existing stig_init_params.yml task list with this file,
+# OR append the NEW V1R5 tasks below to your existing stig_init_params.yml.
+# The full SQL template (stig_init_params.sql.j2) handles the SQL execution;
+# this task file drives the Ansible side.
+# =============================================================================
+
+- name: "[STIG init params – {{ stig_db.sid }}] Deploy init params SQL script"
+  ansible.builtin.template:
+    src: sql/stig_init_params.sql.j2
+    dest: "/tmp/stig_init_params_{{ stig_db.sid }}.sql"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0600"
+  tags: stig_params
+
+- name: "[STIG init params – {{ stig_db.sid }}] Execute init params SQL"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba \
+      @/tmp/stig_init_params_{{ stig_db.sid }}.sql
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID:  "{{ stig_db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: init_params_result
+  changed_when: "'APPLIED' in init_params_result.stdout or 'SPFILE' in init_params_result.stdout"
+  failed_when: false
+  when: not oracle_stig_report_only | bool
+  tags: stig_params
+
+- name: "[STIG init params – {{ stig_db.sid }}] Display output"
+  ansible.builtin.debug:
+    var: init_params_result.stdout_lines
+  tags: stig_params
+
+- name: "[STIG init params – {{ stig_db.sid }}] Remove SQL script"
+  ansible.builtin.file:
+    path: "/tmp/stig_init_params_{{ stig_db.sid }}.sql"
+    state: absent
+  tags: stig_params
+
+# ── V1R5 O19C-009400: Password file OS permissions ───────────────────────────
+# SQL side is handled in stig_init_params.sql.j2 (REMOTE_LOGIN_PASSWORDFILE).
+# OS side is handled in stig_os_v1r5_additions.yml.
+# Nothing additional needed here – cross-reference only.
+
+# ── V1R5 NOTE: SPFILE-only parameters require a DB restart ───────────────────
+# Parameters set with SCOPE=SPFILE take effect on next startup:
+#   - REMOTE_OS_AUTHENT, REMOTE_OS_ROLES
+#   - AUDIT_TRAIL, AUDIT_SYS_OPERATIONS
+#   - SQL92_SECURITY
+#   - REMOTE_LOGIN_PASSWORDFILE  (new in V1R5)
+# Parameters set with SCOPE=BOTH take effect immediately:
+#   - SEC_MAX_FAILED_LOGIN_ATTEMPTS
+#   - SEC_PROTOCOL_ERROR_FURTHER_ACTION
+#   - SEC_RETURN_SERVER_RELEASE_BANNER
+#   - max_idle_time  (new in V1R5 – dynamic parameter)
+# Plan a maintenance window for the DB restart after first STIG run.

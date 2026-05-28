@@ -1,0 +1,334 @@
+-- =============================================================================
+-- STIG Unified Audit Policy Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2
+-- Generated: Ansible -- do not edit manually
+-- =============================================================================
+-- POLICY LAYOUT (5 policies -- Oracle 19c unified audit grammar requirements)
+--
+--   POLICY 1: ORA_STIG_AUDIT_POLICY          system actions (DDL, DCL, session)
+--   POLICY 2: ORA_STIG_AUDIT_POLICY_PRIVS    system privileges (PRIVILEGES clause)
+--   POLICY 3: ORA_STIG_AUDIT_POLICY_SYSUSER  object DML on SYS.USER$
+--   POLICY 4: ORA_STIG_AUDIT_POLICY_LOGONFAIL failed logon attempts
+--   POLICY 5: ORA_STIG_AUDIT_POLICY_AUD      object DML on SYS.AUD$
+--
+-- ORACLE 19c UNIFIED AUDIT GRAMMAR RULES LEARNED:
+--   1. ACTIONS and PRIVILEGES cannot be in the same CREATE AUDIT POLICY -- ORA-46383.
+--   2. Object actions (ACTION ON schema.obj) cannot mix with system actions -- ORA-46383.
+--   3. LOGOFF is not a valid standalone audit action keyword.
+--   4. CREATE/DROP PACKAGE BODY are not valid audit keywords; PACKAGE covers both.
+--   5. WHENEVER NOT SUCCESSFUL belongs on the AUDIT POLICY (enable) statement,
+--      NOT on the CREATE AUDIT POLICY statement -- ORA-00933 if placed on CREATE.
+--      Correct pattern:
+--        CREATE AUDIT POLICY pname ACTIONS LOGON;
+--        AUDIT POLICY pname WHENEVER NOT SUCCESSFUL;
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- =============================================================================
+-- POLICY 1 of 5: {{ stig_unified_audit_policy_name }}
+-- System-level ACTIONS only (DDL, DCL, session, user management)
+-- VULs: O19C-002200, 002300, 002500, 002600, 002700
+--
+-- Confirmed valid Oracle 19c unified audit ACTIONS keywords:
+--   LOGON
+--   CREATE/ALTER/DROP USER
+--   GRANT, REVOKE
+--   CREATE/ALTER/DROP PROCEDURE
+--   CREATE/ALTER/DROP FUNCTION
+--   CREATE/ALTER/DROP PACKAGE  (covers spec AND body; no separate PACKAGE BODY keyword)
+--   CREATE/ALTER/DROP TRIGGER
+--   CREATE/ALTER/DROP TABLE, TRUNCATE TABLE
+--   CREATE/ALTER/DROP INDEX
+--   CREATE/DROP VIEW
+--   CREATE/DROP SEQUENCE
+--   CREATE/DROP SYNONYM
+--   CREATE/DROP DATABASE LINK
+-- =============================================================================
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   audit_unified_policies
+  WHERE  policy_name = '{{ stig_unified_audit_policy_name }}'
+    AND  ROWNUM = 1;
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'NOAUDIT POLICY {{ stig_unified_audit_policy_name }}';
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY {{ stig_unified_audit_policy_name }}';
+    DBMS_OUTPUT.PUT_LINE('STIG Audit: Dropped existing {{ stig_unified_audit_policy_name }}');
+  END IF;
+END;
+/
+
+CREATE AUDIT POLICY {{ stig_unified_audit_policy_name }}
+  ACTIONS
+    LOGON,
+    CREATE USER,
+    ALTER USER,
+    DROP USER,
+    GRANT,
+    REVOKE,
+    CREATE PROCEDURE,
+    ALTER PROCEDURE,
+    DROP PROCEDURE,
+    CREATE FUNCTION,
+    ALTER FUNCTION,
+    DROP FUNCTION,
+    CREATE PACKAGE,
+    ALTER PACKAGE,
+    DROP PACKAGE,
+    CREATE TRIGGER,
+    ALTER TRIGGER,
+    DROP TRIGGER,
+    CREATE TABLE,
+    ALTER TABLE,
+    DROP TABLE,
+    TRUNCATE TABLE,
+    CREATE INDEX,
+    ALTER INDEX,
+    DROP INDEX,
+    CREATE VIEW,
+    DROP VIEW,
+    CREATE SEQUENCE,
+    DROP SEQUENCE,
+    CREATE SYNONYM,
+    DROP SYNONYM,
+    CREATE DATABASE LINK,
+    DROP DATABASE LINK;
+
+AUDIT POLICY {{ stig_unified_audit_policy_name }};
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG Audit: Policy {{ stig_unified_audit_policy_name }} CREATED and ENABLED');
+END;
+/
+
+-- =============================================================================
+-- POLICY 2 of 5: {{ stig_unified_audit_policy_name }}_PRIVS
+-- System PRIVILEGES audit
+-- VUL: O19C-010600
+--
+-- Must be SEPARATE from ACTIONS policy -- ORA-46383 if combined.
+-- =============================================================================
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   audit_unified_policies
+  WHERE  policy_name = '{{ stig_unified_audit_policy_name }}_PRIVS'
+    AND  ROWNUM = 1;
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'NOAUDIT POLICY {{ stig_unified_audit_policy_name }}_PRIVS';
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY {{ stig_unified_audit_policy_name }}_PRIVS';
+    DBMS_OUTPUT.PUT_LINE('STIG Audit: Dropped existing {{ stig_unified_audit_policy_name }}_PRIVS');
+  END IF;
+END;
+/
+
+CREATE AUDIT POLICY {{ stig_unified_audit_policy_name }}_PRIVS
+  PRIVILEGES
+    CREATE ANY TABLE,
+    DROP ANY TABLE,
+    CREATE ANY PROCEDURE,
+    DROP ANY PROCEDURE,
+    CREATE ANY TRIGGER,
+    DROP ANY TRIGGER,
+    ALTER SYSTEM,
+    ALTER DATABASE,
+    AUDIT SYSTEM,
+    AUDIT ANY,
+    BECOME USER,
+    CREATE PUBLIC SYNONYM,
+    DROP PUBLIC SYNONYM;
+
+AUDIT POLICY {{ stig_unified_audit_policy_name }}_PRIVS;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-010600: Policy {{ stig_unified_audit_policy_name }}_PRIVS CREATED and ENABLED');
+END;
+/
+
+-- =============================================================================
+-- POLICY 3 of 5: {{ stig_unified_audit_policy_name }}_SYSUSER
+-- Object-level DML audit on SYS.USER$
+-- VUL: O19C-00-002100
+--
+-- Must be separate -- object "ACTION ON schema.obj" cannot mix with system
+-- action keywords in the same ACTIONS clause (ORA-46383).
+-- =============================================================================
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   audit_unified_policies
+  WHERE  policy_name = '{{ stig_unified_audit_policy_name }}_SYSUSER'
+    AND  ROWNUM = 1;
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'NOAUDIT POLICY {{ stig_unified_audit_policy_name }}_SYSUSER';
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY {{ stig_unified_audit_policy_name }}_SYSUSER';
+    DBMS_OUTPUT.PUT_LINE('STIG Audit: Dropped existing {{ stig_unified_audit_policy_name }}_SYSUSER');
+  END IF;
+END;
+/
+
+CREATE AUDIT POLICY {{ stig_unified_audit_policy_name }}_SYSUSER
+  ACTIONS
+    SELECT ON SYS.USER$,
+    INSERT ON SYS.USER$,
+    UPDATE ON SYS.USER$,
+    DELETE ON SYS.USER$;
+
+AUDIT POLICY {{ stig_unified_audit_policy_name }}_SYSUSER;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-002100: Policy {{ stig_unified_audit_policy_name }}_SYSUSER CREATED and ENABLED');
+END;
+/
+
+-- =============================================================================
+-- POLICY 4 of 5: {{ stig_unified_audit_policy_name }}_LOGONFAIL
+-- Failed logon attempts
+-- VUL: O19C-00-011500
+--
+-- Must be separate: a policy auditing only failures cannot be combined with
+-- success-auditing actions.
+--
+-- CRITICAL GRAMMAR: WHENEVER NOT SUCCESSFUL belongs on the AUDIT POLICY
+-- (enable) statement, NOT on CREATE AUDIT POLICY. The CREATE statement
+-- defines the policy actions; the AUDIT statement controls when to fire it.
+--
+--   CORRECT:
+--     CREATE AUDIT POLICY pname ACTIONS LOGON;
+--     AUDIT POLICY pname WHENEVER NOT SUCCESSFUL;
+--
+--   WRONG (causes ORA-00933):
+--     CREATE AUDIT POLICY pname ACTIONS LOGON WHENEVER NOT SUCCESSFUL;
+-- =============================================================================
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   audit_unified_policies
+  WHERE  policy_name = '{{ stig_unified_audit_policy_name }}_LOGONFAIL'
+    AND  ROWNUM = 1;
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'NOAUDIT POLICY {{ stig_unified_audit_policy_name }}_LOGONFAIL';
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY {{ stig_unified_audit_policy_name }}_LOGONFAIL';
+    DBMS_OUTPUT.PUT_LINE('STIG Audit: Dropped existing {{ stig_unified_audit_policy_name }}_LOGONFAIL');
+  END IF;
+END;
+/
+
+CREATE AUDIT POLICY {{ stig_unified_audit_policy_name }}_LOGONFAIL
+  ACTIONS LOGON;
+
+AUDIT POLICY {{ stig_unified_audit_policy_name }}_LOGONFAIL WHENEVER NOT SUCCESSFUL;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-011500: Policy {{ stig_unified_audit_policy_name }}_LOGONFAIL CREATED and ENABLED (failure-only)');
+END;
+/
+
+-- =============================================================================
+-- POLICY 5 of 5: {{ stig_unified_audit_policy_name }}_AUD
+-- Object-level DML audit on SYS.AUD$ (audit trail integrity)
+-- VUL: O19C-00-002400
+--
+-- Also handles O19C-010100: revoke DELETE on AUD$ from non-privileged accounts.
+-- =============================================================================
+
+-- O19C-010100: Revoke DELETE on AUD$ from non-privileged accounts first
+DECLARE
+  v_count NUMBER := 0;
+BEGIN
+  FOR r IN (
+    SELECT grantee
+    FROM   dba_tab_privs
+    WHERE  table_name = 'AUD$'
+      AND  privilege  = 'DELETE'
+      AND  grantee   NOT IN ('SYS','SYSTEM','AUDSYS','DBA')
+    ORDER BY grantee
+  ) LOOP
+    EXECUTE IMMEDIATE 'REVOKE DELETE ON SYS.AUD$ FROM ' || r.grantee;
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010100: DELETE on AUD$ revoked from ' || r.grantee);
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-010100: No excess DELETE grants on AUD$ -- COMPLIANT');
+  END IF;
+END;
+/
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   audit_unified_policies
+  WHERE  policy_name = '{{ stig_unified_audit_policy_name }}_AUD'
+    AND  ROWNUM = 1;
+  IF v_exists > 0 THEN
+    BEGIN
+      EXECUTE IMMEDIATE 'NOAUDIT POLICY {{ stig_unified_audit_policy_name }}_AUD';
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY {{ stig_unified_audit_policy_name }}_AUD';
+    DBMS_OUTPUT.PUT_LINE('STIG Audit: Dropped existing {{ stig_unified_audit_policy_name }}_AUD');
+  END IF;
+END;
+/
+
+CREATE AUDIT POLICY {{ stig_unified_audit_policy_name }}_AUD
+  ACTIONS
+    DELETE ON SYS.AUD$,
+    INSERT ON SYS.AUD$,
+    UPDATE ON SYS.AUD$;
+
+AUDIT POLICY {{ stig_unified_audit_policy_name }}_AUD;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-002400: Policy {{ stig_unified_audit_policy_name }}_AUD CREATED and ENABLED');
+END;
+/
+
+-- =============================================================================
+-- Verification: list all enabled STIG audit policies
+-- Expected: 5 rows
+--   ORA_STIG_AUDIT_POLICY           BY USER   YES   YES
+--   ORA_STIG_AUDIT_POLICY_AUD       BY USER   YES   YES
+--   ORA_STIG_AUDIT_POLICY_LOGONFAIL BY USER   NO    YES  (correct: failure-only)
+--   ORA_STIG_AUDIT_POLICY_PRIVS     BY USER   YES   YES
+--   ORA_STIG_AUDIT_POLICY_SYSUSER   BY USER   YES   YES
+-- =============================================================================
+
+SET HEADING ON
+SET LINESIZE 120
+COLUMN policy_name    FORMAT A55
+COLUMN enabled_option FORMAT A20
+COLUMN success        FORMAT A8
+COLUMN failure        FORMAT A8
+
+SELECT policy_name, enabled_option, success, failure
+FROM   audit_unified_enabled_policies
+WHERE  policy_name LIKE '{{ stig_unified_audit_policy_name }}%'
+ORDER BY policy_name;
+
+EXIT 0;

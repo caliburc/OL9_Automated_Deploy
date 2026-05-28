@@ -1,0 +1,156 @@
+-- =============================================================================
+-- STIG Profile and Password Policy Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2
+-- Generated: Ansible - do not edit manually
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- ── O19C-00-002800 - Create/update STIG-compliant password profile ───────────
+{% if stig_O19C_002800_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM dba_profiles
+  WHERE profile = '{{ stig_profile_name }}'
+    AND ROWNUM = 1;
+
+  IF v_exists = 0 THEN
+    EXECUTE IMMEDIATE
+      'CREATE PROFILE {{ stig_profile_name }} LIMIT
+         FAILED_LOGIN_ATTEMPTS     {{ stig_failed_login_attempts }}
+         PASSWORD_LIFE_TIME        {{ stig_password_life_time }}
+         PASSWORD_REUSE_TIME       {{ stig_password_reuse_time }}
+         PASSWORD_REUSE_MAX        {{ stig_password_reuse_max }}
+         PASSWORD_LOCK_TIME        {{ stig_password_lock_time }}
+         PASSWORD_GRACE_TIME       {{ stig_password_grace_time }}
+         PASSWORD_VERIFY_FUNCTION  {{ stig_password_verify_function }}
+         IDLE_TIME                 {{ stig_idle_time }}
+         SESSIONS_PER_USER         UNLIMITED
+         CPU_PER_SESSION           UNLIMITED
+         CPU_PER_CALL              UNLIMITED
+         LOGICAL_READS_PER_SESSION UNLIMITED
+         CONNECT_TIME              UNLIMITED';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-002800: Profile {{ stig_profile_name }} CREATED');
+  ELSE
+    EXECUTE IMMEDIATE
+      'ALTER PROFILE {{ stig_profile_name }} LIMIT
+         FAILED_LOGIN_ATTEMPTS     {{ stig_failed_login_attempts }}
+         PASSWORD_LIFE_TIME        {{ stig_password_life_time }}
+         PASSWORD_REUSE_TIME       {{ stig_password_reuse_time }}
+         PASSWORD_REUSE_MAX        {{ stig_password_reuse_max }}
+         PASSWORD_LOCK_TIME        {{ stig_password_lock_time }}
+         PASSWORD_GRACE_TIME       {{ stig_password_grace_time }}
+         PASSWORD_VERIFY_FUNCTION  {{ stig_password_verify_function }}
+         IDLE_TIME                 {{ stig_idle_time }}';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-002800: Profile {{ stig_profile_name }} UPDATED');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001100 - FAILED_LOGIN_ATTEMPTS on DEFAULT profile ───────────────
+{% if stig_O19C_001100_enabled %}
+ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS {{ stig_failed_login_attempts }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001100: DEFAULT FAILED_LOGIN_ATTEMPTS={{ stig_failed_login_attempts }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001200 - PASSWORD_LIFE_TIME on DEFAULT profile ──────────────────
+{% if stig_O19C_001200_enabled %}
+ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME {{ stig_password_life_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001200: DEFAULT PASSWORD_LIFE_TIME={{ stig_password_life_time }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001500 - PASSWORD_REUSE_TIME / PASSWORD_REUSE_MAX ───────────────
+{% if stig_O19C_001500_enabled %}
+ALTER PROFILE DEFAULT LIMIT
+  PASSWORD_REUSE_TIME {{ stig_password_reuse_time }}
+  PASSWORD_REUSE_MAX  {{ stig_password_reuse_max }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001500: DEFAULT PASSWORD_REUSE_TIME={{ stig_password_reuse_time }}, REUSE_MAX={{ stig_password_reuse_max }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001600 - PASSWORD_LOCK_TIME ─────────────────────────────────────
+{% if stig_O19C_001600_enabled %}
+ALTER PROFILE DEFAULT LIMIT PASSWORD_LOCK_TIME {{ stig_password_lock_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001600: DEFAULT PASSWORD_LOCK_TIME={{ stig_password_lock_time }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001700 - PASSWORD_GRACE_TIME ────────────────────────────────────
+{% if stig_O19C_001700_enabled %}
+ALTER PROFILE DEFAULT LIMIT PASSWORD_GRACE_TIME {{ stig_password_grace_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001700: DEFAULT PASSWORD_GRACE_TIME={{ stig_password_grace_time }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001800 - Assign STIG profile to non-privileged accounts ──────────
+{% if stig_O19C_001800_enabled %}
+DECLARE
+  v_count NUMBER := 0;
+BEGIN
+  FOR u IN (
+    SELECT username FROM dba_users
+    WHERE username NOT IN (
+      'SYS','SYSTEM','DBSNMP','SYSMAN','OUTLN','MDSYS','ORDSYS',
+      'EXFSYS','DMSYS','WMSYS','CTXSYS','ANONYMOUS','XDB','ORDPLUGINS',
+      'SI_INFORMTN_SCHEMA','TSMSYS','DIP','LBACSYS','SYSKM','SYSDG',
+      'SYSBACKUP','AUDSYS','GGSYS','OJVMSYS','OLAPSYS','ORDDATA',
+      'GSMADMIN_INTERNAL','GSMCATUSER','GSMUSER','REMOTE_SCHEDULER_AGENT',
+      'DBSFWUSER','APPQOSSYS','SYS$UMF','SYSRAC','{{ oracle_stig_audit_user }}'
+    )
+    AND account_status NOT LIKE '%EXPIRED%'
+    AND account_status NOT LIKE '%LOCKED%'
+    AND profile != '{{ stig_profile_name }}'
+  ) LOOP
+    EXECUTE IMMEDIATE 'ALTER USER "' || u.username || '" PROFILE {{ stig_profile_name }}';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001800: Assigned {{ stig_profile_name }} to ' || u.username);
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001800: All eligible accounts already on {{ stig_profile_name }}');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001800: Profile assigned to ' || v_count || ' account(s)');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-003000 - Check for default passwords ─────────────────────────────
+{% if stig_O19C_003000_enabled %}
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_count
+  FROM dba_users_with_defpwd
+  WHERE username NOT IN ('XS$NULL');
+  IF v_count > 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-003000: WARNING - ' || v_count || ' account(s) with default passwords found. Change or lock immediately.');
+    FOR r IN (SELECT username FROM dba_users_with_defpwd WHERE username NOT IN ('XS$NULL') ORDER BY username) LOOP
+      DBMS_OUTPUT.PUT_LINE('  -> ' || r.username);
+    END LOOP;
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-003000: No default passwords found - COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+COMMIT;
+EXIT 0;

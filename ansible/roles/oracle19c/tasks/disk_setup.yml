@@ -1,0 +1,106 @@
+---
+- name: Check if vgData exists
+  stat:
+    path: /dev/vgData
+  register: vgstat
+  tags: disk_config
+
+- name: Build SDC LVM
+  block:
+    - name: Find disk for SCSI 0:0:2:0
+      ansible.builtin.shell: |
+        set -e
+        ls -1 /dev/disk/by-path/*scsi-0:0:2:0 | head -n1
+      register: scsi_disk
+      changed_when: false
+
+    - name: Fail if SCSI 0:0:2:0 disk not found
+      ansible.builtin.fail:
+        msg: "No disk found for SCSI 0:0:2:0"
+      when:
+        - scsi_disk.stdout | trim == ""
+
+    - name: Resolve real block device for SCSI 0:0:2:0
+      ansible.builtin.shell: |
+        readlink -f "{{ scsi_disk.stdout | trim }}"
+      register: scsi_disk_real
+      changed_when: false
+
+    - name: Create PV and VG named vgData
+      community.general.lvg:
+        pvs: "{{ scsi_disk.stdout | trim }}"
+        vg: vgData
+        state: present
+
+    - name: Create Logical Volume (LV) named lvArch
+      community.general.lvol:
+        vg: vgData
+        lv: lvArch
+        size: 20%FREE
+        state: present
+
+    - name: Create Logical Volume (LV) named lvData
+      community.general.lvol:
+        vg: vgData
+        lv: lvData
+        size: 100%FREE
+        state: present
+
+    - name: Format lvArch with XFS filesystem
+      community.general.filesystem:
+        fstype: xfs
+        dev: /dev/vgData/lvArch
+    
+    - name: Format lvData with XFS filesystem
+      community.general.filesystem:
+        fstype: xfs
+        dev: /dev/vgData/lvData
+
+    - name: Create /data directories
+      ansible.builtin.file:
+        path: /data/oracle/arch
+        state: directory
+
+    - name: Mount Data Dir
+      ansible.posix.mount:
+        path: /data
+        src: /dev/vgData/lvData
+        fstype: xfs
+        state: mounted
+
+    - name: Mount Oracle Archive Dir
+      ansible.posix.mount:
+        path: /data/oracle/arch
+        src: /dev/vgData/lvArch
+        fstype: xfs
+        state: mounted
+
+    - name: Set /data permissions
+      ansible.builtin.file:
+        path: /data
+        state: directory
+        recurse: yes
+        owner: oracle
+        group: dba
+        mode: '0770'
+
+    - name: Backup fstab
+      ansible.builtin.copy:
+        src: /etc/fstab
+        dest: "/etc/fstab.{{ ansible_date_time.iso8601_basic_short }}.bak"
+        remote_src: yes
+
+    - name: Add Data Drive to fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: "^.*\\s+/data\\s+.*$"
+        line: "/dev/vgData/lvData    /data    xfs    defaults    1 2"
+
+    - name: Add Oracle Archive Drive to fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: "^.*\\s+/data/oracle/arch\\s+.*$"
+        line: "/dev/vgData/lvArch    /data/oracle/arch    xfs    defaults    1 2"
+        backup: true  
+  when: not vgstat.stat.exists
+  tags: disk_config

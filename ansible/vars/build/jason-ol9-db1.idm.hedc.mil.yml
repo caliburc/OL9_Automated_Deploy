@@ -1,0 +1,58 @@
+---
+template_name: "oel9-enc"
+
+vsphere_datacenter: "HEDC"
+vsphere_cluster: "G00-HEDC-ADMIN-Stretch"
+vsphere_datastore: "G00-HEDC-ADMIN-SA213-L254"
+vsphere_folder: "Infrastructure_Services/HEDC_Templates"
+vsphere_resource_pool: ""
+
+vm_name: jason-ol9-db1
+vm_domain: idm.hedc.mil
+vm_type: oracle_db
+annotation: "Oracle Linux 9 DB Server server"
+
+#example server_role override
+#server_roles:
+##  - baseline
+#  - oracle19c
+#  - cohesity_agent_deploy
+
+cpu_override: 0
+memory_gb_override: 0
+disk0_gb_override: 0
+
+oracle_databases:
+  - sid: ORCLTEST
+    sys_password: "{{ oracle_sys_default_pass }}"
+    system_password: "{{ oracle_system_default_pass }}"
+    blocksize: 8  #in KB
+    characterset: AL32UTF8
+    national_characterset: AL16UTF16
+    memory_pct: 40
+    proccesses: 300
+    archivelog: true
+    fra_size_gb: 20
+
+networks:
+  - name: ens33
+    portgroup: dv-HEDC-DB-PROD-508
+    adapter_type: vmxnet3
+    ipv4_address: x.x.27.100
+    ipv4_gateway: x.x.24.12
+    ipv4_prefix_length: 22
+    dhcp4: false
+    default_gateway: true
+    dns_servers:
+      - x.x.24.19
+      - x.x.0.150
+    dns_search:
+      - domain.name1
+      - domain.name2
+    routes:
+      - to: x.x.0.0/13
+        via: x.x.24.1
+
+additional_disks: []
+
+

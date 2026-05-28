@@ -1,0 +1,141 @@
+---
+# =============================================================================
+# STIG Sub-tasks: OS-level Controls (Non-CDB)
+# These run ONCE per play -- host/filesystem level only, no per-DB context.
+# Do NOT reference stig_db here -- this file runs outside the per-DB loop.
+#
+# VULs: O19C-00-000400 (listener extproc)
+#        O19C-00-000900 (idle timeout sqlnet)
+#        O19C-00-017900 (adump permissions and audit_file_dest verification)
+#        O19C-00-011600 (cman.ora REMOTE_ADMIN=NO -- V1R5)
+#
+# Per-DB OS controls (password file, catpvf, ANONYMOUS lock) live in
+# stig_db_os.yml which runs inside the per-DB loop in main.yml.
+# =============================================================================
+
+# ── O19C-00-000400 - Listener must not have plain extproc entry ───────────────
+- name: "[STIG O19C-000400] Remove unsecured extproc from listener.ora"
+  ansible.builtin.lineinfile:
+    path: "{{ oracle_base }}/common/tns/listener.ora"
+    regexp: '(?i)^\s*(PROGRAM\s*=\s*extproc|SID_NAME\s*=\s*PLSExtProc)\s*$'
+    state: absent
+    backup: true
+  when: stig_O19C_000400_enabled | bool
+  tags:
+    - stig_os
+    - O19C-000400
+
+# ── O19C-00-000900 - Idle session timeout in sqlnet.ora ──────────────────────
+- name: "[STIG O19C-000900] Set SQLNET.EXPIRE_TIME in sqlnet.ora"
+  ansible.builtin.lineinfile:
+    path: "{{ oracle_base }}/common/tns/sqlnet.ora"
+    regexp: '^SQLNET\.EXPIRE_TIME\s*='
+    line: "SQLNET.EXPIRE_TIME = {{ stig_idle_time }}"
+    state: present
+    backup: true
+  when: stig_O19C_000900_enabled | bool
+  tags:
+    - stig_os
+    - O19C-000900
+
+# ── O19C-00-017900 - Protect adump directories for all customer DBs ──────────
+- name: "[STIG O19C-017900] Protect adump directory for {{ item.sid }}"
+  ansible.builtin.file:
+    path: "{{ oracle_admin_dir }}/{{ item.sid }}/adump"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0750"
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  when: stig_O19C_017900_enabled | bool
+  tags:
+    - stig_os
+    - O19C-017900
+
+# ── O19C-00-017900 - Verify audit_file_dest points to an OS path ─────────────
+- name: "[STIG O19C-017900] Verify audit_file_dest is OS-based for {{ item.sid }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    set heading off feedback off
+    select value from v$parameter where name='audit_file_dest';
+    exit
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ item.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: audit_dest_check
+  loop: "{{ oracle_databases }}"
+  loop_control:
+    label: "{{ item.sid }}"
+  changed_when: false
+  when: stig_O19C_017900_enabled | bool
+  tags:
+    - stig_os
+    - O19C-017900
+
+- name: "[STIG O19C-017900] Assert audit_file_dest is OS-based"
+  ansible.builtin.assert:
+    that:
+      - oracle_admin_dir in item.stdout or oracle_base in item.stdout
+    fail_msg: >
+      audit_file_dest for {{ item.item.sid }} does not appear to be an OS path.
+      Got: {{ item.stdout }}
+    success_msg: "audit_file_dest is OS-based for {{ item.item.sid }}"
+  loop: "{{ audit_dest_check.results }}"
+  loop_control:
+    label: "{{ item.item.sid }}"
+  when:
+    - stig_O19C_017900_enabled | bool
+    - not oracle_stig_report_only | bool
+  tags:
+    - stig_os
+    - O19C-017900
+
+# ── O19C-011600 (V1R5) - cman.ora REMOTE_ADMIN=NO ────────────────────────────
+# Host-level network control -- applies to the Oracle Home, not per-DB.
+# stig_O19C_011600_enabled defaults to false; enable only if CMAN is deployed.
+- name: "[STIG O19C-011600] Check if cman.ora exists"
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/network/admin/cman.ora"
+  register: cman_stat
+  when: stig_O19C_011600_enabled | bool
+  tags:
+    - stig_os
+    - stig_cman
+    - O19C-011600
+
+- name: "[STIG O19C-011600] Ensure REMOTE_ADMIN=NO in cman.ora"
+  ansible.builtin.lineinfile:
+    path: "{{ oracle_home }}/network/admin/cman.ora"
+    regexp: '(?i)^\s*REMOTE_ADMIN\s*='
+    line: 'REMOTE_ADMIN = NO'
+    state: present
+    backup: true
+  when:
+    - stig_O19C_011600_enabled | bool
+    - cman_stat.stat.exists
+    - not oracle_stig_report_only | bool
+  tags:
+    - stig_os
+    - stig_cman
+    - O19C-011600
+
+- name: "[STIG O19C-011600] Report: cman.ora not present -- CMAN not deployed"
+  ansible.builtin.debug:
+    msg: >
+      STIG O19C-011600: cman.ora not found at {{ oracle_home }}/network/admin/cman.ora.
+      If Connection Manager is not in use this control is not a finding.
+  when:
+    - stig_O19C_011600_enabled | bool
+    - not cman_stat.stat.exists
+  tags:
+    - stig_os
+    - stig_cman
+    - O19C-011600

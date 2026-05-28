@@ -1,0 +1,20 @@
+# tnsnames.ora – Managed by Ansible (non-CDB)
+# One entry per customer database
+
+{% for db in oracle_databases %}
+{{ db.sid }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{ db.sid }}.{{ oracle_domain }})
+    )
+  )
+
+{% endfor %}
+
+LISTENER_LMT =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = 1521))
+
+LISTENER_LMT.IDM.HEDC.MIL =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = 1521))

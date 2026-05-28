@@ -1,0 +1,63 @@
+---
+template_name: "oel9-enc"
+
+vsphere_datacenter: "HEDC"
+vsphere_cluster: "G00-HEDC-ADMIN-Stretch"
+vsphere_datastore: "G00-HEDC-ADMIN-SA213-L254"
+vsphere_folder: "Infrastructure_Services/HEDC_Templates"
+vsphere_resource_pool: ""
+
+vm_name: jason-ol9-app1
+vm_domain: idm.hedc.mil
+vm_type: app
+annotation: "Oracle Linux 9 App server"
+
+ipa_automount_location: "MY_automount_location"
+cpu_override: 0
+memory_gb_override: 0
+disk0_gb_override: 0
+
+#server_roles overrides the vm_type logic for roles to be applied, make sure all roles needed are listed, otherwise leave blank
+server_roles:
+  - baseline
+#  - weblogic14c
+#  - cohesity_agent_deploy
+
+networks:
+  - name: ens33
+    portgroup: dv-XXXXXX
+    adapter_type: vmxnet3
+    ipv4_address: x.x.x..100
+    ipv4_gateway: x.x.x.12
+    ipv4_prefix_length: 22
+    dhcp4: false
+    default_gateway: true
+    dns_servers:
+      - x.x.x.19
+      - x.y.x.150
+    dns_search:
+      - domain.name1
+      - domain.name2
+    routes:
+      - to: x.x.0.0/13
+        via: x.x.x.1
+
+  - name: ens35
+    portgroup: dv-XXXYY
+    adapter_type: vmxnet3
+    ipv4_address: X.X.13.252
+    ipv4_prefix_length: 21
+    ipv4_gateway: x.x.13.1
+    dhcp4: false
+    default_gateway: false
+    routes:
+      - to: x.0.0.0/8
+        via: X.X.13.1
+
+additional_disks:
+    - label: app
+      size_gb: 60
+      unit_number: 1
+      thin_provisioned: false
+      eagerly_scrub: false
+

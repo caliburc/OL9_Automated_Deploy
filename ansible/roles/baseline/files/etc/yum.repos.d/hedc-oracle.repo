@@ -1,0 +1,41 @@
+[ol9_baseos_latest]
+name=Oracle Linux 9 BaseOS Latest ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_baseos_latest/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+
+[ol9_appstream]
+name=Oracle Linux 9 Application Stream Packages ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_appstream/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+
+[ol9_UEKR8]
+name=Oracle Linux 9 UEK Release 8 ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_UEKR8/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+
+[ol9_oraclelinuxmanager210_client]
+name=Oracle Linux Manager Client 2.10 for Oracle Linux 9 ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_oraclelinuxmanager210_client/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+
+[ol9_developer_EPEL]
+name=Oracle Linux Developer EPEL ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_developer_EPEL/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+
+[ol9_codeready_builder]
+name=Oracle Linux Codeready Builder ($basearch)
+baseurl=http://x.x.x.x/provisioning/patchset/oel/$releasever/$basearch/latest/ol9_codeready_builder/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0

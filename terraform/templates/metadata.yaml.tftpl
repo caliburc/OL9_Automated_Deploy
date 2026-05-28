@@ -1,0 +1,38 @@
+instance-id: ${instance_id}
+local-hostname: ${hostname}.${domain}
+network:
+  version: 1
+  config:
+%{ for nic in networks ~}
+    - type: physical
+      name: ${nic.name}
+      subnets:
+%{ if try(nic.dhcp4, false) }
+        - type: dhcp
+%{ else }
+        - type: static
+          address: ${nic.ipv4_address}/${nic.ipv4_prefix_length}
+%{ if try(nic.default_gateway, false) && try(nic.ipv4_gateway, "") != "" }
+          gateway: ${nic.ipv4_gateway}
+%{ endif }
+%{ if length(try(nic.routes, [])) > 0 }
+          routes:
+%{ for r in nic.routes ~}
+            - destination: ${r.to}
+              gateway: ${r.via}
+%{ endfor ~}
+%{ endif }
+%{ if length(try(nic.dns_servers, [])) > 0 }
+          dns_nameservers:
+%{ for dns in nic.dns_servers ~}
+            - ${dns}
+%{ endfor ~}
+%{ endif }
+%{ if length(try(nic.dns_search, [])) > 0 }
+          dns_search:
+%{ for domain in nic.dns_search ~}
+            - ${domain}
+%{ endfor ~}
+%{ endif }
+%{ endif }
+%{ endfor ~}

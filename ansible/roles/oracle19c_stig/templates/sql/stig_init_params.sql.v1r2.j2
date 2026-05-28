@@ -1,0 +1,136 @@
+-- =============================================================================
+-- STIG Init Parameter Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R2
+-- Generated: Ansible -- do not edit manually
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- ── O19C-00-000100 -- REMOTE_OS_AUTHENT = FALSE (CAT I) ──────────────────────
+{% if stig_O19C_000100_enabled %}
+ALTER SYSTEM SET REMOTE_OS_AUTHENT = FALSE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000100: REMOTE_OS_AUTHENT=FALSE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000200 -- REMOTE_OS_ROLES = FALSE (CAT I) ────────────────────────
+{% if stig_O19C_000200_enabled %}
+ALTER SYSTEM SET REMOTE_OS_ROLES = FALSE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000200: REMOTE_OS_ROLES=FALSE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000300 -- AUDIT_TRAIL != NONE (CAT I) ────────────────────────────
+{% if stig_O19C_000300_enabled %}
+ALTER SYSTEM SET AUDIT_TRAIL = DB, EXTENDED SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000300: AUDIT_TRAIL=DB,EXTENDED (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000500 -- AUDIT_SYS_OPERATIONS = TRUE (CAT II) ──────────────────
+{% if stig_O19C_000500_enabled %}
+ALTER SYSTEM SET AUDIT_SYS_OPERATIONS = TRUE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000500: AUDIT_SYS_OPERATIONS=TRUE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000600 -- SQL92_SECURITY = TRUE (CAT II) ─────────────────────────
+-- Static parameter: SCOPE=SPFILE only, restart required
+{% if stig_O19C_000600_enabled %}
+ALTER SYSTEM SET SQL92_SECURITY = TRUE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-000600: SQL92_SECURITY=TRUE (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── O19C-00-000700 -- O7_DICTIONARY_ACCESSIBILITY = FALSE (CAT II) ───────────
+-- This is a hidden parameter (_o7_dictionary_accessibility) in Oracle 19c.
+-- It does NOT appear in V$PARAMETER -- only in V$PARAMETER2 or X$KSPPI.
+-- Cannot be set via ALTER SYSTEM in 19c; requires pfile/spfile recreation.
+-- A NO_DATA_FOUND handler is required because the parameter will not be found
+-- in V$PARAMETER on a standard 19c install (ORA-01403 without the handler).
+{% if stig_O19C_000700_enabled %}
+DECLARE
+  v_current VARCHAR2(10) := 'FALSE';
+BEGIN
+  BEGIN
+    SELECT value INTO v_current
+    FROM   v$parameter2
+    WHERE  name = 'o7_dictionary_accessibility';
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      -- Hidden parameter absent from V$PARAMETER2 on standard 19c installs.
+      -- Oracle 19c default is FALSE so treat as compliant.
+      v_current := 'FALSE';
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: WARNING -- could not query parameter: ' || SQLERRM);
+      v_current := 'UNKNOWN';
+  END;
+
+  IF UPPER(v_current) = 'FALSE' THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: O7_DICTIONARY_ACCESSIBILITY=FALSE -- COMPLIANT');
+  ELSIF UPPER(v_current) = 'UNKNOWN' THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: O7_DICTIONARY_ACCESSIBILITY could not be verified -- review manually');
+  ELSE
+    -- Parameter is TRUE and must be remediated via pfile.
+    -- ALTER SYSTEM is not supported for this hidden parameter in 19c.
+    EXECUTE IMMEDIATE 'CREATE PFILE=''/tmp/init_{{ stig_db.sid }}_stig.ora'' FROM SPFILE';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: O7_DICTIONARY_ACCESSIBILITY=' || v_current || ' -- NON-COMPLIANT');
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: pfile exported to /tmp/init_{{ stig_db.sid }}_stig.ora');
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: ACTION REQUIRED -- add _O7_DICTIONARY_ACCESSIBILITY=FALSE');
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-000700: then run: CREATE SPFILE FROM PFILE and restart the DB');
+  END IF;
+END;
+/
+{% endif %}
+
+-- ── O19C-00-001000 -- SEC_MAX_FAILED_LOGIN_ATTEMPTS (CAT II) ─────────────────
+-- Static parameter: SCOPE=SPFILE only, restart required
+{% if stig_O19C_001000_enabled %}
+ALTER SYSTEM SET SEC_MAX_FAILED_LOGIN_ATTEMPTS = 3 SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001000: SEC_MAX_FAILED_LOGIN_ATTEMPTS=3 (SPFILE -- restart required)');
+END;
+/
+{% endif %}
+
+-- ── SEC_PROTOCOL_ERROR_FURTHER_ACTION ────────────────────────────────────────
+ALTER SYSTEM SET SEC_PROTOCOL_ERROR_FURTHER_ACTION = '(DROP,3)' SCOPE = BOTH;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG: SEC_PROTOCOL_ERROR_FURTHER_ACTION=(DROP,3)');
+END;
+/
+
+-- ── SEC_RETURN_SERVER_RELEASE_BANNER = FALSE ─────────────────────────────────
+-- Static parameter: SCOPE=SPFILE only, restart required
+ALTER SYSTEM SET SEC_RETURN_SERVER_RELEASE_BANNER = FALSE SCOPE = SPFILE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG: SEC_RETURN_SERVER_RELEASE_BANNER=FALSE (SPFILE -- restart required)');
+END;
+/
+
+COMMIT;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('');
+  DBMS_OUTPUT.PUT_LINE('NOTE: Parameters set with SCOPE=SPFILE require a DB restart:');
+  DBMS_OUTPUT.PUT_LINE('  REMOTE_OS_AUTHENT, REMOTE_OS_ROLES, AUDIT_TRAIL,');
+  DBMS_OUTPUT.PUT_LINE('  AUDIT_SYS_OPERATIONS, SQL92_SECURITY,');
+  DBMS_OUTPUT.PUT_LINE('  SEC_MAX_FAILED_LOGIN_ATTEMPTS, SEC_RETURN_SERVER_RELEASE_BANNER');
+  DBMS_OUTPUT.PUT_LINE('  Plan a maintenance window before restarting.');
+END;
+/
+
+EXIT 0;

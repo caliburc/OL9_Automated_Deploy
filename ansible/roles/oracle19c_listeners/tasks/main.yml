@@ -1,0 +1,75 @@
+---
+- name: "Ensure TNS admin directory exists"
+  ansible.builtin.file:
+    path: "{{ oracle_base }}/common/tns"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  tags: listener
+
+- name: Deploy fips.ora
+  ansible.builtin.copy:
+    src: fips.ora
+    dest: "{{ oracle_home }}/ldap/admin/fips.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  tags: listener
+
+- name: "Deploy listener.ora"
+  ansible.builtin.template:
+    src: listener.ora.j2
+    dest: "{{ oracle_base }}/common/tns/listener.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+    backup: true
+  notify: restart listener
+  tags: listener
+
+- name: "Deploy tnsnames.ora"
+  ansible.builtin.template:
+    src: tnsnames.ora.j2
+    dest: "{{ oracle_base }}/common/tns/tnsnames.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+    backup: true
+  tags: listener
+
+- name: "Deploy sqlnet.ora"
+  ansible.builtin.template:
+    src: sqlnet.ora.j2
+    dest: "{{ oracle_base }}/common/tns/sqlnet.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+    backup: true
+  tags: listener
+
+- name: Restart LMT Listener
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/lsnrctl stop LMT
+    {{ oracle_home }}/bin/lsnrctl start LMT
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    TNS_ADMIN: "{{ oracle_base }}/common/tns"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+  failed_when: false
+
+# - name: "Start listener LMT"
+#   ansible.builtin.shell: "{{ oracle_home }}/bin/lsnrctl start LMT"
+#   become: true
+#   become_user: "{{ oracle_user }}"
+#   environment:
+#     ORACLE_HOME: "{{ oracle_home }}"
+#     TNS_ADMIN: "{{ oracle_base }}/common/tns"
+#     PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+#   register: lsnrctl_start
+#   failed_when:
+#     - lsnrctl_start.rc != 0
+#     - "'already running' not in lsnrctl_start.stdout"
+#   tags: listener

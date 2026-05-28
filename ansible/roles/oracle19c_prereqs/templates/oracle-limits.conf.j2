@@ -1,0 +1,11 @@
+# /etc/security/limits.d/97-oracle.conf
+# Oracle Database 19c resource limits for {{ oracle_user }}
+
+{{ oracle_user }}   soft   nofile    {{ oracle_nofile_soft }}
+{{ oracle_user }}   hard   nofile    {{ oracle_nofile_hard }}
+{{ oracle_user }}   soft   nproc     {{ oracle_nproc_soft }}
+{{ oracle_user }}   hard   nproc     {{ oracle_nproc_hard }}
+{{ oracle_user }}   soft   stack     {{ oracle_stack_soft }}
+{{ oracle_user }}   hard   stack     {{ oracle_stack_hard }}
+{{ oracle_user }}   soft   memlock   unlimited
+{{ oracle_user }}   hard   memlock   unlimited

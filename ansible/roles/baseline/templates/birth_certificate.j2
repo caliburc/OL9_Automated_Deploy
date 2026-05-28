@@ -1,0 +1,18 @@
+Built With Ansible / Terraform / Cloud-Init
+
+Server Name: {{ ansible_facts['hostname'] }}
+FQDN: {{ ansible_facts['nodename'] }}
+Creation Date: {{ ansible_facts['date_time']['iso8601'] }}
+Annotation: {{ build_vm.annotation | default('No annotation provided') }}
+OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+Architecture: {{ ansible_facts['architecture'] }}
+vCPUs: {{ ansible_facts['processor_vcpus'] | default('unknown') }}
+Memory MB: {{ ansible_facts['memtotal_mb'] }}
+
+Original Build File Variables:
+VM Type: {{ build_vm.vm_type | default('No vm_type in vars file') }}
+IPA Automount Location: {{ build_vm.ipa_automount_location | default('None Specified') }}
+CPU Override: {{ build_vm.cpu_override | default('No CPU Override') }}
+Memory Override: {{ build_vm.memory_gb_override | default('No Memory Override') }}
+Disk 0 Size Override: {{ build_vm.disk0_gb_override | default ('No Disk0 Override') }}
+

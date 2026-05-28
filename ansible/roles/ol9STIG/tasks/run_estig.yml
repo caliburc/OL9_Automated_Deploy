@@ -1,0 +1,84 @@
+---
+- name: Find Evaluate STIG directories under /root
+  ansible.builtin.find:
+    paths: /root
+    patterns: 'Evaluate-STIG*'
+    file_type: directory
+    recurse: false
+  register: evaluate_stig_dirs
+
+- name: Fail if no Evaluate-STIG directories were found
+  ansible.builtin.fail:
+    msg: "No /root/Evaluate-STIG* directory was found."
+  when: evaluate_stig_dirs.matched | int == 0
+
+- name: Select latest Evaluate-STIG directory by mtime
+  ansible.builtin.set_fact:
+    evaluate_stig_latest_dir: >-
+      {{
+        (evaluate_stig_dirs.files | sort(attribute='mtime') | last).path
+      }}
+
+- name: Check /root/Evaluate-STIG symlink
+  ansible.builtin.stat:
+    path: /root/Evaluate-STIG
+  register: evaluate_stig_link
+
+- name: Create or correct /root/Evaluate-STIG symlink
+  ansible.builtin.file:
+    src: "{{ evaluate_stig_latest_dir }}/Evaluate-STIG"
+    dest: /root/Evaluate-STIG
+    state: link
+    force: true
+  when: >
+    (evaluate_stig_link.stat.exists is not defined or not evaluate_stig_link.stat.exists)
+    or
+    (evaluate_stig_link.stat.islnk is defined and not evaluate_stig_link.stat.islnk)
+    or
+    (evaluate_stig_link.stat.islnk is defined and evaluate_stig_link.stat.islnk
+     and evaluate_stig_link.stat.lnk_source != evaluate_stig_latest_dir)
+
+- name: Check for powershell.tar.gz in /root/Evaluate-STIG
+  ansible.builtin.stat:
+    path: /root/Evaluate-STIG/powershell.tar.gz
+  register: powershell_tarball
+
+- name: Copy powershell.tar.gz into /root/Evaluate-STIG when missing
+  ansible.builtin.copy:
+    src: /software/source/directory/Evaluate-STIG/current/powershell.tar.gz
+    dest: /root/Evaluate-STIG/powershell.tar.gz
+    remote_src: true
+    mode: '0644'
+  when: not powershell_tarball.stat.exists
+
+- name: Set uppercase short hostname
+  ansible.builtin.set_fact:
+    stig_shortname_upper: "{{ ansible_hostname | upper }}"
+
+- name: Run Evaluate-STIG script (this takes 5-10 minutes)
+  ansible.builtin.command:
+    cmd: bash Evaluate-STIG_Bash.sh --Output CKL --AFPath /root/Evaluate-STIG/AnswerFiles/
+    chdir: /root/Evaluate-STIG
+  register: evaluate_stig_run
+  changed_when: false
+
+- name: Find generated CKL files
+  ansible.builtin.find:
+    paths: "/opt/STIG_Compliance/{{ stig_shortname_upper }}/Checklist"
+    patterns: "*.ckl"
+    file_type: file
+    recurse: false
+  register: generated_ckl_files
+
+- name: Alert when no CKL file was found
+  ansible.builtin.debug:
+    msg: "WARNING: No .ckl file found in /opt/STIG_Compliance/{{ stig_shortname_upper }}/Checklist"
+  when: generated_ckl_files.matched | default(0) | int == 0
+
+- name: Show newest CKL file path
+  ansible.builtin.debug:
+    msg: >-
+      CKL file exists:
+      {{ (generated_ckl_files.files | sort(attribute='mtime') | last).path }}
+  when: generated_ckl_files.matched | default(0) | int > 0
+  

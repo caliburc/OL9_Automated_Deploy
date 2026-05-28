@@ -1,0 +1,119 @@
+---
+# =============================================================================
+# terraform_runner/tasks/main.yml
+#
+# Orchestrates per-VM Terraform deployments.
+#
+# KEY VARIABLE
+# ------------
+# skip_terraform (bool, default: false)
+#   When true, all Terraform steps in deploy_one_vm.yml are skipped.
+#   Hosts are still added to the runtime inventory (provisioned_vms) so that
+#   Play 2 (configure) can run against them. Use this when you want to re-run
+#   Ansible roles against VMs that are already deployed.
+#
+# TAGS
+# ----
+# provision    - inherited from the play; covers all tasks here
+# terraform    - Terraform-specific tasks (init, plan, apply)
+# inventory    - tasks that build/validate the VM list and load vars files
+# =============================================================================
+
+- name: Parse requested VM FQDNs from survey
+  ansible.builtin.set_fact:
+    requested_vms: >-
+      {{
+        vm_fqdns
+        | default('')
+        | split(',')
+        | map('trim')
+        | reject('equalto', '')
+        | list
+      }}
+  tags:
+    - provision
+    - inventory
+
+- name: Fail if no VMs requested
+  ansible.builtin.fail:
+    msg: "No VM names were provided in vm_fqdns."
+  when: requested_vms | length == 0
+  tags:
+    - provision
+    - inventory
+
+- name: Check that requested vars files exist
+  ansible.builtin.stat:
+    path: "{{ build_vars_dir }}/{{ item }}.yml"
+  loop: "{{ requested_vms }}"
+  register: requested_vm_files
+  tags:
+    - provision
+    - inventory
+
+- name: Fail if any vars file is missing
+  ansible.builtin.fail:
+    msg: >-
+      Missing build definition file(s):
+      {{
+        requested_vm_files.results
+        | rejectattr('stat.exists')
+        | map(attribute='item')
+        | list
+        | join(', ')
+      }}
+  when: >
+    (requested_vm_files.results | rejectattr('stat.exists') | list | length) > 0
+  tags:
+    - provision
+    - inventory
+
+- name: Ensure Terraform state directory exists
+  ansible.builtin.file:
+    path: "{{ terraform_state_dir }}"
+    state: directory
+    mode: "0750"
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Ensure Terraform tfvars directory exists
+  ansible.builtin.file:
+    path: "{{ terraform_tfvars_dir }}"
+    state: directory
+    mode: "0750"
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Load per-VM vars files
+  ansible.builtin.include_vars:
+    file: "{{ build_vars_dir }}/{{ item }}.yml"
+    name: build_vm
+  loop: "{{ requested_vms }}"
+  register: loaded_vm_vars
+  tags:
+    - provision
+    - inventory
+
+- name: Terraform init once
+  ansible.builtin.command: terraform init
+  args:
+    chdir: "{{ terraform_project_dir }}"
+  environment:
+    TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Deploy requested VMs one at a time
+  ansible.builtin.include_tasks: deploy_one_vm.yml
+  loop: "{{ loaded_vm_vars.results }}"
+  loop_control:
+    loop_var: vm_item
+    label: "{{ vm_item.ansible_facts.build_vm.vm_name }}"
+  tags:
+    - provision

@@ -1,0 +1,225 @@
+---
+# =============================================================================
+# Included task file: create_customer_db.yml
+# Called once per entry in oracle_databases (loop_var: db)
+# Builds one non-CDB customer database end-to-end.
+# =============================================================================
+
+# ── Resolve per-DB values with defaults ──────────────────────────────────────
+- name: "[{{ db.sid }}] Resolve database parameters"
+  ansible.builtin.set_fact:
+    db_sid: "{{ db.sid }}"
+    db_characterset: "{{ db.characterset | default(oracle_default_characterset) }}"
+    db_national_characterset: "{{ db.national_characterset | default(oracle_default_national_characterset) }}"
+    db_blocksize: "{{ db.blocksize | default(oracle_default_blocksize) }}"
+    db_memory_pct: "{{ db.memory_pct | default(oracle_default_memory_pct) }}"
+    db_processes: "{{ db.processes | default(oracle_default_processes) }}"
+    db_archivelog: "{{ db.archivelog | default(oracle_default_archivelog) }}"
+    db_fra_size_gb: "{{ db.fra_size_gb | default(oracle_default_fra_size_gb) }}"
+  tags: always
+
+# ── Idempotency check ────────────────────────────────────────────────────────
+- name: "[{{ db.sid }}] Check if spfile already exists (idempotency)"
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/dbs/spfile{{ db.sid }}.ora"
+  register: db_spfile_check
+
+- name: "[{{ db.sid }}] Check if control file exists (secondary idempotency)"
+  ansible.builtin.find:
+    paths: "{{ oracle_data_dir }}/{{ db.sid }}"
+    patterns: "*.ctl"
+    recurse: false
+  register: db_ctlfile_check
+
+- name: "[{{ db.sid }}] Set db_exists fact"
+  ansible.builtin.set_fact:
+    db_exists: >-
+      {{ db_spfile_check.stat.exists or
+         (db_ctlfile_check.files is defined and db_ctlfile_check.files | length > 0) }}
+
+- name: "[{{ db.sid }}] Skip – database already exists"
+  ansible.builtin.debug:
+    msg: "Database {{ db.sid }} already exists – skipping DBCA."
+  when: db_exists | bool
+
+# ── Directory tree ───────────────────────────────────────────────────────────
+# Matches paths defined in the site .dbt template:
+#   /data/oracle/oradata/<SID>/         – datafiles, redo member A
+#   /data/oracle/arch/<SID>/redo/       – redo member B
+#   /data/oracle/arch/<SID>/controlfile/ – controlfile02
+#   /app/oracle/admin/<SID>/controlfile/ – controlfile03
+#   /app/oracle/admin/<SID>/adump/      – audit dump
+#   /app/oracle/admin/<SID>/pfile/      – init.ora backup
+- name: "[{{ db.sid }}] Create database directory tree"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  loop:
+    - "{{ oracle_data_dir }}/{{ db.sid }}"
+    - "{{ oracle_arch_dir }}/{{ db.sid }}/redo"
+    - "{{ oracle_arch_dir }}/{{ db.sid }}/controlfile"
+    - "{{ oracle_arch_dir }}/{{ db.sid }}/archivelog"
+    - "{{ oracle_admin_dir }}/{{ db.sid }}/adump"
+    - "{{ oracle_admin_dir }}/{{ db.sid }}/pfile"
+    - "{{ oracle_admin_dir }}/{{ db.sid }}/controlfile"
+  when: not db_exists | bool
+
+# ── DBCA response file ───────────────────────────────────────────────────────
+# Destination: $OH/assistants/dbca/<SID>.rsp  (matches site convention)
+- name: "[{{ db.sid }}] Deploy DBCA response file to $OH/assistants/dbca/"
+  ansible.builtin.template:
+    src: customer_db.rsp.j2
+    dest: "{{ oracle_home }}/assistants/dbca/{{ db.sid }}.rsp"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+  no_log: true
+  when: not db_exists | bool
+
+# ── Site database template (.dbt) ────────────────────────────────────────────
+# Destination: $OH/assistants/dbca/templates/<SID>.dbt
+# This is the XML template that drives controlfile paths, datafile paths,
+# redo log paths, and initialization parameters.
+- name: "[{{ db.sid }}] Ensure DBCA templates directory exists"
+  ansible.builtin.file:
+    path: "{{ oracle_home }}/assistants/dbca/templates"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  when: not db_exists | bool
+
+- name: "[{{ db.sid }}] Deploy site database template (.dbt)"
+  ansible.builtin.template:
+    src: customer_db.dbt.j2
+    dest: "{{ oracle_home }}/assistants/dbca/templates/{{ db.sid }}.dbt"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+  when: not db_exists | bool
+
+# ── Run DBCA ─────────────────────────────────────────────────────────────────
+- name: "[{{ db.sid }}] Run DBCA – create database (20-40 min)"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/dbca \
+      -J-Doracle.assistants.dbca.validate.ConfigurationParams=false \
+      -silent \
+      -createDatabase \
+      -gdbName {{ db.sid }}.{{ oracle_domain }} \
+      -responseFile {{ oracle_home }}/assistants/dbca/{{ db.sid }}.rsp \
+      -templateName {{ oracle_home }}/assistants/dbca/templates/{{ db.sid }}.dbt \
+      -databaseConfigType SINGLE \
+      -sampleSchema false \
+      -honorControlFileInitParam
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ db.sid }}"
+    TNS_ADMIN: "{{ oracle_base }}/common/tns"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: dbca_result
+  failed_when: dbca_result.rc not in [0]
+  changed_when: dbca_result.rc == 0
+  when: not db_exists | bool
+  async: 5400
+  poll: 15
+
+- name: "[{{ db.sid }}] Show DBCA output"
+  ansible.builtin.debug:
+    var: dbca_result.stdout_lines
+  when:
+    - not db_exists | bool
+    - dbca_result is defined
+
+# ── Enable archivelog mode if requested ──────────────────────────────────────
+- name: "[{{ db.sid }}] Enable ARCHIVELOG mode"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'SQLEOF'
+    SHUTDOWN IMMEDIATE;
+    STARTUP MOUNT;
+    ALTER DATABASE ARCHIVELOG;
+    ALTER DATABASE OPEN;
+    ALTER SYSTEM SET log_archive_dest_1=
+      'LOCATION={{ oracle_arch_dir }}/{{ db.sid }}/archivelog'
+      SCOPE=BOTH;
+    EXIT 0;
+    SQLEOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: archivelog_result
+  when:
+    - not db_exists | bool
+    - db_archivelog | bool
+  changed_when: archivelog_result.rc == 0
+
+# ── Post-build SQL ────────────────────────────────────────────────────────────
+- name: "[{{ db.sid }}] Run post-build SQL"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'SQLEOF'
+    -- Ensure processes and open_cursors are correct
+    ALTER SYSTEM SET processes={{ db_processes }} SCOPE=SPFILE;
+    ALTER SYSTEM SET open_cursors=300 SCOPE=BOTH;
+
+    -- Tighten security defaults
+    ALTER SYSTEM SET sec_return_server_release_banner=FALSE SCOPE=BOTH;
+    ALTER SYSTEM SET remote_os_authent=FALSE SCOPE=SPFILE;
+    ALTER SYSTEM SET remote_os_roles=FALSE SCOPE=SPFILE;
+
+    -- Audit basics
+    AUDIT SESSION;
+    AUDIT CONNECT;
+    AUDIT DBA;
+
+    COMMIT;
+    EXIT 0;
+    SQLEOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: post_sql_result
+  failed_when: false
+  changed_when: post_sql_result.rc == 0
+  when: not db_exists | bool
+
+# ── Verify DB is OPEN ─────────────────────────────────────────────────────────
+- name: "[{{ db.sid }}] Verify database is OPEN"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    set heading off feedback off
+    select status from v$instance;
+    exit
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ db.sid }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  register: db_status
+  changed_when: false
+
+- name: "[{{ db.sid }}] Assert database is OPEN"
+  ansible.builtin.assert:
+    that:
+      - "'OPEN' in db_status.stdout"
+    fail_msg: "Database {{ db.sid }} is NOT open. Status: {{ db_status.stdout }}"
+    success_msg: "Database {{ db.sid }} is OPEN and ready."

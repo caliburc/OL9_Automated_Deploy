@@ -1,0 +1,7 @@
+{
+  "vsphere_server": {{ vsphere_server | to_json }},
+  "vsphere_user": {{ vsphere_user | to_json }},
+  "ssh_authorized_keys": [{{ hedcadm_ssh_public_key | to_json }}],
+  "vm_type_profiles": {{ vm_type_profiles | to_json }},
+  "vms": {{ terraform_vms | to_json }}
+}

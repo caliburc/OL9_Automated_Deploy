@@ -1,0 +1,10 @@
+---
+- name: Run e-stig
+  hosts: dbservers
+  become: true
+
+  tasks:
+  - name: Run run-estig.yml role
+    ansible.builtin.import_role:
+      name: ol9STIG
+      tasks_from: run-estig.yml

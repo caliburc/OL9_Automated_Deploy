@@ -1,0 +1,513 @@
+---
+# =============================================================================
+# Role: oracle_patch
+# Purpose: Upgrade OPatch, apply Release Update (RU), optional RUR,
+#          optional one-off patches, then run datapatch.
+# DB must be shut down for OPatch apply; started again for datapatch.
+# =============================================================================
+
+# ── Staging directory ────────────────────────────────────────────────────────
+- name: Create patch staging directory on target
+  ansible.builtin.file:
+    path: "{{ oracle_patch_stage_dir }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  tags: 
+    - patch_stage
+    - patch
+
+# ── Pre-patch: record installed patches ──────────────────────────────────────
+- name: Record pre-patch OPatch lsinventory
+  ansible.builtin.shell: "{{ oracle_home }}/OPatch/opatch lsinventory -oh {{ oracle_home }}"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: pre_patch_inventory
+  changed_when: false
+  failed_when: false
+  tags: 
+   - patch_inventory
+   - patch
+
+- name: Save pre-patch inventory to report file
+  ansible.builtin.copy:
+    content: "{{ pre_patch_inventory.stdout }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ now(false, fmt='%Y%m%d_%H%M') }}_pre_patch_lsinventory.txt"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  tags: 
+    - patch_inventory
+    - patch
+
+
+# ============================================================================
+# SECTION 1 – OPatch Upgrade
+# ============================================================================
+- name: "[OPatch] Check current OPatch version"
+  ansible.builtin.shell: "{{ oracle_home }}/OPatch/opatch version | grep 'OPatch Version'"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+  register: current_opatch_version
+  changed_when: false
+  failed_when: false
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Display current version"
+  ansible.builtin.debug:
+    msg: "Current OPatch: {{ current_opatch_version.stdout }} | Expected >= {{ oracle_opatch_version_expected }}"
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Copy OPatch zip to target"
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ oracle_patch_stage_src }}/{{oracle_patch_current_cpu_src}}/{{ oracle_opatch_zip }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ oracle_opatch_zip }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  when:
+    - oracle_opatch_upgrade_enabled | bool
+    - oracle_opatch_version_expected not in current_opatch_version.stdout
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Back up existing OPatch directory"
+  ansible.builtin.shell: |
+    mv {{ oracle_home }}/OPatch {{ oracle_home }}/OPatch.bak.$(date +%Y%m%d%H%M%S)
+  become: true
+  become_user: "{{ oracle_user }}"
+  when:
+    - oracle_opatch_upgrade_enabled | bool
+    - oracle_opatch_version_expected not in current_opatch_version.stdout
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Unzip new OPatch into ORACLE_HOME"
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ oracle_patch_stage_dir }}/{{ oracle_opatch_zip }}"
+    dest: "{{ oracle_home }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+  when:
+    - oracle_opatch_upgrade_enabled | bool
+    - oracle_opatch_version_expected not in current_opatch_version.stdout
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Verify upgraded OPatch version"
+  ansible.builtin.shell: "{{ oracle_home }}/OPatch/opatch version"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+  register: upgraded_opatch_version
+  changed_when: false
+  tags: 
+    - opatch_upgrade
+    - patch
+
+- name: "[OPatch] Assert minimum version met"
+  ansible.builtin.assert:
+    that:
+      - oracle_opatch_version_expected in upgraded_opatch_version.stdout
+    fail_msg: "OPatch version mismatch. Got: {{ upgraded_opatch_version.stdout }}"
+    success_msg: "OPatch version {{ oracle_opatch_version_expected }} confirmed."
+  when: oracle_opatch_upgrade_enabled | bool
+  tags: 
+    - opatch_upgrade
+    - patch
+
+# ============================================================================
+# SECTION 2 – Copy all patch zips to target (gather before shutdown)
+# ============================================================================
+- name: "[Patch Stage] Copy Release Update zip to target"
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ oracle_patch_stage_src }}/{{oracle_patch_current_cpu_src}}/{{ oracle_ru_zip }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ oracle_ru_zip }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  when: oracle_ru_apply_enabled | bool
+  tags: 
+    - patch_stage
+    - patch
+
+- name: "[Patch Stage] Copy RUR zip to target"
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ oracle_patch_stage_src }}/{{oracle_patch_current_cpu_src}}/{{ oracle_rur_zip }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ oracle_rur_zip }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  when:
+    - oracle_rur_apply_enabled | bool
+    - oracle_rur_zip | length > 0
+  tags: 
+    - patch_stage
+    - patch
+
+- name: "[Patch Stage] Copy one-off patch zips to target"
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ oracle_patch_stage_src }}/{{oracle_patch_current_cpu_src}}/{{ item.zip }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ item.zip }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  loop: "{{ oracle_oneoff_patches }}"
+  when: oracle_oneoff_patches | length > 0
+  tags: 
+    - patch_stage
+    - patch
+
+# ── Unzip all patches ────────────────────────────────────────────────────────
+- name: "[Patch Stage] Unzip Release Update"
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ oracle_patch_stage_dir }}/{{ oracle_ru_zip }}"
+    dest: "{{ oracle_patch_stage_dir }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    creates: "{{ oracle_patch_stage_dir }}/{{ oracle_ru_patch_id }}"
+  when: oracle_ru_apply_enabled | bool
+  tags: 
+    - patch_stage
+    - patch
+
+- name: "[Patch Stage] Unzip RUR"
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ oracle_patch_stage_dir }}/{{ oracle_rur_zip }}"
+    dest: "{{ oracle_patch_stage_dir }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    creates: "{{ oracle_patch_stage_dir }}/{{ oracle_rur_patch_id }}"
+  when:
+    - oracle_rur_apply_enabled | bool
+    - oracle_rur_zip | length > 0
+  tags: 
+    - patch_stage
+    - patch
+
+- name: "[Patch Stage] Unzip one-off patches"
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ oracle_patch_stage_dir }}/{{ item.zip }}"
+    dest: "{{ oracle_patch_stage_dir }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    creates: "{{ oracle_patch_stage_dir }}/{{ item.patch_id }}"
+  loop: "{{ oracle_oneoff_patches }}"
+  when: oracle_oneoff_patches | length > 0
+  tags: 
+    - patch_stage
+    - patch
+
+# ============================================================================
+# SECTION 3 – Conflict check (online, before shutdown)
+# ============================================================================
+- name: "[Conflict] OPatch conflict check – Release Update"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/opatch prereq CheckConflictAgainstOHWithDetail \
+      -ph {{ oracle_patch_stage_dir }}/{{ oracle_ru_patch_id }}
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: ru_conflict_check
+  changed_when: false
+  failed_when:
+    - oracle_opatch_conflict_check | bool
+    - ru_conflict_check.rc != 0
+  when: oracle_ru_apply_enabled | bool
+  tags: 
+    - patch_conflict
+    - patch
+
+- name: "[Conflict] OPatch conflict check – one-off patches"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/opatch prereq CheckConflictAgainstOHWithDetail \
+      -ph {{ oracle_patch_stage_dir }}/{{ item.patch_id }}
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: oneoff_conflict_checks
+  loop: "{{ oracle_oneoff_patches }}"
+  changed_when: false
+  failed_when:
+    - oracle_opatch_conflict_check | bool
+    - item.rc is defined and item.rc != 0
+  when: oracle_oneoff_patches | length > 0
+  tags: 
+    - patch_conflict
+    - patch
+
+# ============================================================================
+# SECTION 4 – Shut down DB for offline patching
+# ============================================================================
+- name: "[Shutdown] Stop Oracle listener before patching"
+  ansible.builtin.shell: "{{ oracle_home }}/bin/lsnrctl stop LMT"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+  failed_when: false
+  tags: 
+    - patch_shutdown
+    - patch
+
+- name: "[Shutdown] Read active SIDs from /etc/oratab"
+  ansible.builtin.shell: |
+    grep -v '^#' /etc/oratab | grep ':Y$' | cut -d: -f1
+  register: oratab_active_sids
+  changed_when: false
+  failed_when: false
+  tags:
+    - patch_shutdown
+    - patch
+
+- name: "[Shutdown] Shutdown Oracle DB (immediate)"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    shutdown immediate;
+    exit
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ item }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  loop: "{{ oratab_active_sids.stdout_lines }}"
+  when: oratab_active_sids.stdout_lines | length > 0
+  register: db_shutdown
+  failed_when: false
+  tags:
+    - patch_shutdown
+    - patch
+
+# ============================================================================
+# SECTION 5 – Apply patches (offline)
+# ============================================================================
+- name: "[Apply] Apply Release Update – {{ oracle_ru_description }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/opatch apply \
+      {{ oracle_patch_stage_dir }}/{{ oracle_ru_patch_id }} \
+      -oh {{ oracle_home }} \
+      -silent
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: ru_apply_result
+  failed_when: ru_apply_result.rc not in [0]
+  changed_when: ru_apply_result.rc == 0
+  when: oracle_ru_apply_enabled | bool
+  async: "{{ oracle_patch_timeout }}"
+  poll: 30
+  tags: 
+    - patch_apply
+    - patch
+
+- name: "[Apply] Apply RUR – {{ oracle_rur_description }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/opatch apply \
+      {{ oracle_patch_stage_dir }}/{{ oracle_rur_patch_id }} \
+      -oh {{ oracle_home }} \
+      -silent
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: rur_apply_result
+  failed_when: rur_apply_result.rc not in [0]
+  changed_when: rur_apply_result.rc == 0
+  when:
+    - oracle_rur_apply_enabled | bool
+    - oracle_rur_patch_id | length > 0
+  async: "{{ oracle_patch_timeout }}"
+  poll: 30
+  tags: 
+    - patch_apply
+    - patch
+
+- name: "[Apply] Apply one-off patch(s)"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/opatch apply \
+      {{ oracle_patch_stage_dir }}/{{ item.patch_id }} \
+      -oh {{ oracle_home }} \
+      -silent
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: oneoff_apply_results
+  loop: "{{ oracle_oneoff_patches }}"
+  failed_when: oneoff_apply_results.rc not in [0]
+  changed_when: oneoff_apply_results.rc == 0
+  when: oracle_oneoff_patches | length > 0
+  async: "{{ oracle_patch_timeout }}"
+  poll: 30
+  tags: 
+    - patch_apply
+    - patch
+
+# ============================================================================
+# SECTION 6 – Start DB and run datapatch
+# ============================================================================
+- name: "[Startup] Start Oracle DB after patching – {{ item }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/bin/sqlplus -s / as sysdba <<'EOF'
+    startup;
+    exit
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ item }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  loop: "{{ oratab_active_sids.stdout_lines }}"
+  when: oratab_active_sids.stdout_lines | length > 0
+  register: db_startup
+  failed_when: false
+  tags:
+    - patch_startup
+    - patch
+
+- name: "[Startup] Start Oracle listener after patching"
+  ansible.builtin.shell: "{{ oracle_home }}/bin/lsnrctl start LMT"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+  failed_when: false
+  tags: 
+    - patch_startup
+    - patch
+
+- name: "[Datapatch] Run datapatch to apply SQL changes – {{ item }}"
+  ansible.builtin.shell: |
+    {{ oracle_home }}/OPatch/datapatch -verbose
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: "{{ item }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  loop: "{{ oratab_active_sids.stdout_lines }}"
+  when:
+    - oracle_datapatch_enabled | bool
+    - oratab_active_sids.stdout_lines | length > 0
+  register: datapatch_result
+  failed_when: false
+  changed_when: datapatch_result.rc == 0  # NOTE: loop results go to datapatch_result.results[]
+  async: "{{ oracle_patch_timeout }}"
+  poll: 30
+  tags:
+    - datapatch
+    - patch
+
+- name: "[Datapatch] Show datapatch output"
+  ansible.builtin.debug:
+    msg: "{{ item.stdout_lines }}"
+  loop: "{{ datapatch_result.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when:
+    - oracle_datapatch_enabled | bool
+    - datapatch_result is defined
+  tags: datapatch
+
+# ── Post-patch inventory ─────────────────────────────────────────────────────
+- name: "[Post] OPatch lsinventory after patching"
+  ansible.builtin.shell: "{{ oracle_home }}/OPatch/opatch lsinventory -oh {{ oracle_home }}"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/OPatch:{{ ansible_env.PATH }}"
+  register: post_patch_inventory
+  changed_when: false
+  tags: 
+    - patch_verify
+    - patch
+
+- name: "[Post] Save post-patch inventory to report file"
+  ansible.builtin.copy:
+    content: "{{ post_patch_inventory.stdout }}"
+    dest: "{{ oracle_patch_stage_dir }}/{{ now(false, fmt='%Y%m%d_%H%M') }}_post_patch_lsinventory.txt"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  tags: 
+    - patch_verify
+    - patch
+
+- name: "[Post] Display post-patch lsinventory"
+  ansible.builtin.debug:
+    var: post_patch_inventory.stdout_lines
+  tags: 
+    - patch_verify
+    - patch
+
+- name: "[Post] Confirm RU patch_id appears in inventory"
+  ansible.builtin.assert:
+    that:
+      - oracle_ru_patch_id in post_patch_inventory.stdout
+    fail_msg: "Patch {{ oracle_ru_patch_id }} NOT found in lsinventory after apply!"
+    success_msg: "Patch {{ oracle_ru_patch_id }} confirmed in inventory."
+  when: oracle_ru_apply_enabled | bool
+  tags: 
+    - patch_verify
+    - patch
+
+# ── Cleanup staging zips ─────────────────────────────────────────────────────
+- name: "[Cleanup] Remove patch zips from staging directory"
+  ansible.builtin.find:
+    paths: "{{ oracle_patch_stage_dir }}"
+    patterns: "*.zip"
+  register: patch_zips
+  tags: 
+    - patch_cleanup
+    - patch
+
+- name: "[Cleanup] Delete patch zips"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ patch_zips.files }}"
+  tags: 
+    - patch_cleanup
+    - patch

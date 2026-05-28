@@ -1,0 +1,230 @@
+---
+# =============================================================================
+# terraform_runner/tasks/deploy_one_vm.yml
+#
+# Handles the full lifecycle for a single VM: plan gate, apply, and inventory
+# registration.
+#
+# KEY BEHAVIORS
+# -------------
+# 1. Normal run (skip_terraform: false, default):
+#    - Renders tfvars, runs terraform plan, enforces the "create-only" plan gate,
+#      runs terraform apply, waits for SSH, then adds the host to provisioned_vms.
+#    - If the plan gate fails (VM already exists → non-create actions detected),
+#      the rescue block fires, logs the reason, and moves on. The host is NOT
+#      added to provisioned_vms. Terraform will not touch that VM.
+#    - Use skip_terraform=true if you want to re-run configuration against a VM
+#      that already exists without re-provisioning it.
+#
+# 2. Configure-only run (skip_terraform: true):
+#    - All Terraform tasks are skipped entirely.
+#    - The host is added directly to provisioned_vms using the IP from the
+#      build vars file (networks[0].ipv4_address). No SSH wait is performed
+#      because the VM is assumed to already be up.
+#    - Play 2 (configure) then runs its roles against that host as normal.
+#
+# TAGS
+# ----
+# provision    - inherited from the calling play; covers all tasks here
+# terraform    - Terraform-specific tasks (plan, apply, wait for SSH)
+# inventory    - add_host and related inventory registration tasks
+# =============================================================================
+
+- name: Set facts for {{ vm_item.ansible_facts.build_vm.vm_name }}
+  ansible.builtin.set_fact:
+    vmvars: "{{ vm_item.ansible_facts.build_vm }}"
+    fqdn: >-
+      {{
+        [
+          vm_item.ansible_facts.build_vm.vm_name,
+          (
+            vm_item.ansible_facts.build_vm.vm_domain
+            | default(vm_domain | default('idm.hedc.mil'))
+          )
+        ] | join('.')
+      }}
+    short_name: "{{ vm_item.ansible_facts.build_vm.vm_name }}"
+    vm_primary_ip: "{{ vm_item.ansible_facts.build_vm.networks[0].ipv4_address }}"
+  tags:
+    - provision
+    - inventory
+
+# -----------------------------------------------------------------------------
+# CONFIGURE-ONLY SHORTCUT (skip_terraform: true)
+# Add host directly to provisioned_vms and stop here. No Terraform touched.
+# -----------------------------------------------------------------------------
+
+- name: "CONFIGURE-ONLY | Add {{ vmvars.vm_name }} directly to runtime inventory (skip_terraform=true)"
+  ansible.builtin.add_host:
+    name: "{{ vmvars.vm_name }}"
+    groups: provisioned_vms
+    ansible_host: "{{ vm_primary_ip }}"
+    ansible_user: "{{ default_user | default('hedcadm') }}"
+    ansible_connection: ssh
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+    build_vars_file: "{{ build_vars_dir }}/{{ fqdn }}.yml"
+  when: skip_terraform | default(false) | bool
+  tags:
+    - provision
+    - inventory
+
+# -----------------------------------------------------------------------------
+# TERRAFORM PATH (skip_terraform: false, default)
+# All remaining tasks are guarded by `not skip_terraform`.
+# -----------------------------------------------------------------------------
+
+- name: Set terraform paths for {{ vmvars.vm_name }}
+  ansible.builtin.set_fact:
+    tfplan_file: "{{ terraform_state_dir }}/{{ fqdn }}.tfplan"
+    tfstate_file: "{{ terraform_state_dir }}/{{ fqdn }}.tfstate"
+    tfvars_file: "{{ terraform_tfvars_dir }}/{{ fqdn }}.auto.tfvars.json"
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Build {{ vmvars.vm_name }} terraform_vms payload
+  ansible.builtin.set_fact:
+    terraform_vms: >-
+      {{
+        {
+          fqdn: {
+            'vm_name': short_name,
+            'vm_type': vmvars.vm_type | default('generic'),
+            'annotation': vmvars.annotation | default(''),
+            'networks': vmvars.networks | default([]),
+            'additional_disks': vmvars.additional_disks | default([]),
+            'cpu_override': vmvars.cpu_override | default(0) | int,
+            'memory_gb_override': vmvars.memory_gb_override | default(0) | int,
+            'disk0_gb_override': vmvars.disk0_gb_override | default(0) | int,
+            'vsphere_datacenter': vmvars.vsphere_datacenter,
+            'vsphere_cluster': vmvars.vsphere_cluster,
+            'vsphere_datastore': vmvars.vsphere_datastore,
+            'vsphere_folder': vmvars.vsphere_folder | default(''),
+            'vsphere_resource_pool': vmvars.vsphere_resource_pool | default(''),
+            'template_name': vmvars.template_name,
+            'vm_domain': vmvars.vm_domain | default(vm_domain | default('X.my.domain.com'))
+          }
+        }
+      }}
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Render {{ vmvars.vm_name }} Terraform variables file
+  ansible.builtin.template:
+    src: terraform.auto.tfvars.json.j2
+    dest: "{{ tfvars_file }}"
+    mode: "0600"
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+
+- name: Process {{ vmvars.vm_name }} through plan gate and deploy
+  when: not (skip_terraform | default(false) | bool)
+  tags:
+    - provision
+    - terraform
+  block:
+    - name: Run Terraform plan for {{ vmvars.vm_name }}
+      ansible.builtin.command: >-
+        terraform plan
+        -no-color
+        -detailed-exitcode
+        -out={{ tfplan_file }}
+        -state={{ tfstate_file }}
+        -var-file={{ tfvars_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      environment:
+        TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+      register: tf_plan
+      changed_when: tf_plan.rc == 2
+      failed_when: tf_plan.rc not in [0, 2]
+
+    - name: Export Terraform plan as JSON
+      ansible.builtin.command: >-
+        terraform show -json {{ tfplan_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      register: tf_plan_json_cmd
+      changed_when: false
+
+    - name: Parse Terraform plan JSON
+      ansible.builtin.set_fact:
+        tf_plan_json: "{{ tf_plan_json_cmd.stdout | from_json }}"
+      changed_when: false
+
+    - name: Collect managed resource actions
+      ansible.builtin.set_fact:
+        tf_resource_changes: "{{ tf_plan_json.resource_changes | default([]) }}"
+        tf_non_create_changes: >-
+          {{
+            (tf_plan_json.resource_changes | default([]))
+            | selectattr('mode', 'equalto', 'managed')
+            | rejectattr('change.actions', 'equalto', ['create'])
+            | list
+          }}
+      changed_when: false
+
+    - name: Show plan gate summary for {{ fqdn }}
+      ansible.builtin.debug:
+        msg:
+          - "VM: {{ fqdn }}"
+          - "Total managed resource changes: {{ tf_resource_changes | length }}"
+          - "Non-create changes (triggers gate): {{ tf_non_create_changes | length }}"
+      changed_when: false
+
+    - name: Show unsafe plan detail for {{ vmvars.vm_name }}
+      ansible.builtin.debug:
+        msg:
+          - "Skipping {{ fqdn }} — plan contains non-create actions."
+          - "change.actions: {{ tf_non_create_changes[0].change.actions }}"
+          - "To re-run Ansible configuration against this VM without re-provisioning, use -e skip_terraform=true."
+      when: tf_non_create_changes | length > 0
+      changed_when: false
+
+    - name: Stop {{ vmvars.vm_name }} due to unsafe plan actions
+      ansible.builtin.fail:
+        msg: "Skipping {{ fqdn }} — plan contains non-create actions. See summary above."
+      when: tf_non_create_changes | length > 0
+
+    - name: Terraform apply for {{ vmvars.vm_name }}
+      ansible.builtin.command: >-
+        terraform apply
+        -auto-approve
+        -state={{ tfstate_file }}
+        -var-file={{ tfvars_file }}
+      args:
+        chdir: "{{ terraform_project_dir }}"
+      environment:
+        TF_VAR_vsphere_password: "{{ vsphere_pass | default(lookup('ansible.builtin.env', 'TF_VAR_vsphere_password')) }}"
+
+    - name: Wait for SSH on {{ vmvars.vm_name }}
+      ansible.builtin.wait_for:
+        host: "{{ vm_primary_ip }}"
+        port: 22
+        state: started
+        delay: 5
+        timeout: 120
+
+    - name: Add {{ vmvars.vm_name }} to runtime inventory (post-apply)
+      ansible.builtin.add_host:
+        name: "{{ vmvars.vm_name }}"
+        groups: provisioned_vms
+        ansible_host: "{{ vm_primary_ip }}"
+        ansible_user: "{{ default_user | default('hedcadm') }}"
+        ansible_connection: ssh
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        build_vars_file: "{{ build_vars_dir }}/{{ fqdn }}.yml"
+
+  rescue:
+    - name: Log skipped VM {{ fqdn }}
+      ansible.builtin.debug:
+        msg:
+          - "Skipping {{ fqdn }} — Terraform plan failed or plan gate triggered."
+          - "This VM has NOT been added to provisioned_vms."
+          - "To re-run Ansible configuration against an existing VM, use -e skip_terraform=true."
+      changed_when: false

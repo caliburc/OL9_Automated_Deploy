@@ -1,0 +1,309 @@
+-- =============================================================================
+-- STIG Profile Controls
+-- Database : {{ stig_db.sid }}
+-- STIG Ref : DISA Oracle 19c STIG V1R5 (Benchmark: 01 Apr 2026)
+-- Generated: Ansible -- do not edit manually
+-- =============================================================================
+-- V1R5 Changes vs V1R2:
+--   O19C-014700: PASSWORD_VERIFY_FUNCTION changed to ORA12C_STIG_VERIFY_FUNCTION
+--                (enforces 15-char minimum vs 12-char in STRONG function)
+--   O19C-014800: INACTIVE_ACCOUNT_TIME added to ORA_STIG_PROFILE (≤ 35 days)
+--   O19C-014600: TEMPORARY_USERS profile created for temporary accounts
+-- =============================================================================
+
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET FEEDBACK OFF
+SET HEADING OFF
+
+-- =============================================================================
+-- STEP 1: Install password complexity verification functions
+-- Run catpvf.sql to ensure ORA12C_STIG_VERIFY_FUNCTION exists (V1R5 O19C-014700)
+-- This is idempotent - safe to re-run.
+-- =============================================================================
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG Profiles: Installing password verify functions via catpvf.sql');
+END;
+/
+
+-- catpvf.sql is sourced via the Ansible task (oracle_home/rdbms/admin/catpvf.sql)
+-- This SQL file handles only the profile ALTER statements below.
+
+-- =============================================================================
+-- STEP 2: CREATE or ALTER ORA_STIG_PROFILE
+-- =============================================================================
+{% if stig_O19C_001100_enabled or stig_O19C_001200_enabled or stig_O19C_001500_enabled
+   or stig_O19C_001600_enabled or stig_O19C_001700_enabled or stig_O19C_002800_enabled
+   or stig_O19C_014700_enabled or stig_O19C_014800_enabled %}
+
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   dba_profiles
+  WHERE  profile = '{{ stig_profile_name }}'
+  AND    ROWNUM = 1;
+  IF v_exists = 0 THEN
+    EXECUTE IMMEDIATE 'CREATE PROFILE {{ stig_profile_name }} LIMIT COMPOSITE_LIMIT UNLIMITED';
+    DBMS_OUTPUT.PUT_LINE('STIG Profiles: Created profile {{ stig_profile_name }}');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('STIG Profiles: Profile {{ stig_profile_name }} already exists -- applying limits');
+  END IF;
+END;
+/
+
+-- ── O19C-001100 -- FAILED_LOGIN_ATTEMPTS ────────────────────────────────────
+{% if stig_O19C_001100_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT FAILED_LOGIN_ATTEMPTS {{ stig_failed_login_attempts }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001100: FAILED_LOGIN_ATTEMPTS={{ stig_failed_login_attempts }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-001200 -- PASSWORD_LIFE_TIME ───────────────────────────────────────
+{% if stig_O19C_001200_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT PASSWORD_LIFE_TIME {{ stig_password_life_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001200: PASSWORD_LIFE_TIME={{ stig_password_life_time }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-001500 -- PASSWORD_REUSE_TIME / PASSWORD_REUSE_MAX ─────────────────
+{% if stig_O19C_001500_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT
+  PASSWORD_REUSE_TIME {{ stig_password_reuse_time }}
+  PASSWORD_REUSE_MAX  {{ stig_password_reuse_max }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001500: PASSWORD_REUSE_TIME={{ stig_password_reuse_time }} PASSWORD_REUSE_MAX={{ stig_password_reuse_max }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-001600 -- PASSWORD_LOCK_TIME ───────────────────────────────────────
+{% if stig_O19C_001600_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT PASSWORD_LOCK_TIME {{ stig_password_lock_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001600: PASSWORD_LOCK_TIME={{ stig_password_lock_time }}');
+END;
+/
+{% endif %}
+
+-- ── O19C-001700 -- PASSWORD_GRACE_TIME ──────────────────────────────────────
+{% if stig_O19C_001700_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT PASSWORD_GRACE_TIME {{ stig_password_grace_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-001700: PASSWORD_GRACE_TIME={{ stig_password_grace_time }}');
+END;
+/
+{% endif %}
+
+-- ── IDLE_TIME ────────────────────────────────────────────────────────────────
+ALTER PROFILE {{ stig_profile_name }} LIMIT IDLE_TIME {{ stig_idle_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG Profiles: IDLE_TIME={{ stig_idle_time }} minutes');
+END;
+/
+
+-- ── O19C-014700 (V1R5 NEW) -- PASSWORD_VERIFY_FUNCTION ──────────────────────
+-- V1R5 requires ORA12C_STIG_VERIFY_FUNCTION (15-char minimum).
+-- V1R2 used ORA12C_STRONG_VERIFY_FUNCTION (12-char) which is now non-compliant.
+-- Prerequisite: catpvf.sql must be sourced before this runs (handled in stig_profiles.yml).
+{% if stig_O19C_014700_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT PASSWORD_VERIFY_FUNCTION {{ stig_password_verify_function }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-014700 (V1R5): PASSWORD_VERIFY_FUNCTION={{ stig_password_verify_function }} (15-char minimum)');
+END;
+/
+{% endif %}
+
+-- ── O19C-014800 (V1R5 NEW) -- INACTIVE_ACCOUNT_TIME ≤ 35 days ───────────────
+-- V1R5 V-270585: INACTIVE_ACCOUNT_TIME must be ≤ 35 in the STIG profile.
+-- Oracle 12c+ feature. UNLIMITED (default) is a finding.
+{% if stig_O19C_014800_enabled %}
+ALTER PROFILE {{ stig_profile_name }} LIMIT INACTIVE_ACCOUNT_TIME {{ stig_inactive_account_time }};
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-014800 (V1R5): INACTIVE_ACCOUNT_TIME={{ stig_inactive_account_time }} days -- APPLIED');
+END;
+/
+{% endif %}
+
+{% endif %}
+
+-- =============================================================================
+-- STEP 3: Assign ORA_STIG_PROFILE to all non-privileged, non-system accounts
+-- =============================================================================
+{% if stig_O19C_001800_enabled %}
+DECLARE
+  v_count NUMBER := 0;
+BEGIN
+  FOR r IN (
+    SELECT username
+    FROM   dba_users
+    WHERE  profile NOT IN ('{{ stig_profile_name }}')
+      AND  account_status NOT LIKE '%LOCKED%'
+      AND  username NOT IN (
+             'SYS','SYSTEM','DBSNMP','OUTLN','SCOTT','ADAMS','JONES','CLARK','BLAKE',
+             'TURNER','MARTIN','WARD','ALLEN','MILLER','KING','FORD','JAMES','SMITH',
+             'HR','OE','PM','IX','SH','BI','AUDSYS','WMSYS','MDSYS','ORDSYS','ORDDATA',
+             'ORDPLUGINS','SI_INFORMTN_SCHEMA','XDB','ANONYMOUS','APEX_PUBLIC_USER',
+             'APEX_040200','APEX_030200','FLOWS_FILES','DIP','ORACLE_OCM','GSMADMIN_INTERNAL',
+             'GSMCATUSER','OLAPSYS','CTXSYS','EXFSYS','LBACSYS','DVSYS','DVF',
+             'OJVMSYS','MDDATA','SYSMAN','MGMT_VIEW','OWBSYS','OWBSYS_AUDIT',
+             'SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR','SYSDG','SYSBACKUP','SYSKM',
+             'SYSMAN_RO','SYSMAN_MDS','SYSMAN_APM','SYSMAN_OPSS','SYSMAN_STB',
+             'SYSMAN_BIPLATFORM','EUS_ENGINE_USER','GSMUSER'
+           )
+    ORDER BY username
+  ) LOOP
+    EXECUTE IMMEDIATE 'ALTER USER ' || r.username || ' PROFILE {{ stig_profile_name }}';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001800: Profile {{ stig_profile_name }} assigned to ' || r.username);
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-001800: All applicable accounts already on {{ stig_profile_name }} -- COMPLIANT');
+  END IF;
+END;
+/
+{% endif %}
+
+-- =============================================================================
+-- STEP 4: CREATE TEMPORARY_USERS profile (V1R5 O19C-014600)
+-- V1R5 requires a documented temporary account profile. If temporary accounts
+-- are used, they must be on a profile with short PASSWORD_LIFE_TIME and GRACE_TIME.
+-- =============================================================================
+{% if stig_O19C_014600_enabled %}
+DECLARE
+  v_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_exists
+  FROM   dba_profiles
+  WHERE  profile = '{{ stig_temp_profile_name }}'
+  AND    ROWNUM = 1;
+  IF v_exists = 0 THEN
+    EXECUTE IMMEDIATE '
+      CREATE PROFILE {{ stig_temp_profile_name }} LIMIT
+        FAILED_LOGIN_ATTEMPTS  {{ stig_failed_login_attempts }}
+        PASSWORD_LIFE_TIME     {{ stig_temp_password_life_time }}
+        PASSWORD_REUSE_TIME    UNLIMITED
+        PASSWORD_REUSE_MAX     UNLIMITED
+        PASSWORD_LOCK_TIME     UNLIMITED
+        PASSWORD_GRACE_TIME    {{ stig_temp_password_grace_time }}
+        PASSWORD_VERIFY_FUNCTION {{ stig_password_verify_function }}
+        INACTIVE_ACCOUNT_TIME  35
+        IDLE_TIME              {{ stig_idle_time }}';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-014600 (V1R5): Profile {{ stig_temp_profile_name }} CREATED');
+  ELSE
+    -- Ensure critical limits are correct even if profile already existed
+    EXECUTE IMMEDIATE 'ALTER PROFILE {{ stig_temp_profile_name }} LIMIT PASSWORD_LIFE_TIME {{ stig_temp_password_life_time }}';
+    EXECUTE IMMEDIATE 'ALTER PROFILE {{ stig_temp_profile_name }} LIMIT PASSWORD_VERIFY_FUNCTION {{ stig_password_verify_function }}';
+    EXECUTE IMMEDIATE 'ALTER PROFILE {{ stig_temp_profile_name }} LIMIT INACTIVE_ACCOUNT_TIME 35';
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-014600 (V1R5): Profile {{ stig_temp_profile_name }} already exists -- limits updated');
+  END IF;
+END;
+/
+{% endif %}
+
+-- =============================================================================
+-- STEP 5: DBMS_SCHEDULER job to lock TEMPORARY_USERS accounts > 72 hours old
+-- STIG: O19C-00-012100 (V-270547) - Automatically disable temporary accounts after 72 hours.
+-- The job runs every hour and locks any account on the TEMPORARY_USERS profile
+-- whose CREATED timestamp is more than 72 hours in the past and is not already
+-- locked. This satisfies the STIG requirement for automatic termination without
+-- dropping the account (preserves audit trail of account existence).
+-- =============================================================================
+{% if stig_O19C_014600_enabled %}
+DECLARE
+  v_job_exists NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_job_exists
+  FROM   dba_scheduler_jobs
+  WHERE  owner    = 'SYS'
+  AND    job_name = 'STIG_LOCK_TEMP_ACCOUNTS';
+
+  -- Drop and recreate to ensure definition is current
+  IF v_job_exists > 0 THEN
+    DBMS_SCHEDULER.DROP_JOB(
+      job_name  => 'SYS.STIG_LOCK_TEMP_ACCOUNTS',
+      force     => TRUE
+    );
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-012100 (V-270547): Existing STIG_LOCK_TEMP_ACCOUNTS job dropped for recreation');
+  END IF;
+
+  DBMS_SCHEDULER.CREATE_JOB(
+    job_name        => 'SYS.STIG_LOCK_TEMP_ACCOUNTS',
+    job_type        => 'PLSQL_BLOCK',
+    job_action      => '
+DECLARE
+  v_locked NUMBER := 0;
+BEGIN
+  FOR r IN (
+    SELECT u.username
+    FROM   dba_users u
+    WHERE  u.profile        = ''{{ stig_temp_profile_name }}''
+    AND    u.account_status NOT LIKE ''%LOCKED%''
+    AND    u.created        < SYSDATE - (72/24)
+  ) LOOP
+    EXECUTE IMMEDIATE ''ALTER USER '' || r.username || '' ACCOUNT LOCK'';
+    -- Write to alert log for audit trail
+    SYS.DBMS_SYSTEM.KSDWRT(
+      2,
+      ''STIG O19C-012100: Temporary account '' || r.username ||
+      '' locked by STIG_LOCK_TEMP_ACCOUNTS job (>72 hours old)''
+    );
+    v_locked := v_locked + 1;
+  END LOOP;
+  IF v_locked > 0 THEN
+    COMMIT;
+  END IF;
+END;',
+    start_date      => SYSTIMESTAMP,
+    repeat_interval => 'FREQ=HOURLY;INTERVAL=1',
+    enabled         => TRUE,
+    auto_drop       => FALSE,
+    comments        => 'STIG O19C-00-012100 (V-270547): Lock TEMPORARY_USERS accounts older than 72 hours. Do not disable.'
+  );
+
+  DBMS_OUTPUT.PUT_LINE('STIG O19C-012100 (V-270547): STIG_LOCK_TEMP_ACCOUNTS scheduler job CREATED and ENABLED (hourly)');
+
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('STIG O19C-012100 (V-270547): ERROR creating STIG_LOCK_TEMP_ACCOUNTS job: ' || SQLERRM);
+END;
+/
+{% endif %}
+
+
+-- =============================================================================
+-- STEP 6: Verification
+-- =============================================================================
+SET HEADING ON
+SET LINESIZE 130
+COLUMN profile         FORMAT A30
+COLUMN resource_name   FORMAT A35
+COLUMN limit           FORMAT A20
+
+SELECT profile, resource_name, limit
+FROM   dba_profiles
+WHERE  profile IN ('{{ stig_profile_name }}','{{ stig_temp_profile_name }}')
+  AND  resource_name IN (
+         'FAILED_LOGIN_ATTEMPTS','PASSWORD_LIFE_TIME','PASSWORD_REUSE_TIME',
+         'PASSWORD_REUSE_MAX','PASSWORD_LOCK_TIME','PASSWORD_GRACE_TIME',
+         'PASSWORD_VERIFY_FUNCTION','INACTIVE_ACCOUNT_TIME','IDLE_TIME'
+       )
+ORDER BY profile, resource_name;
+
+SET HEADING ON
+SET LINESIZE 130
+COLUMN job_name        FORMAT A35
+COLUMN enabled         FORMAT A8
+COLUMN state           FORMAT A12
+COLUMN repeat_interval FORMAT A30
+COLUMN comments        FORMAT A50
+
+SELECT job_name, enabled, state, repeat_interval, comments
+FROM   dba_scheduler_jobs
+WHERE  owner    = 'SYS'
+AND    job_name = 'STIG_LOCK_TEMP_ACCOUNTS';
+
+EXIT 0;

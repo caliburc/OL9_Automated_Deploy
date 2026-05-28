@@ -1,0 +1,106 @@
+---
+vsphere_server: "VCENTER.my.domain.com"
+vsphere_user: "administrator@vsphere.local"
+
+## HEDCADM SSH PubKey ###
+## USED IN USERDATA TERRAFORM DATA ###
+hedcadm_ssh_public_key: "ssh-rsa FAKE-PUBLIC-KEY-DATA=="
+
+## IPA VARIABLE BLOCK ###
+## USED IN BASELINE MAIN TASKS ###
+ipa_servers:
+  - apipa6p.my.domain.com
+  - apipa7p.my.domain.com
+  - apipa8p.my.domain.com
+ipa_domain: my.domain.com
+ipa_realm: MY.DOMAIN.COM 
+ipa_client_state_file: /etc/ipa/default.conf
+
+#Do not change these values unless approved
+#These are the baseline roles for the vm_type defined in the build template
+#If additional roles are needed per server, add them to the server_roles list in the build template for that VM
+vm_type_role_map:
+  app:
+    - baseline
+    - ol9STIG
+  weblogic:
+    - baseline
+    - ol9STIG
+    - weblogic14c
+  oracle_db:
+    - baseline
+    - ol9STIG
+    - oracle19c
+  generic_db:
+    - baseline
+    - ol9STIG
+    - generic_db
+
+
+#Do not change these values unless approved
+#These are our baseline VM build sizes
+#If additional CPU, Mememory, Disks, or Disk Size changes are needed, add them to the build template for that VM
+vm_type_profiles:
+  generic:
+    num_cpus: 4
+    memory_gb: 8
+    firmware: "efi"
+    disk0_size_gb: 70
+    additional_disks: []
+  app:
+    num_cpus: 4
+    memory_gb: 8
+    firmware: "efi"
+    disk0_size_gb: 70
+    additional_disks: 
+      - label: app
+        size_gb: 60
+        unit_number: 1
+        thin_provisioned: false
+        eagerly_scrub: false
+  weblogic:
+    num_cpus: 4
+    memory_gb: 8
+    firmware: "efi"
+    disk0_size_gb: 70
+    additional_disks: 
+      - label: app
+        size_gb: 60
+        unit_number: 1
+        thin_provisioned: false
+        eagerly_scrub: false
+  oracle_db:
+    num_cpus: 8
+    memory_gb: 32
+    firmware: "efi"
+    disk0_size_gb: 70
+    additional_disks:
+      - label: app
+        size_gb: 60
+        unit_number: 1
+        thin_provisioned: false
+        eagerly_scrub: false
+      - label: data
+        size_gb: 350
+        unit_number: 2
+        thin_provisioned: false
+        eagerly_scrub: false
+  generic_db:
+    num_cpus: 8
+    memory_gb: 32
+    firmware: "efi"
+    disk0_size_gb: 70
+    additional_disks:
+      - label: app
+        size_gb: 60
+        unit_number: 1
+        thin_provisioned: false
+        eagerly_scrub: false
+      - label: data
+        size_gb: 350
+        unit_number: 2
+        thin_provisioned: false
+        eagerly_scrub: false  
+
+
+

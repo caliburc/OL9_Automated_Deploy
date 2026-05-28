@@ -1,0 +1,182 @@
+---
+# =============================================================================
+# Role: oracle_install
+# Purpose: Copy, unzip, and run the Oracle 19c runInstaller (software-only)
+# =============================================================================
+
+# ── 1. Check if ORACLE_HOME already installed ─────────────────────────────────
+- name: Check if Oracle Home is already installed
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/bin/sqlplus"
+  register: sqlplus_binary
+  tags: install_check
+
+- name: Skip installation if Oracle Home already exists
+  ansible.builtin.debug:
+    msg: "Oracle Home already installed at {{ oracle_home }}. Skipping software installation."
+  when: sqlplus_binary.stat.exists
+  tags: install_check
+
+# ── 2. Stage installer ────────────────────────────────────────────────────────
+- name: Create staging directory
+  ansible.builtin.file:
+    path: "{{ oracle_installer_stage }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  when: not sqlplus_binary.stat.exists
+  tags: stage
+
+- name: Copy Oracle 19c installer zip to target server
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ oracle_installer_src }}/{{ oracle_installer_zip }}"
+    dest: "{{ oracle_installer_stage }}/{{ oracle_installer_zip }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  when: not sqlplus_binary.stat.exists
+  tags: stage
+
+# ── 3. Unzip directly into ORACLE_HOME ───────────────────────────────────────
+- name: Unzip Oracle installer into ORACLE_HOME
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ oracle_installer_stage }}/{{ oracle_installer_zip }}"
+    dest: "{{ oracle_home }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    creates: "{{ oracle_home }}/runInstaller"
+  when: not sqlplus_binary.stat.exists
+  tags: stage
+
+- name: "Clear gold image holdover logs from ORACLE_HOME rdbms/log"
+  ansible.builtin.shell: |
+    find {{ oracle_home }}/rdbms/log -type f -name "*.log" -delete
+  become: true
+  become_user: "{{ oracle_user }}"
+  when: not sqlplus_binary.stat.exists
+  tags: stage
+
+# ── 4. Build the runInstaller response file ───────────────────────────────────
+- name: Deploy software-only response file
+  ansible.builtin.template:
+    src: db_install.rsp.j2
+    dest: "{{ oracle_installer_stage }}/db_install.rsp"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+  when: not sqlplus_binary.stat.exists
+  tags: response_file
+
+# ── 5. Run runInstaller (silent, software-only) ───────────────────────────────
+- name: Remount /tmp with exec (runInstaller requirement)
+  ansible.builtin.command: mount -o remount,exec /tmp
+  become: true
+  when: not sqlplus_binary.stat.exists
+  tags: run_installer
+
+- name: Run Oracle runInstaller – software only (this takes a few minutes)
+  ansible.builtin.shell: |
+    {{ oracle_home }}/runInstaller \
+      -silent \
+      -responseFile {{ oracle_installer_stage }}/db_install.rsp \
+      -ignorePrereqFailure \
+      -waitforcompletion
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_BASE: "{{ oracle_base }}"
+    ORACLE_HOME: "{{ oracle_home }}"
+    CV_ASSUME_DISTID: OL9
+  register: installer_result
+  # runInstaller returns 6 for "succeeded with warnings" – treat as OK
+  failed_when: installer_result.rc not in [0, 6]
+  changed_when: installer_result.rc in [0, 6]
+  when: not sqlplus_binary.stat.exists
+  async: 3600
+  poll: 20
+  tags: run_installer
+
+- name: Show installer output
+  ansible.builtin.debug:
+    var: installer_result.stdout_lines
+  when:
+    - not sqlplus_binary.stat.exists
+    - installer_result is defined
+  tags: run_installer
+
+- name: Remount /tmp back to noexec
+  ansible.builtin.command: mount -o remount,noexec /tmp
+  become: true
+  when: not sqlplus_binary.stat.exists
+  tags: run_installer
+
+# ── 6. Execute root scripts ───────────────────────────────────────────────────
+- name: Install updated root.sh script
+  ansible.builtin.copy:
+    src: root.sh
+    dest: "{{ oracle_home }}/root.sh"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0700"
+  when: not sqlplus_binary.stat.exists
+  tags: root_scripts
+
+- name: Install updated orainstRoot.sh script
+  ansible.builtin.copy:
+    src: orainstRoot.sh
+    dest: "{{ oracle_home }}/oraInventory/orainstRoot.sh"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0700"
+  when: not sqlplus_binary.stat.exists
+  tags: root_scripts
+
+- name: Run orainstRoot.sh
+  ansible.builtin.shell: "{{ oracle_inventory }}/orainstRoot.sh"
+  become: true
+  register: orainst_root
+  changed_when: "'already' not in orainst_root.stdout"
+  when: not sqlplus_binary.stat.exists
+  tags: root_scripts
+
+- name: Run root.sh
+  ansible.builtin.shell: "{{ oracle_home }}/root.sh"
+  become: true
+  register: root_sh
+  changed_when: root_sh.rc == 0
+  when: not sqlplus_binary.stat.exists
+  tags: root_scripts
+
+- name: Show root.sh output
+  ansible.builtin.debug:
+    var: root_sh.stdout_lines
+  when:
+    - not sqlplus_binary.stat.exists
+    - root_sh is defined
+  tags: root_scripts
+
+# ── 7. Run OPatch lsinventory to confirm install ─────────────────────────────
+- name: Verify install with OPatch lsinventory
+  ansible.builtin.shell: "{{ oracle_home }}/OPatch/opatch lsinventory"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+  register: opatch_inv
+  changed_when: false
+  tags: verify
+
+- name: Display OPatch lsinventory
+  ansible.builtin.debug:
+    var: opatch_inv.stdout_lines
+  tags: verify
+
+# ── 8. Clean up staging zip ───────────────────────────────────────────────────
+- name: Remove installer zip to reclaim disk space
+  ansible.builtin.file:
+    path: "{{ oracle_installer_stage }}/{{ oracle_installer_zip }}"
+    state: absent
+  tags: cleanup

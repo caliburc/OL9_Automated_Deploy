@@ -1,0 +1,289 @@
+---
+# =============================================================================
+# Role: oracle_prereqs
+# Purpose: OS-level prerequisites for Oracle 19c on OEL9
+# =============================================================================
+
+# ── 1. Required OS Packages ───────────────────────────────────────────────────
+- name: Install Oracle 19c prerequisite packages
+  ansible.builtin.dnf:
+    name:
+      # Core build / compat libs
+      - bc
+      - binutils
+      - compat-openssl11
+      - elfutils-libelf
+      - elfutils-libelf-devel
+      - fontconfig-devel
+      - glibc
+      - glibc-devel
+      - ksh
+      - libaio
+      - libaio-devel
+      - libgcc
+      - libnsl
+      - libstdc++
+      - libstdc++-devel
+      - libxcb
+      - libXi
+      - libXrender
+      - libXrender-devel
+      - libXtst
+      - make
+      - net-tools
+      - nfs-utils
+      - policycoreutils
+      - policycoreutils-python-utils
+      - smartmontools
+      - sysstat
+      - targetcli
+      - unzip
+      - xorg-x11-utils
+      - xorg-x11-xauth
+    state: present
+  tags: packages
+
+# ── 2. Oracle-specific preinstall RPM (saves manual kernel/limit tuning) ─────
+- name: Install oracle-database-preinstall-19c RPM (Oracle Linux repo)
+  ansible.builtin.dnf:
+    name: oracle-database-preinstall-19c
+    state: present
+    enablerepo: ol9_baseos_latest,ol9_appstream
+  ignore_errors: true          # may not exist on non-OL repos; manual tuning follows
+  register: preinstall_rpm
+  tags: packages
+
+# ── 3. Groups ─────────────────────────────────────────────────────────────────
+# - name: Create Oracle OS groups
+#   ansible.builtin.group:
+#     name: "{{ item.name }}"
+#     gid: "{{ item.gid }}"
+#     state: present
+#   loop:
+#     - { name: "{{ oracle_group }}",       gid: 54321 }
+#     - { name: "{{ oracle_dba_group }}",   gid: 54322 }
+#     - { name: "{{ oracle_oper_group }}",  gid: 54323 }
+#     - { name: "{{ oracle_backupdba_group }}", gid: 54324 }
+#     - { name: "{{ oracle_dgdba_group }}", gid: 54325 }
+#     - { name: "{{ oracle_kmdba_group }}", gid: 54326 }
+#     - { name: "{{ oracle_racdba_group }}", gid: 54330 }
+#   tags: users
+
+# # ── 4. Oracle User ────────────────────────────────────────────────────────────
+# - name: Create oracle OS user
+#   ansible.builtin.user:
+#     name: "{{ oracle_user }}"
+#     uid: "{{ oracle_user_uid }}"
+#     group: "{{ oracle_group }}"
+#     groups: "{{ oracle_dba_group }},{{ oracle_oper_group }},{{ oracle_backupdba_group }},{{ oracle_dgdba_group }},{{ oracle_kmdba_group }},{{ oracle_racdba_group }}"
+#     home: "/home/{{ oracle_user }}"
+#     shell: /bin/bash
+#     comment: "Oracle Database Software Owner"
+#     state: present
+#   tags: users
+
+# ── 5. Directory Structure ────────────────────────────────────────────────────
+- name: Create Oracle base directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  loop:
+    - "{{ oracle_base }}"
+    - "{{ oracle_home }}"
+    - "{{ oracle_inventory }}"
+    - "{{ oracle_admin_dir }}"
+    - "{{ oracle_installer_stage }}"
+    # Primary data filesystem (/data/oracle/oradata)
+    - "{{ oracle_data_dir }}"
+    # Archive/mirror filesystem (/data/oracle/arch)
+    - "{{ oracle_arch_dir }}"
+    # DBCA assistants directories (response files and templates land here)
+    - "{{ oracle_home }}/assistants/dbca/templates"
+  tags: directories
+
+# ── 6. Kernel Parameters ──────────────────────────────────────────────────────
+- name: Configure kernel parameters for Oracle
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/97-oracle-db.conf
+  loop:
+    - { key: "fs.aio-max-nr",            value: "1048576" }
+    - { key: "fs.file-max",              value: "6815744" }
+    - { key: "kernel.shmall",            value: "{{ oracle_shmall }}" }
+    - { key: "kernel.shmmax",            value: "{{ oracle_shmmax }}" }
+    - { key: "kernel.shmmni",            value: "{{ oracle_shmmni }}" }
+    - { key: "kernel.sem",               value: "250 32000 100 128" }
+    - { key: "net.ipv4.ip_local_port_range", value: "9000 65500" }
+    - { key: "net.core.rmem_default",    value: "262144" }
+    - { key: "net.core.rmem_max",        value: "4194304" }
+    - { key: "net.core.wmem_default",    value: "262144" }
+    - { key: "net.core.wmem_max",        value: "1048576" }
+    - { key: "vm.nr_hugepages",          value: "0" }
+  when: preinstall_rpm is failed or preinstall_rpm.rc != 0
+  tags: kernel
+
+# ── 7. Resource Limits ────────────────────────────────────────────────────────
+- name: Configure PAM / limits for oracle user
+  ansible.builtin.template:
+    src: oracle-limits.conf.j2
+    dest: /etc/security/limits.d/97-oracle.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: preinstall_rpm is failed or preinstall_rpm.rc != 0
+  tags: limits
+
+# ── 8. Oracle User Environment ────────────────────────────────────────────────
+- name: Configure oracle user .bash_profile
+  ansible.builtin.template:
+    src: bash_profile.j2
+    dest: "/app/home/{{ oracle_user }}/.bash_profile"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0600"
+  tags: env
+
+- name: Configure oracle user .bashrc
+  ansible.builtin.template:
+    src: bashrc.j2
+    dest: "/app/home/{{ oracle_user }}/.bashrc"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0600"
+  tags: env
+
+# ── 9. /etc/oraInst.loc ───────────────────────────────────────────────────────
+- name: Create /etc/oraInst.loc
+  ansible.builtin.copy:
+    dest: /etc/oraInst.loc
+    content: |
+      inventory_loc={{ oracle_inventory }}
+      inst_group={{ oracle_group }}
+    owner: root
+    group: root
+    mode: "0644"
+  tags: config
+
+# ── 10. Disable Transparent Huge Pages ───────────────────────────────────────
+- name: "[THP] Read current GRUB_CMDLINE_LINUX value"
+  ansible.builtin.shell: |
+    grep -oP '(?<=^GRUB_CMDLINE_LINUX=")[^"]*' /etc/default/grub || true
+  register: grub_cmdline_current
+  changed_when: false
+  tags: kernel
+ 
+- name: "[THP] Show current GRUB_CMDLINE_LINUX"
+  ansible.builtin.debug:
+    msg: "Current GRUB_CMDLINE_LINUX: {{ grub_cmdline_current.stdout }}"
+  tags: kernel
+ 
+- name: "[THP] Check if transparent_hugepage=never already present"
+  ansible.builtin.set_fact:
+    thp_grub_present: "{{ 'transparent_hugepage=never' in grub_cmdline_current.stdout }}"
+  tags: kernel
+ 
+- name: "[THP] Skip GRUB update – transparent_hugepage=never already set"
+  ansible.builtin.debug:
+    msg: "transparent_hugepage=never already present in GRUB_CMDLINE_LINUX – no change needed."
+  when: thp_grub_present | bool
+  tags: kernel
+ 
+- name: "[THP] Add transparent_hugepage=never to GRUB_CMDLINE_LINUX"
+  ansible.builtin.replace:
+    path: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX=")(.*)(")$'
+    replace: '\1\2 transparent_hugepage=never\3'
+    backup: true
+  when: not thp_grub_present | bool
+  register: grub_cmdline_updated
+  tags: kernel
+ 
+- name: "[THP] Regenerate grub.cfg"
+  ansible.builtin.shell: grub2-mkconfig -o /boot/grub2/grub.cfg --update-bls-cmdline
+  when:
+    - not thp_grub_present | bool
+    - grub_cmdline_updated.changed | default(false)
+    - not (ansible_facts.get('efi_enabled', false) | bool)
+  register: grub_mkconfig_bios
+  changed_when: grub_mkconfig_bios.rc == 0
+  tags: kernel
+ 
+- name: "[THP] Apply THP=never at runtime (current boot – no reboot needed)"
+  ansible.builtin.shell: |
+    echo never > /sys/kernel/mm/transparent_hugepage/enabled
+    echo never > /sys/kernel/mm/transparent_hugepage/defrag
+  changed_when: false
+  tags: kernel
+ 
+- name: "[THP] Verify current THP state"
+  ansible.builtin.shell: |
+    echo "enabled: $(cat /sys/kernel/mm/transparent_hugepage/enabled)"
+    echo "defrag:  $(cat /sys/kernel/mm/transparent_hugepage/defrag)"
+  register: thp_runtime_state
+  changed_when: false
+  tags: kernel
+ 
+- name: "[THP] Show current THP state"
+  ansible.builtin.debug:
+    var: thp_runtime_state.stdout_lines
+  tags: kernel
+ 
+- name: "[THP] Warn if reboot required for GRUB change to take effect"
+  ansible.builtin.debug:
+    msg: >-
+      GRUB_CMDLINE_LINUX was updated with transparent_hugepage=never.
+      A system reboot is required for this to take effect at the kernel level.
+      The runtime sysfs setting has been applied for the current boot.
+  when:
+    - not thp_grub_present | bool
+    - grub_cmdline_updated.changed | default(false)
+  tags: kernel
+
+# # ── 11. SELinux ───────────────────────────────────────────────────────────────
+# - name: Set SELinux to permissive for Oracle directories
+#   community.general.sefcontext:
+#     target: "{{ oracle_base }}(/.*)?"
+#     setype: oracle_db_exec_t
+#     state: present
+#   ignore_errors: true          # community.general may not be installed
+#   tags: selinux
+
+# ── 12. Firewall – open Oracle listener port ──────────────────────────────────
+# - name: Open Oracle listener port 1521/tcp in firewalld
+#   ansible.posix.firewalld:
+#     port: 1521/tcp
+#     permanent: true
+#     state: enabled
+#     immediate: true
+#   tags: firewall
+
+- name: Create fapolicyd rules for Oracle
+  ansible.builtin.copy:
+    dest: /etc/fapolicyd/rules.d/01-oracle.rules
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # Allow everything under ORACLE_HOME for oracle user and root
+      allow perm=any uid=oracle : dir=/app/oracle/db19
+      allow perm=any uid=0      : dir=/app/oracle/db19
+      allow perm=execute all    : dir=/usr/local/bin
+  notify: reload fapolicyd
+
+- name: Set fapolicyd to permissive mode
+  ansible.builtin.lineinfile:
+    path: /etc/fapolicyd/fapolicyd.conf
+    regexp: '^permissive\s*='
+    line: 'permissive = 1'
+    backup: yes
+  notify: restart fapolicyd
+
+
+
+

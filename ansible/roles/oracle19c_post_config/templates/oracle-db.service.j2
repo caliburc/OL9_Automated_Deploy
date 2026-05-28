@@ -1,0 +1,21 @@
+# /etc/systemd/system/oracle-db-{{ item.sid }}.service
+# Managed by Ansible - do not edit manually
+# Non-CDB customer database: {{ item.sid }}
+
+[Unit]
+Description=Oracle Database 19c - {{ item.sid }}
+After=network.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User={{ oracle_user }}
+Group={{ oracle_group }}
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/oracle_db_ctl_{{ item.sid }}.sh start
+ExecStop=/usr/local/bin/oracle_db_ctl_{{ item.sid }}.sh stop
+TimeoutStartSec=600
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target

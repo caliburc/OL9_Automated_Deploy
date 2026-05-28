@@ -1,0 +1,60 @@
+---
+# =============================================================================
+# STIG Sub-tasks: Network Encryption Controls
+# VULs: O19C-00-002900, O19C-00-003200, O19C-00-012000, O19C-00-012100
+# Applies Oracle Net encryption to sqlnet.ora (both CDB and listener sides)
+# =============================================================================
+
+# ── O19C-00-002900 / O19C-00-003200 / O19C-00-012000 / O19C-00-012100 ────────
+- name: "[STIG network] Back up existing sqlnet.ora"
+  ansible.builtin.copy:
+    src: "{{ oracle_base }}/common/tns/sqlnet.ora"
+    dest: "{{ oracle_base }}/common/tns/sqlnet.ora.bak.{{ ansible_date_time.date }}"
+    remote_src: true
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+  when:
+    - stig_O19C_002900_enabled or stig_O19C_012000_enabled or stig_O19C_012100_enabled
+  tags: stig_network
+
+- name: "[STIG network] Deploy STIG-compliant sqlnet.ora with network encryption"
+  ansible.builtin.template:
+    src: sqlnet_stig.ora.j2
+    dest: "{{ oracle_base }}/common/tns/sqlnet.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0640"
+    backup: false
+  when:
+    - not oracle_stig_report_only | bool
+    - stig_O19C_002900_enabled or stig_O19C_012000_enabled or stig_O19C_012100_enabled
+  tags: stig_network
+
+- name: "[STIG network] Reload listener to apply network config"
+  ansible.builtin.shell: "{{ oracle_home }}/bin/lsnrctl reload LMT"
+  become: true
+  become_user: "{{ oracle_user }}"
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    PATH: "{{ oracle_home }}/bin:{{ ansible_env.PATH }}"
+  register: lsnrctl_reload
+  failed_when: false
+  when:
+    - not oracle_stig_report_only | bool
+    - stig_O19C_002900_enabled or stig_O19C_012000_enabled
+  tags: stig_network
+
+- name: "[STIG network] Verify encryption config in sqlnet.ora"
+  ansible.builtin.shell: |
+    grep -E 'ENCRYPTION_SERVER|CRYPTO_CHECKSUM|ENCRYPTION_TYPES' \
+      {{ oracle_base }}/common/tns/sqlnet.ora
+  register: sqlnet_verify
+  changed_when: false
+  failed_when: false
+  tags: stig_network
+
+- name: "[STIG network] Display sqlnet.ora encryption settings"
+  ansible.builtin.debug:
+    var: sqlnet_verify.stdout_lines
+  tags: stig_network

@@ -1,0 +1,59 @@
+# sqlnet.ora - STIG-hardened
+# Managed by Ansible - do not edit manually
+# DISA Oracle 19c STIG: O19C-00-002900, O19C-00-003200, O19C-00-012000, O19C-00-012100
+
+
+
+NAMES.DIRECTORY_PATH= (TNSNAMES,LDAP)
+SQLNET.AUTHENTICATION_SERVICES = (TCPS,TCP,BEQ)
+DEFAULT_SDU_SIZE = 8761
+SSL_VERSION=1.2
+
+ENCRYPTION_WALLET_LOCATION=
+ (SOURCE=
+  (METHOD=FILE)
+   (METHOD_DATA=
+    (DIRECTORY=/etc/ORACLE/WALLETS/$ORACLE_SID/)
+   )
+ )
+
+#Wallet for SSL
+WALLET_LOCATION=
+ (SOURCE=
+  (METHOD=FILE)
+   (METHOD_DATA=
+    (DIRECTORY=/app/oracle/common/tns/wallet/${ORACLE_SID}/)
+   )
+ )
+
+
+
+# ── Idle session timeout (O19C-00-000900) ────────────────────────────────────
+SQLNET.EXPIRE_TIME = {{ stig_idle_time }}
+
+# ── Network Encryption - Server (O19C-00-012000) ─────────────────────────────
+SQLNET.ENCRYPTION_SERVER = {{ stig_sqlnet_encryption_server }}
+SQLNET.ENCRYPTION_TYPES_SERVER = {{ stig_sqlnet_encryption_types }}
+SQLNET.CRYPTO_SEED = 'bf712ac1013c9bc3f88fdec31d915395b44bedebb35c86347c9053a192994f86'
+
+# ── Network Encryption - Client (O19C-00-002900) ─────────────────────────────
+SQLNET.ENCRYPTION_CLIENT = {{ stig_sqlnet_encryption_client }}
+SQLNET.ENCRYPTION_TYPES_CLIENT = {{ stig_sqlnet_encryption_types }}
+
+# ── Crypto Checksum - Server (O19C-00-012100) ────────────────────────────────
+SQLNET.CRYPTO_CHECKSUM_SERVER = {{ stig_sqlnet_crypto_checksum_server }}
+SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER = {{ stig_sqlnet_crypto_checksum_types }}
+
+# ── Crypto Checksum - Client ──────────────────────────────────────────────────
+SQLNET.CRYPTO_CHECKSUM_CLIENT = {{ stig_sqlnet_crypto_checksum_client }}
+SQLNET.CRYPTO_CHECKSUM_TYPES_CLIENT = {{ stig_sqlnet_crypto_checksum_types }}
+
+# ── Tracing (disabled per STIG - no sensitive data in trace files) ───────────
+TRACE_LEVEL_SERVER = OFF
+TRACE_LEVEL_CLIENT = OFF
+
+# ── Misc hardening ────────────────────────────────────────────────────────────
+ADR_BASE = {{ oracle_base }}
+DIAG_SIGHANDLER_ENABLED = FALSE
+SQLNET.ALLOWED_LOGON_VERSION_SERVER = 12
+SQLNET.ALLOWED_LOGON_VERSION_CLIENT = 12

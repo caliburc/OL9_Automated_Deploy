@@ -1,0 +1,7 @@
+---
+- name: HEDC STIG Oracle Linux 9
+  hosts: dbservers
+  become: true
+  gather_facts: false
+  roles:
+    - ol9STIG
