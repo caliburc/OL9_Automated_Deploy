@@ -10,7 +10,19 @@
   # kernel from a prior load (they get re-added before our file's turn even comes up
   # in that same pass). Clear the kernel's rule table directly here instead, before
   # augenrules touches anything, so reload order never matters.
-  ansible.builtin.shell: auditctl -D && augenrules --load
+  #
+  # If a prior run already reached RHEL-09-654275's "-e 2" (make the audit
+  # configuration immutable), the kernel refuses ANY further rule change -
+  # including -D - until reboot. That is the STIG's own intended behavior, not a
+  # bug, so don't hard-fail the whole play on it: detect it and skip the reload.
+  ansible.builtin.shell: |
+    if auditctl -s | grep -q '^enabled 2$'; then
+      echo "SKIPPED: audit rules are immutable (enabled=2) from a prior load - reboot required before any changes can be applied."
+      exit 0
+    fi
+    auditctl -D && augenrules --load
+  register: rhel9stig_augenrules_load_result
+  changed_when: "'SKIPPED' not in rhel9stig_augenrules_load_result.stdout"
 - name: pcscd_restart
   service:
     name: pcscd
