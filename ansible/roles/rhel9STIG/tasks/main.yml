@@ -16,11 +16,18 @@
     dest: /etc/audit/rules.d/audit.rules
     content: |
       ## Managed by the rhel9STIG role - do not edit directly.
+      -D
+      -b 8192
     owner: root
     group: root
     mode: '0600'
     force: true
   notify: augenrules_load
+  # -D clears the kernel's currently loaded rules before augenrules re-adds this
+  # file's rules; without it, any rule already resident from a prior load makes
+  # the reload fail with "Rule exists". -b restates the backlog buffer size that
+  # was here before this reset was introduced (matches auditd's own compiled-in
+  # default, so this is a no-op today, but keeps the behavior explicit).
 
 # R-270174 RHEL-09-171011
 - name: stigrule_270174__etc_dconf_db_local_d_01_banner_message
