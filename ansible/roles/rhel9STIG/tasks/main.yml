@@ -824,7 +824,7 @@
 # R-257949 RHEL-09-252040
 - name: stigrule_257949__etc_NetworkManager_NetworkManager_conf
   ini_file:
-    path: /etc/NetworkManager/NetworkManager.conf
+    path: /etc/NetworkManager/conf.d/90-dns.conf
     section: main
     option: dns
     value: "{{ rhel9STIG_stigrule_257949__etc_NetworkManager_NetworkManager_conf_Value }}"
