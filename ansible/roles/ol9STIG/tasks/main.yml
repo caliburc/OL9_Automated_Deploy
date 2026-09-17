@@ -3,7 +3,7 @@
 # R-271634 OL09-00-001110
 - name: Enable hardened authselect profile and apply
   ansible.builtin.shell: >
-    authselect select custom/hardening &&
+    authselect select custom/hardening --force &&
     authselect enable-feature with-sudo &&
     authselect enable-feature with-mkhomedir &&
     authselect enable-feature with-faillock &&

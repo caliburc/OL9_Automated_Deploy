@@ -1169,7 +1169,10 @@ rhel9STIG_stigrule_257888_Manage: True
 ### !! SITE-SPECIFIC: point rhel9STIG_stigrule_258131_ca_bundle_source at the DoD_PKE_CA_chain.pem
 ### on your NFS-mounted CA/software depot before enabling. Set _remote: true if that path is
 ### already reachable on the target host (e.g. an NFS mount), false if it's a local control-node
-### file Ansible should copy from. !! ###
+### file Ansible should copy from. If the real path has a special character (e.g. "!"), do NOT
+### backslash-escape it - YAML doesn't treat \ as an escape in a plain scalar, so it gets passed
+### to the copy module literally and the path won't be found. Just quote the whole string instead,
+### e.g. "/depot/some/!path/file.pem". !! ###
 rhel9STIG_stigrule_258131_Manage: False
 rhel9STIG_stigrule_258131_ca_bundle_source: /depot/pki/DoD_PKE_CA_chain.pem
 rhel9STIG_stigrule_258131_ca_bundle_source_remote: true
