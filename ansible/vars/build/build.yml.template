@@ -9,7 +9,10 @@ vsphere_resource_pool: "" #OPTIONAL
 
 vm_name: jason-ol9-app1 #REQUIRED
 vm_domain: idm.hedc.mil #REQUIRED
-vm_type: app #TECHNICALL OPTIONAL, BUT REQUIRED
+vm_type: app #TECHNICALLY OPTIONAL, BUT REQUIRED. One of: app, weblogic, oracle_db, generic_db, generic
+#vm_type no longer needs an OS-specific suffix (no more app_r9/oracle_db_r9/etc) - the
+#correct STIG role (ol9STIG vs rhel9STIG) is chosen automatically from the OS facts
+#gathered off the host at configure time. Which OS you get is controlled by template_name above.
 annotation: "Oracle Linux 9 App server" #OPTIONAL
 
 ipa_automount_location: "my_automount_location" #OPTIONAL, DEFAULTS TO "hedc"

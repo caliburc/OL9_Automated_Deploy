@@ -1,51 +1,12 @@
-# R-271441 OL09-00-000025
-ol9STIG_stigrule_271441_Manage: True
-ol9STIG_stigrule_271441__usr_lib_systemd_system_emergency_service_Value: '-/usr/lib/systemd/systemd-sulogin-shell emergency'
-# R-271442 OL09-00-000030
-ol9STIG_stigrule_271442_Manage: True
-ol9STIG_stigrule_271442__usr_lib_systemd_system_rescue_service_Value: '-/usr/lib/systemd/systemd-sulogin-shell rescue'
-# R-271443 OL09-00-000040
-ol9STIG_stigrule_271443_Manage: True
-ol9STIG_stigrule_271443__etc_modprobe_d_atm_conf_install_atm__bin_false_Line: 'install atm /bin/false'
-ol9STIG_stigrule_271443__etc_modprobe_d_atm_conf_blacklist_atm_Line: 'blacklist atm'
-# R-271444 OL09-00-000041
-ol9STIG_stigrule_271444_Manage: True
-ol9STIG_stigrule_271444__etc_modprobe_d_can_conf_install_can__bin_false_Line: 'install can /bin/false'
-ol9STIG_stigrule_271444__etc_modprobe_d_can_conf_blacklist_can_Line: 'blacklist can'
-# R-271445 OL09-00-000042
-ol9STIG_stigrule_271445_Manage: True
-ol9STIG_stigrule_271445__etc_modprobe_d_firewire_core_conf_install_firewire_core__bin_false_Line: 'install firewire-core /bin/false'
-ol9STIG_stigrule_271445__etc_modprobe_d_firewire_core_conf_blacklist_firewire_core_Line: 'blacklist firewire-core'
-# R-271446 OL09-00-000043
-ol9STIG_stigrule_271446_Manage: True
-ol9STIG_stigrule_271446__etc_modprobe_d_sctp_conf_install_sctp__bin_false_Line: 'install sctp /bin/false'
-ol9STIG_stigrule_271446__etc_modprobe_d_sctp_conf_blacklist_sctp_Line: 'blacklist sctp'
-# R-271447 OL09-00-000044
-ol9STIG_stigrule_271447_Manage: True
-ol9STIG_stigrule_271447__etc_modprobe_d_tipc_conf_install_tipc__bin_false_Line: 'install tipc /bin/false'
-ol9STIG_stigrule_271447__etc_modprobe_d_tipc_conf_blacklist_tipc_Line: 'blacklist tipc'
-# R-271448 OL09-00-000045
-ol9STIG_stigrule_271448_Manage: True
-ol9STIG_stigrule_271448__etc_modprobe_d_cramfs_conf_install_cramfs__bin_false_Line: 'install cramfs /bin/false'
-ol9STIG_stigrule_271448__etc_modprobe_d_cramfs_conf_blacklist_cramfs_Line: 'blacklist cramfs'
-# R-271449 OL09-00-000046
-ol9STIG_stigrule_271449_Manage: True
-ol9STIG_stigrule_271449__etc_modprobe_d_bluetooth_conf_install_bluetooth__bin_false_Line: 'install bluetooth /bin/false'
-ol9STIG_stigrule_271449__etc_modprobe_d_bluetooth_conf_blacklist_bluetooth_Line: 'blacklist bluetooth'
-# R-271450 OL09-00-000047
-ol9STIG_stigrule_271450_Manage: True
-ol9STIG_stigrule_271450__etc_modprobe_d_usb_storage_conf_install_usb_storage__bin_false_Line: 'install usb-storage /bin/false'
-ol9STIG_stigrule_271450__etc_modprobe_d_usb_storage_conf_blacklist_usb_storage_Line: 'blacklist usb-storage'
-# R-271452 OL09-00-000060
-ol9STIG_stigrule_271452_Manage: True
-ol9STIG_stigrule_271452__etc_selinux_config_Line: 'SELINUX=enforcing'
-# R-271453 OL09-00-000065
-ol9STIG_stigrule_271453_Manage: True
-ol9STIG_stigrule_271453__etc_selinux_config_Line: 'SELINUXTYPE=targeted'
-# R-271455 OL09-00-000090
-ol9STIG_stigrule_271455_Manage: True
-ol9STIG_stigrule_271455__etc_issue_Dest: /etc/issue
-ol9STIG_stigrule_271455__etc_issue_Content: |
+---
+# R-270174 RHEL-09-171011
+rhel9STIG_stigrule_270174_Manage: True
+rhel9STIG_stigrule_270174__etc_dconf_db_local_d_01_banner_message_Value: "'You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\\nBy using this IS (which includes any device attached to this IS), you consent to the following conditions:\\n-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\\n-At any time, the USG may inspect and seize data stored on this IS.\\n-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.\\n-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.\\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.'"
+
+# R-257779 RHEL-09-211020
+rhel9STIG_stigrule_257779_Manage: True
+rhel9STIG_stigrule_257779__etc_issue_Dest: /etc/issue
+rhel9STIG_stigrule_257779__etc_issue_Content: |
   You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
 
   By using this IS (which includes any device attached to this IS), you consent to the following conditions:
@@ -59,806 +20,1130 @@ ol9STIG_stigrule_271455__etc_issue_Content: |
   -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
 
   -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
-# R-271456 OL09-00-000100
+
+# R-257782 RHEL-09-211035
+rhel9STIG_stigrule_257782_Manage: True
+rhel9STIG_stigrule_257782_rng_tools_State: installed
+rhel9STIG_stigrule_257782_rngd_enable_Enabled: yes
+rhel9STIG_stigrule_257782_rngd_start_State: started
+
+# R-257783 RHEL-09-211040
+rhel9STIG_stigrule_257783_Manage: True
+rhel9STIG_stigrule_257783_systemd_journald_enable_Enabled: yes
+rhel9STIG_stigrule_257783_systemd_journald_start_State: started
+
+# R-257784 RHEL-09-211045
+rhel9STIG_stigrule_257784_Manage: True
+rhel9STIG_stigrule_257784__etc_systemd_system_conf_d_55_CtrlAltDel_BurstAction_conf_Value: 'none'
+
+# R-257785 RHEL-09-211050
+rhel9STIG_stigrule_257785_Manage: True
+rhel9STIG_stigrule_257785_ctrl_alt_del_target_disable_Enabled: false
+rhel9STIG_stigrule_257785_ctrl_alt_del_target_mask_Masked: true
+
+# R-257786 RHEL-09-211055
+rhel9STIG_stigrule_257786_Manage: True
+rhel9STIG_stigrule_257786_debug_shell_service_disable_Enabled: false
+rhel9STIG_stigrule_257786_debug_shell_service_mask_Masked: true
+
+# R-257797 RHEL-09-213010
+rhel9STIG_stigrule_257797_Manage: True
+rhel9STIG_stigrule_257797_kernel_dmesg_restrict_Value: 1
+rhel9STIG_stigrule_257797_kernel_dmesg_restrict_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257798 RHEL-09-213015
+rhel9STIG_stigrule_257798_Manage: True
+rhel9STIG_stigrule_257798_kernel_perf_event_paranoid_Value: 2
+rhel9STIG_stigrule_257798_kernel_perf_event_paranoid_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257799 RHEL-09-213020
+rhel9STIG_stigrule_257799_Manage: True
+rhel9STIG_stigrule_257799_kernel_kexec_load_disabled_Value: 1
+rhel9STIG_stigrule_257799_kernel_kexec_load_disabled_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257800 RHEL-09-213025
+rhel9STIG_stigrule_257800_Manage: True
+rhel9STIG_stigrule_257800_kernel_kptr_restrict_Value: 1
+rhel9STIG_stigrule_257800_kernel_kptr_restrict_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257801 RHEL-09-213030
+rhel9STIG_stigrule_257801_Manage: True
+rhel9STIG_stigrule_257801_fs_protected_hardlinks_Value: 1
+rhel9STIG_stigrule_257801_fs_protected_hardlinks_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257802 RHEL-09-213035
+rhel9STIG_stigrule_257802_Manage: True
+rhel9STIG_stigrule_257802_fs_protected_symlinks_Value: 1
+rhel9STIG_stigrule_257802_fs_protected_symlinks_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257803 RHEL-09-213040
+rhel9STIG_stigrule_257803_Manage: True
+rhel9STIG_stigrule_257803_kernel_core_pattern_Value: '|/bin/false'
+rhel9STIG_stigrule_257803_kernel_core_pattern_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257804 RHEL-09-213045
+rhel9STIG_stigrule_257804_Manage: True
+rhel9STIG_stigrule_257804__etc_modprobe_d_atm_conf_install_atm__bin_false_Line: 'install atm /bin/false'
+rhel9STIG_stigrule_257804__etc_modprobe_d_atm_conf_blacklist_atm_Line: 'blacklist atm'
+
+# R-257805 RHEL-09-213050
+rhel9STIG_stigrule_257805_Manage: True
+rhel9STIG_stigrule_257805__etc_modprobe_d_can_conf_install_can__bin_false_Line: 'install can /bin/false'
+rhel9STIG_stigrule_257805__etc_modprobe_d_can_conf_blacklist_can_Line: 'blacklist can'
+
+# R-257806 RHEL-09-213055
+rhel9STIG_stigrule_257806_Manage: True
+rhel9STIG_stigrule_257806__etc_modprobe_d_firewire_core_conf_install_firewire_core__bin_false_Line: 'install firewire-core /bin/false'
+rhel9STIG_stigrule_257806__etc_modprobe_d_firewire_core_conf_blacklist_firewire_core_Line: 'blacklist firewire-core'
+
+# R-257807 RHEL-09-213060
+rhel9STIG_stigrule_257807_Manage: True
+rhel9STIG_stigrule_257807__etc_modprobe_d_sctp_conf_install_sctp__bin_false_Line: 'install sctp /bin/false'
+rhel9STIG_stigrule_257807__etc_modprobe_d_sctp_conf_blacklist_sctp_Line: 'blacklist sctp'
+
+# R-257808 RHEL-09-213065
+rhel9STIG_stigrule_257808_Manage: True
+rhel9STIG_stigrule_257808__etc_modprobe_d_tipc_conf_install_tipc__bin_false_Line: 'install tipc /bin/false'
+rhel9STIG_stigrule_257808__etc_modprobe_d_tipc_conf_blacklist_tipc_Line: 'blacklist tipc'
+
+# R-257809 RHEL-09-213070
+rhel9STIG_stigrule_257809_Manage: True
+rhel9STIG_stigrule_257809_kernel_randomize_va_space_Value: 2
+rhel9STIG_stigrule_257809_kernel_randomize_va_space_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257810 RHEL-09-213075
+rhel9STIG_stigrule_257810_Manage: True
+rhel9STIG_stigrule_257810_kernel_unprivileged_bpf_disabled_Value: 1
+rhel9STIG_stigrule_257810_kernel_unprivileged_bpf_disabled_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257811 RHEL-09-213080
+rhel9STIG_stigrule_257811_Manage: True
+rhel9STIG_stigrule_257811_kernel_yama_ptrace_scope_Value: 1
+rhel9STIG_stigrule_257811_kernel_yama_ptrace_scope_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257812 RHEL-09-213085
+rhel9STIG_stigrule_257812_Manage: True
+rhel9STIG_stigrule_257812__etc_systemd_coredump_conf_Line: 'ProcessSizeMax=0'
+
+# R-257813 RHEL-09-213090
+rhel9STIG_stigrule_257813_Manage: True
+rhel9STIG_stigrule_257813__etc_systemd_coredump_conf_Line: 'Storage=none'
+
+# R-257814 RHEL-09-213095
+rhel9STIG_stigrule_257814_Manage: False
+rhel9STIG_stigrule_257814__etc_security_limits_conf_Line: '* hard core 0'
+
+# R-257815 RHEL-09-213100
+rhel9STIG_stigrule_257815_Manage: True
+rhel9STIG_stigrule_257815_systemd_coredump_socket_disable_Enabled: false
+rhel9STIG_stigrule_257815_systemd_coredump_socket_mask_Daemon_Reload: true
+rhel9STIG_stigrule_257815_systemd_coredump_socket_mask_Masked: true
+
+# R-257816 RHEL-09-213105
+rhel9STIG_stigrule_257816_Manage: True
+rhel9STIG_stigrule_257816_user_max_user_namespaces_Value: 0
+rhel9STIG_stigrule_257816_user_max_user_namespaces_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257818 RHEL-09-213115
+rhel9STIG_stigrule_257818_Manage: True
+rhel9STIG_stigrule_257818_kdump_disable_Enabled: false
+rhel9STIG_stigrule_257818_kdump_mask_Masked: true
+
+# R-257820 RHEL-09-214015
+rhel9STIG_stigrule_257820_Manage: True
+rhel9STIG_stigrule_257820__etc_dnf_dnf_conf_Value: '1'
+
+# R-257821 RHEL-09-214020
+rhel9STIG_stigrule_257821_Manage: True
+rhel9STIG_stigrule_257821__etc_dnf_dnf_conf_Value: '1'
+
+# R-257824 RHEL-09-214035
+rhel9STIG_stigrule_257824_Manage: True
+rhel9STIG_stigrule_257824__etc_dnf_dnf_conf_Value: '1'
+
+# R-257825 RHEL-09-215010
+rhel9STIG_stigrule_257825_Manage: True
+rhel9STIG_stigrule_257825_subscription_manager_State: installed
+
+# R-257826 RHEL-09-215015
+rhel9STIG_stigrule_257826_Manage: True
+rhel9STIG_stigrule_257826_vsftpd_State: removed
+
+# R-257827 RHEL-09-215020
+rhel9STIG_stigrule_257827_Manage: True
+rhel9STIG_stigrule_257827_sendmail_State: removed
+
+# R-257828 RHEL-09-215025
 ### !! HEDC REQUIRES NFS UTILS !! ###
-ol9STIG_stigrule_271456_Manage: False
-ol9STIG_stigrule_271456_nfs_utils_State: removed
-# R-271457 OL09-00-000105
-ol9STIG_stigrule_271457_Manage: True
-ol9STIG_stigrule_271457_epel_release_State: removed
-# R-271458 OL09-00-000110
-ol9STIG_stigrule_271458_Manage: True
-ol9STIG_stigrule_271458_telnet_server_State: removed
-# R-271459 OL09-00-000115
+rhel9STIG_stigrule_257828_Manage: False
+rhel9STIG_stigrule_257828_nfs_utils_State: removed
+
+# R-257829 RHEL-09-215030
+rhel9STIG_stigrule_257829_Manage: True
+rhel9STIG_stigrule_257829_ypserv_State: removed
+
+# R-257830 RHEL-09-215035
+rhel9STIG_stigrule_257830_Manage: True
+rhel9STIG_stigrule_257830_epel_release_State: removed
+
+# R-257831 RHEL-09-215040
+rhel9STIG_stigrule_257831_Manage: True
+rhel9STIG_stigrule_257831_telnet_server_State: removed
+
+# R-257832 RHEL-09-215045
 ### !! REQUIRED FOR IPA AND NFS UTILS !! ####
-ol9STIG_stigrule_271459_Manage: False
-ol9STIG_stigrule_271459_gssproxy_State: removed
-# R-271460 OL09-00-000120
-ol9STIG_stigrule_271460_Manage: True
-ol9STIG_stigrule_271460_iprutils_State: removed
-# R-271461 OL09-00-000125
-ol9STIG_stigrule_271461_Manage: True
-ol9STIG_stigrule_271461_tuned_State: removed
-# R-271462 OL09-00-000130
-ol9STIG_stigrule_271462_Manage: True
-ol9STIG_stigrule_271462_vsftpd_State: removed
-# R-271463 OL09-00-000135
-ol9STIG_stigrule_271463_Manage: True
-ol9STIG_stigrule_271463_tftp_server_State: removed
-# R-271466 OL09-00-000150
-ol9STIG_stigrule_271466_Manage: True
-ol9STIG_stigrule_271466_sendmail_State: removed
-# R-271467 OL09-00-000200
-ol9STIG_stigrule_271467_Manage: True
-ol9STIG_stigrule_271467_policycoreutils_State: installed
-# R-271468 OL09-00-000210
-ol9STIG_stigrule_271468_Manage: True
-ol9STIG_stigrule_271468_policycoreutils_python_utils_State: installed
-# R-271469 OL09-00-000220
-ol9STIG_stigrule_271469_Manage: True
-ol9STIG_stigrule_271469_firewalld_State: installed
-# R-271470 OL09-00-000221
-ol9STIG_stigrule_271470_Manage: True
-ol9STIG_stigrule_271470_firewalld_enable_Enabled: yes
-ol9STIG_stigrule_271470_firewalld_start_State: started
-# R-271474 OL09-00-000230
-ol9STIG_stigrule_271474_Manage: True
-ol9STIG_stigrule_271474_sudo_State: installed
-# R-271477 OL09-00-000240
-ol9STIG_stigrule_271477_Manage: True
-ol9STIG_stigrule_271477_crypto_policies_State: installed
-# R-271482 OL09-00-000250
-ol9STIG_stigrule_271482_Manage: True
-ol9STIG_stigrule_271482_openssh_server_State: installed
-# R-271483 OL09-00-000251
-ol9STIG_stigrule_271483_Manage: True
-ol9STIG_stigrule_271483_sshd_enable_Enabled: yes
-# R-271487 OL09-00-000256
-ol9STIG_stigrule_271487_Manage: True
-ol9STIG_stigrule_271487_Banner_Line: Banner /etc/issue
-# R-271488 OL09-00-000260
-ol9STIG_stigrule_271488_Manage: True
-ol9STIG_stigrule_271488_openssh_clients_State: installed
-# R-271491 OL09-00-000270
-ol9STIG_stigrule_271491_Manage: True
-ol9STIG_stigrule_271491_openssl_pkcs11_State: installed
-# R-271493 OL09-00-000285
-ol9STIG_stigrule_271493_Manage: True
-ol9STIG_stigrule_271493_sssd_State: installed
-# R-271494 OL09-00-000286
-ol9STIG_stigrule_271494_Manage: True
-ol9STIG_stigrule_271494_sssd_enable_Enabled: yes
-ol9STIG_stigrule_271494_sssd_start_State: started
-# R-271495 OL09-00-000290
-ol9STIG_stigrule_271495_Manage: True
-ol9STIG_stigrule_271495_s_nail_State: installed
-# R-271501 OL09-00-000310
-ol9STIG_stigrule_271501_Manage: True
-ol9STIG_stigrule_271501_chrony_State: installed
-# R-271502 OL09-00-000311
-ol9STIG_stigrule_271502_Manage: True
-ol9STIG_stigrule_271502_chronyd_enable_Enabled: yes
-ol9STIG_stigrule_271502_chronyd_start_State: started
-# R-271503 OL09-00-000320
-ol9STIG_stigrule_271503_Manage: True
-ol9STIG_stigrule_271503_usbguard_State: installed
-# R-271504 OL09-00-000321
-ol9STIG_stigrule_271504_Manage: False
-ol9STIG_stigrule_271504_usbguard_enable_Enabled: yes
-ol9STIG_stigrule_271504_usbguard_start_State: started
-# R-271506 OL09-00-000340
-ol9STIG_stigrule_271506_Manage: True
-ol9STIG_stigrule_271506_fapolicyd_State: installed
-# R-271507 OL09-00-000341
-ol9STIG_stigrule_271507_Manage: True
-ol9STIG_stigrule_271507_fapolicyd_enable_Enabled: yes
-ol9STIG_stigrule_271507_fapolicyd_start_State: started
-# R-271508 OL09-00-000350
-ol9STIG_stigrule_271508_Manage: True
-ol9STIG_stigrule_271508_rsyslog_State: installed
-# R-271509 OL09-00-000351
-ol9STIG_stigrule_271509_Manage: True
-ol9STIG_stigrule_271509_rsyslog_enable_Enabled: yes
-ol9STIG_stigrule_271509_rsyslog_start_State: started
-# R-271510 OL09-00-000355
-ol9STIG_stigrule_271510_Manage: True
-ol9STIG_stigrule_271510_rsyslog_gnutls_State: installed
-# R-271511 OL09-00-000360
-ol9STIG_stigrule_271511_Manage: True
-ol9STIG_stigrule_271511_rng_tools_State: installed
-ol9STIG_stigrule_271511_rngd_enable_Enabled: yes
-ol9STIG_stigrule_271511_rngd_start_State: started
-# R-271512 OL09-00-000370
-ol9STIG_stigrule_271512_Manage: True
-ol9STIG_stigrule_271512_rng_tools_State: installed
-# R-271513 OL09-00-000380
-ol9STIG_stigrule_271513_Manage: True
-ol9STIG_stigrule_271513_nss_tools_State: installed
-# R-271514 OL09-00-000390
-ol9STIG_stigrule_271514_Manage: True
-ol9STIG_stigrule_271514_pcsc_lite_State: installed
-# R-271515 OL09-00-000400
-ol9STIG_stigrule_271515_Manage: True
-ol9STIG_stigrule_271515_opensc_State: installed
-# R-271516 OL09-00-000401
-ol9STIG_stigrule_271516_Manage: True
-ol9STIG_stigrule_271516_pcscd_enable_Enabled: yes
-ol9STIG_stigrule_271516_pcscd_start_State: started
-# R-271517 OL09-00-000410
-ol9STIG_stigrule_271517_Manage: True
-ol9STIG_stigrule_271517_libreswan_State: installed
-# R-271518 OL09-00-000430
-ol9STIG_stigrule_271518_Manage: False
-ol9STIG_stigrule_271518_gnutls_utils_State: installed
-# R-271519 OL09-00-000440
-ol9STIG_stigrule_271519_Manage: True
-ol9STIG_stigrule_271519_audit_State: installed
-# R-271520 OL09-00-000441
-ol9STIG_stigrule_271520_Manage: True
-ol9STIG_stigrule_271520_auditd_enable_Enabled: yes
-ol9STIG_stigrule_271520_auditd_start_State: started
-# R-271521 OL09-00-000450
-ol9STIG_stigrule_271521_Manage: True
-ol9STIG_stigrule_271521_audispd_plugins_State: installed
-# R-271522 OL09-00-000495
-ol9STIG_stigrule_271522_Manage: True
-ol9STIG_stigrule_271522__etc_dnf_dnf_conf_Value: '1'
-# R-271523 OL09-00-000496
-ol9STIG_stigrule_271523_Manage: True
-ol9STIG_stigrule_271523__etc_dnf_dnf_conf_Value: '1'
-# R-271524 OL09-00-000497
-ol9STIG_stigrule_271524_Manage: True
-ol9STIG_stigrule_271524__etc_dnf_dnf_conf_Value: '1'
-# R-271527 OL09-00-000500
-ol9STIG_stigrule_271527_Manage: True
-ol9STIG_stigrule_271527__etc_audit_rules_d_audit_rules__etc_sudoers_Line: '-w /etc/sudoers -p wa -k identity'
-# R-271528 OL09-00-000505
-ol9STIG_stigrule_271528_Manage: True
-ol9STIG_stigrule_271528__etc_audit_rules_d_audit_rules__etc_sudoers_d__Line: '-w /etc/sudoers.d/ -p wa -k identity'
-# R-271529 OL09-00-000510
-ol9STIG_stigrule_271529_Manage: True
-ol9STIG_stigrule_271529__etc_audit_rules_d_audit_rules__etc_group_Line: '-w /etc/group -p wa -k identity'
-# R-271530 OL09-00-000515
-ol9STIG_stigrule_271530_Manage: True
-ol9STIG_stigrule_271530__etc_audit_rules_d_audit_rules__etc_gshadow_Line: '-w /etc/gshadow -p wa -k identity'
-# R-271531 OL09-00-000520
-ol9STIG_stigrule_271531_Manage: True
-ol9STIG_stigrule_271531__etc_audit_rules_d_audit_rules__etc_security_opasswd_Line: '-w /etc/security/opasswd -p wa -k identity'
-# R-271532 OL09-00-000525
-ol9STIG_stigrule_271532_Manage: True
-ol9STIG_stigrule_271532__etc_audit_rules_d_audit_rules__etc_passwd_Line: '-w /etc/passwd -p wa -k identity'
-# R-271533 OL09-00-000530
-ol9STIG_stigrule_271533_Manage: True
-ol9STIG_stigrule_271533__etc_audit_rules_d_audit_rules__etc_shadow_Line: '-w /etc/shadow -p wa -k identity'
-# R-271534 OL09-00-000535
-ol9STIG_stigrule_271534_Manage: True
-ol9STIG_stigrule_271534__etc_audit_rules_d_audit_rules__usr_sbin_unix_update_Line: '-a always,exit -F path=/usr/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271535 OL09-00-000540
-ol9STIG_stigrule_271535_Manage: True
-ol9STIG_stigrule_271535__etc_audit_rules_d_audit_rules__usr_bin_su_Line: '-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change'
-# R-271536 OL09-00-000545
-ol9STIG_stigrule_271536_Manage: True
-ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32_unset_Line: '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64_unset_Line: '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b32_Line: '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
-ol9STIG_stigrule_271536__etc_audit_rules_d_audit_rules_lremovexattr_b64_Line: '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
-# R-271537 OL09-00-000550
-ol9STIG_stigrule_271537_Manage: True
-ol9STIG_stigrule_271537__etc_audit_rules_d_audit_rules__usr_bin_chage_Line: '-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage'
-# R-271538 OL09-00-000555
-ol9STIG_stigrule_271538_Manage: True
-ol9STIG_stigrule_271538__etc_audit_rules_d_audit_rules__usr_bin_chcon_Line: '-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271539 OL09-00-000560
-ol9STIG_stigrule_271539_Manage: True
-ol9STIG_stigrule_271539__etc_audit_rules_d_audit_rules__usr_bin_setfacl_Line: '-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271540 OL09-00-000565
-ol9STIG_stigrule_271540_Manage: True
-ol9STIG_stigrule_271540__etc_audit_rules_d_audit_rules__usr_bin_chsh_Line: '-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
-# R-271541 OL09-00-000570
-ol9STIG_stigrule_271541_Manage: True
-ol9STIG_stigrule_271541__etc_audit_rules_d_audit_rules__usr_bin_crontab_Line: '-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-crontab'
-# R-271542 OL09-00-000575
-ol9STIG_stigrule_271542_Manage: True
-ol9STIG_stigrule_271542__etc_audit_rules_d_audit_rules__usr_bin_gpasswd_Line: '-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-gpasswd'
-# R-271543 OL09-00-000580
-ol9STIG_stigrule_271543_Manage: True
-ol9STIG_stigrule_271543__etc_audit_rules_d_audit_rules__usr_bin_newgrp_Line: '-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
-# R-271544 OL09-00-000585
-ol9STIG_stigrule_271544_Manage: True
-ol9STIG_stigrule_271544__etc_audit_rules_d_audit_rules__usr_sbin_pam_timestamp_check_Line: '-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam_timestamp_check'
-# R-271545 OL09-00-000590
-ol9STIG_stigrule_271545_Manage: True
-ol9STIG_stigrule_271545__etc_audit_rules_d_audit_rules__usr_bin_passwd_Line: '-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd'
-# R-271546 OL09-00-000595
-ol9STIG_stigrule_271546_Manage: True
-ol9STIG_stigrule_271546__etc_audit_rules_d_audit_rules__usr_sbin_postdrop_Line: '-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271547 OL09-00-000600
-ol9STIG_stigrule_271547_Manage: True
-ol9STIG_stigrule_271547__etc_audit_rules_d_audit_rules__usr_sbin_postqueue_Line: '-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271548 OL09-00-000605
-ol9STIG_stigrule_271548_Manage: True
-ol9STIG_stigrule_271548__etc_audit_rules_d_audit_rules__usr_bin_ssh_agent_Line: '-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
-# R-271549 OL09-00-000610
-ol9STIG_stigrule_271549_Manage: True
-ol9STIG_stigrule_271549__etc_audit_rules_d_audit_rules__usr_libexec_openssh_ssh_keysign_Line: '-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
-# R-271550 OL09-00-000615
-ol9STIG_stigrule_271550_Manage: True
-ol9STIG_stigrule_271550__etc_audit_rules_d_audit_rules__usr_bin_sudoedit_Line: '-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
-# R-271551 OL09-00-000620
-ol9STIG_stigrule_271551_Manage: True
-ol9STIG_stigrule_271551__etc_audit_rules_d_audit_rules__usr_sbin_unix_chkpwd_Line: '-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271552 OL09-00-000625
-ol9STIG_stigrule_271552_Manage: True
-ol9STIG_stigrule_271552__etc_audit_rules_d_audit_rules__usr_sbin_userhelper_Line: '-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271553 OL09-00-000630
-ol9STIG_stigrule_271553_Manage: True
-ol9STIG_stigrule_271553__etc_audit_rules_d_audit_rules__usr_bin_mount_Line: '-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
-# R-271554 OL09-00-000635
-ol9STIG_stigrule_271554_Manage: True
-ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b32_Line: '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
-ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EPERM_b64_Line: '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
-ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b32_Line: '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
-ol9STIG_stigrule_271554__etc_audit_rules_d_audit_rules_truncate_EACCES_b64_Line: '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
-# R-271555 OL09-00-000640
-ol9STIG_stigrule_271555_Manage: True
-ol9STIG_stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b32_Line: '-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271555__etc_audit_rules_d_audit_rules_chmod_b64_Line: '-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271556 OL09-00-000645
-ol9STIG_stigrule_271556_Manage: True
-ol9STIG_stigrule_271556__etc_audit_rules_d_audit_rules_chown_b32_Line: '-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271556__etc_audit_rules_d_audit_rules_chown_b64_Line: '-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271557 OL09-00-000650
-ol9STIG_stigrule_271557_Manage: True
-ol9STIG_stigrule_271557__etc_audit_rules_d_audit_rules__usr_sbin_semanage_Line: '-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271558 OL09-00-000655
-ol9STIG_stigrule_271558_Manage: True
-ol9STIG_stigrule_271558__etc_audit_rules_d_audit_rules__usr_sbin_setfiles_Line: '-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271559 OL09-00-000660
-ol9STIG_stigrule_271559_Manage: True
-ol9STIG_stigrule_271559__etc_audit_rules_d_audit_rules__usr_sbin_setsebool_Line: '-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
-# R-271560 OL09-00-000665
-ol9STIG_stigrule_271560_Manage: True
-ol9STIG_stigrule_271560__etc_audit_rules_d_audit_rules__usr_bin_chacl_Line: '-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271561 OL09-00-000670
-ol9STIG_stigrule_271561_Manage: True
-ol9STIG_stigrule_271561__etc_audit_rules_d_audit_rules__usr_bin_sudo_Line: '-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
-# R-271562 OL09-00-000675
-ol9STIG_stigrule_271562_Manage: True
-ol9STIG_stigrule_271562__etc_audit_rules_d_audit_rules__usr_sbin_usermod_Line: '-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod'
-# R-271563 OL09-00-000680
-ol9STIG_stigrule_271563_Manage: True
-ol9STIG_stigrule_271563__etc_audit_rules_d_audit_rules_rename_b32_Line: '-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
-ol9STIG_stigrule_271563__etc_audit_rules_d_audit_rules_rename_b64_Line: '-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
-# R-271564 OL09-00-000685
-ol9STIG_stigrule_271564_Manage: True
-ol9STIG_stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b32_Line: '-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
-ol9STIG_stigrule_271564__etc_audit_rules_d_audit_rules_delete_module_b64_Line: '-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
-# R-271565 OL09-00-000690
-ol9STIG_stigrule_271565_Manage: True
-ol9STIG_stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b32_Line: '-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
-ol9STIG_stigrule_271565__etc_audit_rules_d_audit_rules_init_module_b64_Line: '-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
-# R-271566 OL09-00-000695
-ol9STIG_stigrule_271566_Manage: True
-ol9STIG_stigrule_271566__etc_audit_rules_d_audit_rules__usr_bin_kmod_Line: '-a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>=1000 -F auid!=unset -k modules'
-# R-271567 OL09-00-000700
-ol9STIG_stigrule_271567_Manage: True
-ol9STIG_stigrule_271567__etc_audit_rules_d_audit_rules__var_log_lastlog_Line: '-w /var/log/lastlog -p wa -k logins'
-# R-271568 OL09-00-000705
-ol9STIG_stigrule_271568_Manage: True
-ol9STIG_stigrule_271568__etc_audit_rules_d_audit_rules__usr_bin_umount_Line: '-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
-# R-271570 OL09-00-000715
-ol9STIG_stigrule_271570_Manage: True
-ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b32_Line: '-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 key=execpriv'
-ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_uid_b64_Line: '-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 key=execpriv '
-ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b32_Line: '-a always,exit -F arch=b32 -S execve -C gid!=egid -F euid=0 key=execpriv'
-ol9STIG_stigrule_271570__etc_audit_rules_d_audit_rules_execve_gid_b64_Line: '-a always,exit -F arch=b64 -S execve -C gid!=egid -F euid=0 key=execpriv'
-# R-271571 OL09-00-000720
-ol9STIG_stigrule_271571_Manage: True
-ol9STIG_stigrule_271571__etc_audit_rules_d_audit_rules__var_log_faillock_Line: '-w /var/log/faillock -p wa -k logins'
-# R-271572 OL09-00-000725
-ol9STIG_stigrule_271572_Manage: True
-ol9STIG_stigrule_271572__etc_audit_rules_d_audit_rules__var_log_tallylog_Line: '-w /var/log/tallylog -p wa -k logins'
-# R-271573 OL09-00-000730
-ol9STIG_stigrule_271573_Manage: True
-ol9STIG_stigrule_271573__etc_audit_rules_d_audit_rules__usr_sbin_init_Line: '-a always,exit -F path=/usr/sbin/init -F perm=x -F auid>=1000 -F auid!=unset -k privileged-init'
-# R-271574 OL09-00-000735
-ol9STIG_stigrule_271574_Manage: True
-ol9STIG_stigrule_271574__etc_audit_rules_d_audit_rules__usr_sbin_poweroff_Line: '-a always,exit -F path=/usr/sbin/poweroff -F perm=x -F auid>=1000 -F auid!=unset -k privileged-poweroff'
-# R-271575 OL09-00-000740
-ol9STIG_stigrule_271575_Manage: True
-ol9STIG_stigrule_271575__etc_audit_rules_d_audit_rules__usr_sbin_reboot_Line: '-a always,exit -F path=/usr/sbin/reboot -F perm=x -F auid>=1000 -F auid!=unset -k privileged-reboot'
-# R-271576 OL09-00-000745
-ol9STIG_stigrule_271576_Manage: True
-ol9STIG_stigrule_271576__etc_audit_rules_d_audit_rules__usr_sbin_shutdown_Line: '-a always,exit -F path=/usr/sbin/shutdown -F perm=x -F auid>=1000 -F auid!=unset -k privileged-shutdown'
-# R-271578 OL09-00-000755
-ol9STIG_stigrule_271578_Manage: True
-ol9STIG_stigrule_271578__etc_audit_auditd_conf_Line: 'name_format = hostname'
-# R-271579 OL09-00-000760
-ol9STIG_stigrule_271579_Manage: True
-ol9STIG_stigrule_271579__etc_audit_auditd_conf_Line: 'disk_error_action = HALT'
-# R-271580 OL09-00-000765
-ol9STIG_stigrule_271580_Manage: True
-ol9STIG_stigrule_271580__etc_audit_auditd_conf_Line: 'disk_full_action = HALT'
-# R-271581 OL09-00-000770
-ol9STIG_stigrule_271581_Manage: True
-ol9STIG_stigrule_271581__etc_audit_auditd_conf_Line: 'max_log_file_action = ROTATE'
-# R-271582 OL09-00-000775
-ol9STIG_stigrule_271582_Manage: True
-ol9STIG_stigrule_271582__etc_audit_auditd_conf_Line: 'freq = 100'
-# R-271586 OL09-00-000800
-ol9STIG_stigrule_271586_Manage: True
-ol9STIG_stigrule_271586__etc_audit_auditd_conf_Line: 'local_events = yes'
-# R-271589 OL09-00-000815
-ol9STIG_stigrule_271589_Manage: True
-ol9STIG_stigrule_271589__etc_aliases_Line: 'postmaster: root'
-# R-271590 OL09-00-000820
-ol9STIG_stigrule_271590_Manage: True
-ol9STIG_stigrule_271590__etc_audit_rules_d_audit_rules_f2_Line: '-f 2'
-# R-271591 OL09-00-000825
-ol9STIG_stigrule_271591_Manage: True
-ol9STIG_stigrule_271591__etc_audit_auditd_conf_Line: 'action_mail_acct = root'
-# R-271593 OL09-00-000835
-ol9STIG_stigrule_271593_Manage: True
-ol9STIG_stigrule_271593__etc_audit_auditd_conf_Line: 'log_format = ENRICHED'
-# R-271594 OL09-00-000840
-ol9STIG_stigrule_271594_Manage: True
-ol9STIG_stigrule_271594__etc_audit_rules_d_audit_rules_umount_b32_Line: '-a always,exit -F arch=b32 -S umount -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271594__etc_audit_rules_d_audit_rules_umount_b64_Line: '-a always,exit -F arch=b64 -S umount -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271595 OL09-00-000845
-ol9STIG_stigrule_271595_Manage: True
-ol9STIG_stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b32_Line: '-a always,exit -F arch=b32 -S umount2 -F auid>=1000 -F auid!=unset -k perm_mod'
-ol9STIG_stigrule_271595__etc_audit_rules_d_audit_rules_umount2_b64_Line: '-a always,exit -F arch=b64 -S umount2 -F auid>=1000 -F auid!=unset -k perm_mod'
-# R-271597 OL09-00-000855
-ol9STIG_stigrule_271597_Manage: True
-ol9STIG_stigrule_271597__etc_audit_plugins_d_syslog_conf_active_Line: 'active = yes'
-# R-271598 OL09-00-000860
-ol9STIG_stigrule_271598_Manage: True
-ol9STIG_stigrule_271598__etc_audit_auditd_conf_Line: 'overflow_action = syslog'
-# R-271599 OL09-00-000865
-ol9STIG_stigrule_271599_Manage: True
-ol9STIG_stigrule_271599__etc_audit_auditd_conf_space_left_Line: 'space_left = 25%'
-# R-271600 OL09-00-000870
-ol9STIG_stigrule_271600_Manage: True
-ol9STIG_stigrule_271600__etc_audit_auditd_conf_space_left_action_Line: 'space_left_action = email'
-# R-271601 OL09-00-000875
-ol9STIG_stigrule_271601_Manage: True
-ol9STIG_stigrule_271601__etc_audit_auditd_conf_admin_space_left_Line: 'admin_space_left = 5%'
-# R-271602 OL09-00-000880
-ol9STIG_stigrule_271602_Manage: True
-ol9STIG_stigrule_271602__etc_audit_auditd_conf_Line: 'write_logs = yes'
-# R-271603 OL09-00-000885
-ol9STIG_stigrule_271603_Manage: True
-ol9STIG_stigrule_271603__etc_audit_auditd_conf_admin_space_left_action_Line: 'admin_space_left_action = single'
-# R-271607 OL09-00-000925 
-### !! HEDC USES ALERNATIVE METHODS TO MAINTAIN AUTH !! ##
-ol9STIG_stigrule_271607_Manage: False
-ol9STIG_stigrule_271607__etc_sssd_sssd_conf_Value: 'True'
-# R-271609 OL09-00-000935
-ol9STIG_stigrule_271609_Manage: True
-ol9STIG_stigrule_271609__etc_sssd_sssd_conf_Value: '1'
-# R-271610 OL09-00-000940
-ol9STIG_stigrule_271610_Manage: True
-ol9STIG_stigrule_271610__etc_opensc_conf_Line: 'card_drivers = cac;'
-# R-271613 OL09-00-001005
-ol9STIG_stigrule_271613_Manage: True
-ol9STIG_stigrule_271613__etc_security_pwquality_conf_Line: 'ucredit = -1'
-# R-271615 OL09-00-001015
-ol9STIG_stigrule_271615_Manage: True
-ol9STIG_stigrule_271615__etc_security_pwquality_conf_Line: 'lcredit = -1'
-# R-271616 OL09-00-001020
-ol9STIG_stigrule_271616_Manage: True
-ol9STIG_stigrule_271616__etc_security_pwquality_conf_Line: 'dcredit = -1'
-# R-271617 OL09-00-001025
-ol9STIG_stigrule_271617_Manage: True
-ol9STIG_stigrule_271617__etc_security_pwquality_conf_Line: 'difok = 8'
-# R-271618 OL09-00-001030
-ol9STIG_stigrule_271618_Manage: True
-ol9STIG_stigrule_271618__etc_security_pwquality_conf_Line: 'maxclassrepeat = 4'
-# R-271619 OL09-00-001035
-ol9STIG_stigrule_271619_Manage: True
-ol9STIG_stigrule_271619__etc_security_pwquality_conf_Line: 'maxrepeat = 3'
-# R-271620 OL09-00-001040
-ol9STIG_stigrule_271620_Manage: True
-ol9STIG_stigrule_271620__etc_security_pwquality_conf_Line: 'minclass = 4'
-# R-271621 OL09-00-001045
-ol9STIG_stigrule_271621_Manage: True
-ol9STIG_stigrule_271621__etc_security_pwquality_conf_Line: 'enforce_for_root'
-# R-271622 OL09-00-001050
-ol9STIG_stigrule_271622_Manage: True
-ol9STIG_stigrule_271622__etc_libuser_conf_Value: 'sha512'
-# R-271623 OL09-00-001055
-ol9STIG_stigrule_271623_Manage: True
-ol9STIG_stigrule_271623__etc_login_defs_Line: 'ENCRYPT_METHOD SHA512'
-# R-271627 OL09-00-001075
-ol9STIG_stigrule_271627_Manage: True
-ol9STIG_stigrule_271627__etc_login_defs_SHA_CRYPT_MIN_ROUNDS_Line: 'SHA_CRYPT_MIN_ROUNDS 100000'
-ol9STIG_stigrule_271627__etc_login_defs_SHA_CRYPT_MAX_ROUNDS_Line: 'SHA_CRYPT_MAX_ROUNDS 100000'
-# R-271629 OL09-00-001085
-ol9STIG_stigrule_271629_Manage: True
-ol9STIG_stigrule_271629__etc_login_defs_Line: 'PASS_MIN_DAYS 1'
-# R-271631 OL09-00-001095
-ol9STIG_stigrule_271631_Manage: True
-ol9STIG_stigrule_271631__etc_login_defs_Line: 'PASS_MAX_DAYS 60'
-# R-271633 OL09-00-001105
-ol9STIG_stigrule_271633_Manage: True
-ol9STIG_stigrule_271633__etc_security_pwquality_conf_Line: 'minlen = 15'
-# R-271636 OL09-00-001120
-ol9STIG_stigrule_271636_Manage: True
-ol9STIG_stigrule_271636__etc_security_pwquality_conf_Line: 'ocredit = -1'
-# R-271637 OL09-00-001125
-ol9STIG_stigrule_271637_Manage: True
-ol9STIG_stigrule_271637__etc_security_pwquality_conf_Line: 'dictcheck = 1'
-# R-271639 OL09-00-002000
+rhel9STIG_stigrule_257832_Manage: False
+rhel9STIG_stigrule_257832_gssproxy_State: removed
+
+# R-257833 RHEL-09-215050
+rhel9STIG_stigrule_257833_Manage: True
+rhel9STIG_stigrule_257833_iprutils_State: removed
+
+# R-257834 RHEL-09-215055
+rhel9STIG_stigrule_257834_Manage: True
+rhel9STIG_stigrule_257834_tuned_State: removed
+
+# R-257835 RHEL-09-215060
+rhel9STIG_stigrule_257835_Manage: True
+# Site policy: set to True only if this host genuinely requires a TFTP server;
+# secure-mode override is only applied in that case, otherwise the package is removed.
+rhel9STIG_stigrule_257835_tftp_required: False
+rhel9STIG_stigrule_257835_tftp_server_State: removed
+
+# R-257836 RHEL-09-215065
+rhel9STIG_stigrule_257836_Manage: True
+rhel9STIG_stigrule_257836_quagga_State: removed
+
+# R-257838 RHEL-09-215075
+rhel9STIG_stigrule_257838_Manage: True
+rhel9STIG_stigrule_257838_openssl_pkcs11_State: installed
+
+# R-257839 RHEL-09-215080
+rhel9STIG_stigrule_257839_Manage: False
+rhel9STIG_stigrule_257839_gnutls_utils_State: installed
+
+# R-257840 RHEL-09-215085
+rhel9STIG_stigrule_257840_Manage: True
+rhel9STIG_stigrule_257840_nss_tools_State: installed
+
+# R-257841 RHEL-09-215090
+rhel9STIG_stigrule_257841_Manage: True
+rhel9STIG_stigrule_257841_rng_tools_State: installed
+
+# R-257842 RHEL-09-215095
+rhel9STIG_stigrule_257842_Manage: True
+rhel9STIG_stigrule_257842_s_nail_State: installed
+
+# R-258234 RHEL-09-215100
+rhel9STIG_stigrule_258234_Manage: True
+rhel9STIG_stigrule_258234_crypto_policies_State: installed
+
+# R-272488 RHEL-09-215101
+rhel9STIG_stigrule_272488_Manage: True
+rhel9STIG_stigrule_272488_postfix_State: installed
+
+# R-257849 RHEL-09-231040
 ## !! HEDC USES AUTOFS for mounts, managed via IPA !! ##
-ol9STIG_stigrule_271639_Manage: false
-ol9STIG_stigrule_271639_autofs_service_disable_Enabled: false
-ol9STIG_stigrule_271639_autofs_service_mask_Masked: false
-# R-271670 OL09-00-002100
-ol9STIG_stigrule_271670_Manage: True
-ol9STIG_stigrule_271670__etc_dconf_db_local_d_00_security_settings_Value: 'false'
-# R-271671 OL09-00-002101
-ol9STIG_stigrule_271671_Manage: True
-ol9STIG_stigrule_271671__etc_dconf_db_local_d_00_security_settings_Value: 'true'
-# R-271672 OL09-00-002102
-ol9STIG_stigrule_271672_Manage: True
-ol9STIG_stigrule_271672__etc_dconf_db_local_d_02_login_screen_Value: 'true'
-# R-271673 OL09-00-002103
-ol9STIG_stigrule_271673_Manage: True
-ol9STIG_stigrule_271673__etc_dconf_db_local_d_00_screensaver_Value: 'uint32 5'
-# R-271674 OL09-00-002104
-ol9STIG_stigrule_271674_Manage: True
-ol9STIG_stigrule_271674__etc_dconf_db_local_d_00_screensaver_Value: 'uint32 600'
-# R-271676 OL09-00-002106
-ol9STIG_stigrule_271676_Manage: True
-ol9STIG_stigrule_271676__etc_dconf_db_local_d_00_security_settings_Value: "''"
-ol9STIG_stigrule_271676__etc_dconf_db_local_d_locks_00_security_settings_lock_picture_uri_Line: '/org/gnome/desktop/screensaver/picture-uri'
-# R-271677 OL09-00-002107
-ol9STIG_stigrule_271677_Manage: True
-ol9STIG_stigrule_271677__etc_dconf_db_local_d_00_security_settings_Value: "['']"
-# R-271678 OL09-00-002120
-ol9STIG_stigrule_271678_Manage: True
-ol9STIG_stigrule_271678__etc_dconf_db_local_d_locks_00_security_settings_lock_automount_open_Line: '/org/gnome/desktop/media-handling/automount-open'
-# R-271679 OL09-00-002121
-ol9STIG_stigrule_271679_Manage: True
-ol9STIG_stigrule_271679__etc_dconf_db_local_d_locks_00_security_settings_lock_autorun_never_Line: '/org/gnome/desktop/media-handling/autorun-never'
-# R-271680 OL09-00-002122
-ol9STIG_stigrule_271680_Manage: True
-ol9STIG_stigrule_271680__etc_dconf_db_local_d_locks_session_banner_message_enable_Line: '/org/gnome/login-screen/banner-message-enable'
-# R-271681 OL09-00-002123
-ol9STIG_stigrule_271681_Manage: True
-ol9STIG_stigrule_271681__etc_dconf_db_local_d_locks_session_lock_enabled_Line: '/org/gnome/desktop/screensaver/lock-enabled'
-# R-271682 OL09-00-002124
-ol9STIG_stigrule_271682_Manage: True
-ol9STIG_stigrule_271682__etc_dconf_db_local_d_locks_session_idle_delay_Line: '/org/gnome/desktop/session/idle-delay'
-# R-271683 OL09-00-002125
-ol9STIG_stigrule_271683_Manage: True
-ol9STIG_stigrule_271683__etc_dconf_db_local_d_locks_session_lock_delay_Line: '/org/gnome/desktop/screensaver/lock-delay'
-# R-271684 OL09-00-002126
-ol9STIG_stigrule_271684_Manage: True
-ol9STIG_stigrule_271684__etc_dconf_db_local_d_locks_00_security_settings_lock_removal_action_Line: '/org/gnome/settings-daemon/peripherals/smartcard/removal-action'
-# R-271685 OL09-00-002127
-ol9STIG_stigrule_271685_Manage: True
-ol9STIG_stigrule_271685__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line: '/org/gnome/login-screen/disable-restart-buttons'
-# R-271686 OL09-00-002128
-ol9STIG_stigrule_271686_Manage: True
-ol9STIG_stigrule_271686__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line: '/org/gnome/login-screen/disable-restart-buttons'
-# R-271687 OL09-00-002129
-ol9STIG_stigrule_271687_Manage: True
-ol9STIG_stigrule_271687__etc_dconf_db_local_d_locks_session_logout_Line: '/org/gnome/settings-daemon/plugins/media-keys/logout'
-# R-271688 OL09-00-002150
-ol9STIG_stigrule_271688_Manage: True
-ol9STIG_stigrule_271688__etc_dconf_db_local_d_01_banner_message_Value: 'true'
-# R-271689 OL09-00-002151
-ol9STIG_stigrule_271689_Manage: True
-ol9STIG_stigrule_271689__etc_dconf_db_local_d_01_banner_message_Value: "'You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\\nBy using this IS (which includes any device attached to this IS), you consent to the following conditions:\\n-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\\n-At any time, the USG may inspect and seize data stored on this IS.\\n-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.\\n-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.\\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.'"
-# R-271690 OL09-00-002160
-ol9STIG_stigrule_271690_Manage: True
-ol9STIG_stigrule_271690__etc_dconf_db_local_d_00_security_settings_Value: "'lock-screen'"
-# R-271691 OL09-00-002161
-ol9STIG_stigrule_271691_Manage: True
-ol9STIG_stigrule_271691__etc_gdm_custom_conf_Value: 'false'
-# R-271693 OL09-00-002301
-ol9STIG_stigrule_271693_Manage: True
-ol9STIG_stigrule_271693__etc_bashrc_Line: 'umask 077'
-# R-271694 OL09-00-002302
-ol9STIG_stigrule_271694_Manage: True
-ol9STIG_stigrule_271694__etc_csh_cshrc_Line: 'umask 077'
-# R-271695 OL09-00-002303
-ol9STIG_stigrule_271695_Manage: True
-ol9STIG_stigrule_271695__etc_profile_Line: 'umask 077'
-# R-271696 OL09-00-002304
-ol9STIG_stigrule_271696_Manage: True
-ol9STIG_stigrule_271696__etc_login_defs_Line: 'UMASK 077'
-# R-271697 OL09-00-002320
-ol9STIG_stigrule_271697_Manage: True
-ol9STIG_stigrule_271697__etc_chrony_conf_Line: 'port 0'
-# R-271698 OL09-00-002321
-ol9STIG_stigrule_271698_Manage: True
-ol9STIG_stigrule_271698__etc_chrony_conf_Line: 'cmdport 0'
-# R-271699 OL09-00-002323
-ol9STIG_stigrule_271699_Manage: True
-ol9STIG_stigrule_271699__etc_chrony_conf_Value: 'maxpoll 12'
-# R-271700 OL09-00-002330
-ol9STIG_stigrule_271700_Manage: True
-ol9STIG_stigrule_271700__etc_usbguard_usbguard_daemon_conf_Line: 'AuditBackend=LinuxAudit'
-# R-271703 OL09-00-002340
-ol9STIG_stigrule_271703_Manage: True
-ol9STIG_stigrule_271703_LogLevel_Line: LogLevel VERBOSE
-# R-271704 OL09-00-002341
-ol9STIG_stigrule_271704_Manage: True
-ol9STIG_stigrule_271704_GSSAPIAuthentication_Line: GSSAPIAuthentication no
-# R-271705 OL09-00-002342
-ol9STIG_stigrule_271705_Manage: True
-ol9STIG_stigrule_271705_RekeyLimit_Line: RekeyLimit 1G 1h
-# R-271706 OL09-00-002343
-ol9STIG_stigrule_271706_Manage: True
-ol9STIG_stigrule_271706_PermitEmptyPasswords_Line: PermitEmptyPasswords no
-# R-271707 OL09-00-002344
-ol9STIG_stigrule_271707_Manage: True
-ol9STIG_stigrule_271707_UsePAM_Line: UsePAM yes
-# R-271708 OL09-00-002345
-ol9STIG_stigrule_271708_Manage: True
-ol9STIG_stigrule_271708_PermitRootLogin_Line: PermitRootLogin no
-# R-271709 OL09-00-002346
-ol9STIG_stigrule_271709_Manage: True
-ol9STIG_stigrule_271709_ClientAliveCountMax_Line: ClientAliveCountMax 1
-# R-271710 OL09-00-002347
-ol9STIG_stigrule_271710_Manage: True
-ol9STIG_stigrule_271710_ClientAliveInterval_Line: ClientAliveInterval 600
-# R-271711 OL09-00-002348
-ol9STIG_stigrule_271711_Manage: True
-ol9STIG_stigrule_271711_IgnoreRhosts_Line: IgnoreRhosts yes
-# R-271712 OL09-00-002349
-ol9STIG_stigrule_271712_Manage: True
-ol9STIG_stigrule_271712_IgnoreUserKnownHosts_Line: IgnoreUserKnownHosts yes
-# R-271713 OL09-00-002350
-ol9STIG_stigrule_271713_Manage: True
-ol9STIG_stigrule_271713_X11Forwarding_Line: X11Forwarding no
-# R-271714 OL09-00-002351
-ol9STIG_stigrule_271714_Manage: True
-ol9STIG_stigrule_271714_StrictModes_Line: StrictModes yes
-# R-271715 OL09-00-002352
-ol9STIG_stigrule_271715_Manage: True
-ol9STIG_stigrule_271715_PrintLastLog_Line: PrintLastLog yes
-# R-271716 OL09-00-002354
-ol9STIG_stigrule_271716_Manage: True
-ol9STIG_stigrule_271716_X11UseLocalhost_Line: X11UseLocalhost yes
-# R-271717 OL09-00-002355
-ol9STIG_stigrule_271717_Manage: True
-ol9STIG_stigrule_271717_Compression_Line: Compression no
-# R-271718 OL09-00-002356
-ol9STIG_stigrule_271718_Manage: True
-ol9STIG_stigrule_271718_KerberosAuthentication_Line: KerberosAuthentication no
-# R-271719 OL09-00-002357
-ol9STIG_stigrule_271719_Manage: True
-ol9STIG_stigrule_271719_HostbasedAuthentication_Line: HostbasedAuthentication no
-# R-271720 OL09-00-002358
-ol9STIG_stigrule_271720_Manage: True
-ol9STIG_stigrule_271720_PermitUserEnvironment_Line: PermitUserEnvironment no
-# R-271721 OL09-00-002359
-ol9STIG_stigrule_271721_Manage: True
-ol9STIG_stigrule_271721_PubkeyAuthentication_Line: PubkeyAuthentication yes
-# R-271722 OL09-00-002360
-ol9STIG_stigrule_271722_Manage: True
-ol9STIG_stigrule_271722__etc_sudoers_Line: 'Defaults timestamp_timeout=0'
-# R-271727 OL09-00-002370
-ol9STIG_stigrule_271727_Manage: True
-ol9STIG_stigrule_271727_user_max_user_namespaces_Value: 0
-ol9STIG_stigrule_271727_user_max_user_namespaces_File: /etc/sysctl.d/99-sysctl.conf
-# R-271728 OL09-00-002380
-ol9STIG_stigrule_271728_Manage: True
-ol9STIG_stigrule_271728_kernel_core_pattern_Value: '|/bin/false'
-ol9STIG_stigrule_271728_kernel_core_pattern_File: /etc/sysctl.d/99-sysctl.conf
-# R-271729 OL09-00-002381
-ol9STIG_stigrule_271729_Manage: True
-ol9STIG_stigrule_271729__etc_systemd_coredump_conf_Line: 'ProcessSizeMax=0'
-# R-271730 OL09-00-002382
-ol9STIG_stigrule_271730_Manage: True
-ol9STIG_stigrule_271730__etc_systemd_coredump_conf_Line: 'Storage=none'
-# R-271731 OL09-00-002383
-ol9STIG_stigrule_271731_Manage: False
-ol9STIG_stigrule_271731__etc_security_limits_conf_Line: '* hard core 0'
-# R-271732 OL09-00-002384
-ol9STIG_stigrule_271732_Manage: True
-ol9STIG_stigrule_271732_systemd_coredump_socket_disable_Enabled: false
-ol9STIG_stigrule_271732_systemd_coredump_socket_mask_Daemon_Reload: true
-ol9STIG_stigrule_271732_systemd_coredump_socket_mask_Masked: true
-# R-271733 OL09-00-002385
-ol9STIG_stigrule_271733_Manage: True
-ol9STIG_stigrule_271733_kdump_disable_Enabled: false
-ol9STIG_stigrule_271733_kdump_mask_Masked: true
-# R-271739 OL09-00-002400
-ol9STIG_stigrule_271739_Manage: True
-ol9STIG_stigrule_271739_systemd_journald_enable_Enabled: yes
-ol9STIG_stigrule_271739_systemd_journald_start_State: started
-# R-271740 OL09-00-002401
-ol9STIG_stigrule_271740_Manage: True
-ol9STIG_stigrule_271740_fs_protected_hardlinks_Value: 1
-ol9STIG_stigrule_271740_fs_protected_hardlinks_File: /etc/sysctl.d/99-sysctl.conf
-# R-271741 OL09-00-002402
-ol9STIG_stigrule_271741_Manage: True
-ol9STIG_stigrule_271741_fs_protected_symlinks_Value: 1
-ol9STIG_stigrule_271741_fs_protected_symlinks_File: /etc/sysctl.d/99-sysctl.conf
-# R-271742 OL09-00-002403
-ol9STIG_stigrule_271742_Manage: True
-ol9STIG_stigrule_271742_debug_shell_service_disable_Enabled: false
-ol9STIG_stigrule_271742_debug_shell_service_mask_Masked: true
-# R-271744 OL09-00-002405
-ol9STIG_stigrule_271744_Manage: True
-ol9STIG_stigrule_271744__etc_aliases_Line: 'root: 75ABW.HEDC.SUSTAINMENT@US.AF.MIL'
-# R-271745 OL09-00-002406
-ol9STIG_stigrule_271745_Manage: True
-ol9STIG_stigrule_271745_kernel_dmesg_restrict_Value: 1
-ol9STIG_stigrule_271745_kernel_dmesg_restrict_File: /etc/sysctl.d/99-sysctl.conf
-# R-271746 OL09-00-002407
-ol9STIG_stigrule_271746_Manage: True
-ol9STIG_stigrule_271746_kernel_perf_event_paranoid_Value: 2
-ol9STIG_stigrule_271746_kernel_perf_event_paranoid_File: /etc/sysctl.d/99-sysctl.conf
-# R-271747 OL09-00-002408
-ol9STIG_stigrule_271747_Manage: True
-ol9STIG_stigrule_271747_kernel_kptr_restrict_Value: 1
-ol9STIG_stigrule_271747_kernel_kptr_restrict_File: /etc/sysctl.d/99-sysctl.conf
-# R-271748 OL09-00-002409
-ol9STIG_stigrule_271748_Manage: True
-ol9STIG_stigrule_271748_kernel_unprivileged_bpf_disabled_Value: 1
-ol9STIG_stigrule_271748_kernel_unprivileged_bpf_disabled_File: /etc/sysctl.d/99-sysctl.conf
-# R-271749 OL09-00-002410
-ol9STIG_stigrule_271749_Manage: True
-ol9STIG_stigrule_271749_kernel_yama_ptrace_scope_Value: 1
-ol9STIG_stigrule_271749_kernel_yama_ptrace_scope_File: /etc/sysctl.d/99-sysctl.conf
-# R-271750 OL09-00-002411
-ol9STIG_stigrule_271750_Manage: True
-ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Dest: /etc/profile.d/tmout.sh
-ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Content: |
+rhel9STIG_stigrule_257849_Manage: false
+rhel9STIG_stigrule_257849_autofs_service_disable_Enabled: false
+rhel9STIG_stigrule_257849_autofs_service_mask_Masked: false
+
+# R-257880 RHEL-09-231195
+rhel9STIG_stigrule_257880_Manage: True
+rhel9STIG_stigrule_257880__etc_modprobe_d_blacklist_conf_install_cramfs__bin_false_Line: 'install cramfs /bin/false'
+rhel9STIG_stigrule_257880__etc_modprobe_d_blacklist_conf_blacklist_cramfs_Line: 'blacklist cramfs'
+
+# R-270175 RHEL-09-232103
+rhel9STIG_stigrule_270175_Manage: True
+
+# R-270176 RHEL-09-232104
+rhel9STIG_stigrule_270176_Manage: True
+
+# R-257935 RHEL-09-251010
+rhel9STIG_stigrule_257935_Manage: True
+rhel9STIG_stigrule_257935_firewalld_State: installed
+
+# R-257936 RHEL-09-251015
+rhel9STIG_stigrule_257936_Manage: True
+rhel9STIG_stigrule_257936_firewalld_enable_Enabled: yes
+rhel9STIG_stigrule_257936_firewalld_start_State: started
+
+# R-257939 RHEL-09-251030
+rhel9STIG_stigrule_257939_Manage: True
+rhel9STIG_stigrule_257939__etc_firewalld_firewalld_conf_Line: 'FirewallBackend=nftables'
+
+# R-257942 RHEL-09-251045
+rhel9STIG_stigrule_257942_Manage: True
+rhel9STIG_stigrule_257942_net_core_bpf_jit_harden_Value: 2
+rhel9STIG_stigrule_257942_net_core_bpf_jit_harden_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257943 RHEL-09-252010
+rhel9STIG_stigrule_257943_Manage: True
+rhel9STIG_stigrule_257943_chrony_State: installed
+
+# R-257944 RHEL-09-252015
+rhel9STIG_stigrule_257944_Manage: True
+rhel9STIG_stigrule_257944_chronyd_enable_Enabled: yes
+rhel9STIG_stigrule_257944_chronyd_start_State: started
+
+# R-257945 RHEL-09-252020
+rhel9STIG_stigrule_257945_Manage: True
+rhel9STIG_stigrule_257945__etc_chrony_conf_Value: 'maxpoll 12'
+
+# R-257946 RHEL-09-252025
+rhel9STIG_stigrule_257946_Manage: True
+rhel9STIG_stigrule_257946__etc_chrony_conf_Line: 'port 0'
+
+# R-257947 RHEL-09-252030
+rhel9STIG_stigrule_257947_Manage: True
+rhel9STIG_stigrule_257947__etc_chrony_conf_Line: 'cmdport 0'
+
+# R-257949 RHEL-09-252040
+rhel9STIG_stigrule_257949_Manage: True
+rhel9STIG_stigrule_257949__etc_NetworkManager_NetworkManager_conf_Value: 'systemd-resolved'
+
+# R-257953 RHEL-09-252060
+rhel9STIG_stigrule_257953_Manage: True
+rhel9STIG_stigrule_257953__etc_aliases_Line: 'postmaster: root'
+
+# R-257954 RHEL-09-252065
+rhel9STIG_stigrule_257954_Manage: True
+rhel9STIG_stigrule_257954_libreswan_State: installed
+
+# R-257957 RHEL-09-253010
+rhel9STIG_stigrule_257957_Manage: True
+rhel9STIG_stigrule_257957_net_ipv4_tcp_syncookies_Value: 1
+rhel9STIG_stigrule_257957_net_ipv4_tcp_syncookies_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257958 RHEL-09-253015
+rhel9STIG_stigrule_257958_Manage: True
+rhel9STIG_stigrule_257958_net_ipv4_conf_all_accept_redirects_Value: 0
+rhel9STIG_stigrule_257958_net_ipv4_conf_all_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257959 RHEL-09-253020
+rhel9STIG_stigrule_257959_Manage: True
+rhel9STIG_stigrule_257959_net_ipv4_conf_all_accept_source_route_Value: 0
+rhel9STIG_stigrule_257959_net_ipv4_conf_all_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257960 RHEL-09-253025
+rhel9STIG_stigrule_257960_Manage: True
+rhel9STIG_stigrule_257960_net_ipv4_conf_all_log_martians_Value: 1
+rhel9STIG_stigrule_257960_net_ipv4_conf_all_log_martians_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257961 RHEL-09-253030
+rhel9STIG_stigrule_257961_Manage: True
+rhel9STIG_stigrule_257961_net_ipv4_conf_default_log_martians_Value: 1
+rhel9STIG_stigrule_257961_net_ipv4_conf_default_log_martians_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257962 RHEL-09-253035
+rhel9STIG_stigrule_257962_Manage: True
+rhel9STIG_stigrule_257962_net_ipv4_conf_all_rp_filter_Value: 1
+rhel9STIG_stigrule_257962_net_ipv4_conf_all_rp_filter_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257963 RHEL-09-253040
+rhel9STIG_stigrule_257963_Manage: True
+rhel9STIG_stigrule_257963_net_ipv4_conf_default_accept_redirects_Value: 0
+rhel9STIG_stigrule_257963_net_ipv4_conf_default_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257964 RHEL-09-253045
+rhel9STIG_stigrule_257964_Manage: True
+rhel9STIG_stigrule_257964_net_ipv4_conf_default_accept_source_route_Value: 0
+rhel9STIG_stigrule_257964_net_ipv4_conf_default_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257965 RHEL-09-253050
+rhel9STIG_stigrule_257965_Manage: True
+rhel9STIG_stigrule_257965_net_ipv4_conf_default_rp_filter_Value: 1
+rhel9STIG_stigrule_257965_net_ipv4_conf_default_rp_filter_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257966 RHEL-09-253055
+rhel9STIG_stigrule_257966_Manage: True
+rhel9STIG_stigrule_257966_net_ipv4_icmp_echo_ignore_broadcasts_Value: 1
+rhel9STIG_stigrule_257966_net_ipv4_icmp_echo_ignore_broadcasts_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257967 RHEL-09-253060
+rhel9STIG_stigrule_257967_Manage: True
+rhel9STIG_stigrule_257967_net_ipv4_icmp_ignore_bogus_error_responses_Value: 1
+rhel9STIG_stigrule_257967_net_ipv4_icmp_ignore_bogus_error_responses_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257968 RHEL-09-253065
+rhel9STIG_stigrule_257968_Manage: True
+rhel9STIG_stigrule_257968_net_ipv4_conf_all_send_redirects_Value: 0
+rhel9STIG_stigrule_257968_net_ipv4_conf_all_send_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257969 RHEL-09-253070
+rhel9STIG_stigrule_257969_Manage: True
+rhel9STIG_stigrule_257969_net_ipv4_conf_default_send_redirects_Value: 0
+rhel9STIG_stigrule_257969_net_ipv4_conf_default_send_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257970 RHEL-09-253075
+rhel9STIG_stigrule_257970_Manage: True
+rhel9STIG_stigrule_257970_net_ipv4_conf_all_forwarding_Value: 0
+rhel9STIG_stigrule_257970_net_ipv4_conf_all_forwarding_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257971 RHEL-09-254010
+rhel9STIG_stigrule_257971_Manage: True
+rhel9STIG_stigrule_257971_net_ipv6_conf_all_accept_ra_Value: 0
+rhel9STIG_stigrule_257971_net_ipv6_conf_all_accept_ra_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257972 RHEL-09-254015
+rhel9STIG_stigrule_257972_Manage: True
+rhel9STIG_stigrule_257972_net_ipv6_conf_all_accept_redirects_Value: 0
+rhel9STIG_stigrule_257972_net_ipv6_conf_all_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257973 RHEL-09-254020
+rhel9STIG_stigrule_257973_Manage: True
+rhel9STIG_stigrule_257973_net_ipv6_conf_all_accept_source_route_Value: 0
+rhel9STIG_stigrule_257973_net_ipv6_conf_all_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257974 RHEL-09-254025
+rhel9STIG_stigrule_257974_Manage: True
+rhel9STIG_stigrule_257974_net_ipv6_conf_all_forwarding_Value: 0
+rhel9STIG_stigrule_257974_net_ipv6_conf_all_forwarding_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257975 RHEL-09-254030
+rhel9STIG_stigrule_257975_Manage: True
+rhel9STIG_stigrule_257975_net_ipv6_conf_default_accept_ra_Value: 0
+rhel9STIG_stigrule_257975_net_ipv6_conf_default_accept_ra_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257976 RHEL-09-254035
+rhel9STIG_stigrule_257976_Manage: True
+rhel9STIG_stigrule_257976_net_ipv6_conf_default_accept_redirects_Value: 0
+rhel9STIG_stigrule_257976_net_ipv6_conf_default_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257977 RHEL-09-254040
+rhel9STIG_stigrule_257977_Manage: True
+rhel9STIG_stigrule_257977_net_ipv6_conf_default_accept_source_route_Value: 0
+rhel9STIG_stigrule_257977_net_ipv6_conf_default_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
+
+# R-257978 RHEL-09-255010
+rhel9STIG_stigrule_257978_Manage: True
+rhel9STIG_stigrule_257978_openssh_server_State: installed
+
+# R-257979 RHEL-09-255015
+rhel9STIG_stigrule_257979_Manage: True
+rhel9STIG_stigrule_257979_sshd_enable_Enabled: yes
+
+# R-257980 RHEL-09-255020
+rhel9STIG_stigrule_257980_Manage: True
+rhel9STIG_stigrule_257980_openssh_clients_State: installed
+
+# R-257981 RHEL-09-255025
+rhel9STIG_stigrule_257981_Manage: True
+rhel9STIG_stigrule_257981_Banner_Line: Banner /etc/issue
+
+# R-257982 RHEL-09-255030
+rhel9STIG_stigrule_257982_Manage: True
+rhel9STIG_stigrule_257982_LogLevel_Line: LogLevel VERBOSE
+
+# R-257983 RHEL-09-255035
+rhel9STIG_stigrule_257983_Manage: True
+rhel9STIG_stigrule_257983_PubkeyAuthentication_Line: PubkeyAuthentication yes
+
+# R-257984 RHEL-09-255040
+rhel9STIG_stigrule_257984_Manage: True
+rhel9STIG_stigrule_257984_PermitEmptyPasswords_Line: PermitEmptyPasswords no
+
+# R-257985 RHEL-09-255045
+rhel9STIG_stigrule_257985_Manage: True
+rhel9STIG_stigrule_257985_PermitRootLogin_Line: PermitRootLogin no
+
+# R-257986 RHEL-09-255050
+rhel9STIG_stigrule_257986_Manage: True
+rhel9STIG_stigrule_257986_UsePAM_Line: UsePAM yes
+
+# R-257992 RHEL-09-255080
+rhel9STIG_stigrule_257992_Manage: True
+rhel9STIG_stigrule_257992_HostbasedAuthentication_Line: HostbasedAuthentication no
+
+# R-257993 RHEL-09-255085
+rhel9STIG_stigrule_257993_Manage: True
+rhel9STIG_stigrule_257993_PermitUserEnvironment_Line: PermitUserEnvironment no
+
+# R-257994 RHEL-09-255090
+rhel9STIG_stigrule_257994_Manage: True
+rhel9STIG_stigrule_257994_RekeyLimit_Line: RekeyLimit 1G 1h
+
+# R-257995 RHEL-09-255095
+rhel9STIG_stigrule_257995_Manage: True
+rhel9STIG_stigrule_257995_ClientAliveCountMax_Line: ClientAliveCountMax 1
+
+# R-257996 RHEL-09-255100
+rhel9STIG_stigrule_257996_Manage: True
+rhel9STIG_stigrule_257996_ClientAliveInterval_Line: ClientAliveInterval 600
+
+# R-258003 RHEL-09-255135
+rhel9STIG_stigrule_258003_Manage: True
+rhel9STIG_stigrule_258003_GSSAPIAuthentication_Line: GSSAPIAuthentication no
+
+# R-258004 RHEL-09-255140
+rhel9STIG_stigrule_258004_Manage: True
+rhel9STIG_stigrule_258004_KerberosAuthentication_Line: KerberosAuthentication no
+
+# R-258005 RHEL-09-255145
+rhel9STIG_stigrule_258005_Manage: True
+rhel9STIG_stigrule_258005_IgnoreRhosts_Line: IgnoreRhosts yes
+
+# R-258006 RHEL-09-255150
+rhel9STIG_stigrule_258006_Manage: True
+rhel9STIG_stigrule_258006_IgnoreUserKnownHosts_Line: IgnoreUserKnownHosts yes
+
+# R-258007 RHEL-09-255155
+rhel9STIG_stigrule_258007_Manage: True
+rhel9STIG_stigrule_258007_X11Forwarding_Line: X11Forwarding no
+
+# R-258008 RHEL-09-255160
+rhel9STIG_stigrule_258008_Manage: True
+rhel9STIG_stigrule_258008_StrictModes_Line: StrictModes yes
+
+# R-258009 RHEL-09-255165
+rhel9STIG_stigrule_258009_Manage: True
+rhel9STIG_stigrule_258009_PrintLastLog_Line: PrintLastLog yes
+
+# R-258011 RHEL-09-255175
+rhel9STIG_stigrule_258011_Manage: True
+rhel9STIG_stigrule_258011_X11UseLocalhost_Line: X11UseLocalhost yes
+
+# R-258012 RHEL-09-271010
+rhel9STIG_stigrule_258012_Manage: True
+rhel9STIG_stigrule_258012__etc_dconf_db_local_d_01_banner_message_Value: 'true'
+
+# R-258013 RHEL-09-271015
+rhel9STIG_stigrule_258013_Manage: True
+rhel9STIG_stigrule_258013__etc_dconf_db_local_d_locks_session_banner_message_enable_Line: '/org/gnome/login-screen/banner-message-enable'
+
+# R-258014 RHEL-09-271020
+rhel9STIG_stigrule_258014_Manage: True
+rhel9STIG_stigrule_258014__etc_dconf_db_local_d_00_security_settings_Value: 'false'
+
+# R-258015 RHEL-09-271025
+rhel9STIG_stigrule_258015_Manage: True
+rhel9STIG_stigrule_258015__etc_dconf_db_local_d_locks_00_security_settings_lock_automount_open_Line: '/org/gnome/desktop/media-handling/automount-open'
+
+# R-258016 RHEL-09-271030
+rhel9STIG_stigrule_258016_Manage: True
+rhel9STIG_stigrule_258016__etc_dconf_db_local_d_00_security_settings_Value: 'true'
+
+# R-258017 RHEL-09-271035
+rhel9STIG_stigrule_258017_Manage: True
+rhel9STIG_stigrule_258017__etc_dconf_db_local_d_locks_00_security_settings_lock_autorun_never_Line: '/org/gnome/desktop/media-handling/autorun-never'
+
+# R-258018 RHEL-09-271040
+rhel9STIG_stigrule_258018_Manage: True
+rhel9STIG_stigrule_258018__etc_gdm_custom_conf_Value: 'false'
+
+# R-258019 RHEL-09-271045
+rhel9STIG_stigrule_258019_Manage: True
+rhel9STIG_stigrule_258019__etc_dconf_db_local_d_00_security_settings_Value: "'lock-screen'"
+
+# R-258020 RHEL-09-271050
+rhel9STIG_stigrule_258020_Manage: True
+rhel9STIG_stigrule_258020__etc_dconf_db_local_d_locks_00_security_settings_lock_removal_action_Line: '/org/gnome/settings-daemon/peripherals/smartcard/removal-action'
+
+# R-258022 RHEL-09-271060
+rhel9STIG_stigrule_258022_Manage: True
+rhel9STIG_stigrule_258022__etc_dconf_db_local_d_locks_session_lock_enabled_Line: '/org/gnome/desktop/screensaver/lock-enabled'
+
+# R-258023 RHEL-09-271065
+rhel9STIG_stigrule_258023_Manage: True
+rhel9STIG_stigrule_258023__etc_dconf_db_local_d_00_screensaver_Value: 'uint32 600'
+
+# R-258024 RHEL-09-271070
+rhel9STIG_stigrule_258024_Manage: True
+rhel9STIG_stigrule_258024__etc_dconf_db_local_d_locks_session_idle_delay_Line: '/org/gnome/desktop/session/idle-delay'
+
+# R-258025 RHEL-09-271075
+rhel9STIG_stigrule_258025_Manage: True
+rhel9STIG_stigrule_258025__etc_dconf_db_local_d_00_screensaver_Value: 'uint32 5'
+
+# R-258026 RHEL-09-271080
+rhel9STIG_stigrule_258026_Manage: True
+rhel9STIG_stigrule_258026__etc_dconf_db_local_d_locks_session_lock_delay_Line: '/org/gnome/desktop/screensaver/lock-delay'
+
+# R-258027 RHEL-09-271085
+rhel9STIG_stigrule_258027_Manage: True
+rhel9STIG_stigrule_258027__etc_dconf_db_local_d_00_security_settings_Value: "''"
+rhel9STIG_stigrule_258027__etc_dconf_db_local_d_locks_00_security_settings_lock_picture_uri_Line: '/org/gnome/desktop/screensaver/picture-uri'
+
+# R-258029 RHEL-09-271095
+rhel9STIG_stigrule_258029_Manage: True
+rhel9STIG_stigrule_258029__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line: '/org/gnome/login-screen/disable-restart-buttons'
+
+# R-258030 RHEL-09-271100
+rhel9STIG_stigrule_258030_Manage: True
+rhel9STIG_stigrule_258030__etc_dconf_db_local_d_locks_session_disable_restart_buttons_Line: '/org/gnome/login-screen/disable-restart-buttons'
+
+# R-258031 RHEL-09-271105
+rhel9STIG_stigrule_258031_Manage: True
+rhel9STIG_stigrule_258031__etc_dconf_db_local_d_00_security_settings_Value: "['']"
+
+# R-258032 RHEL-09-271110
+rhel9STIG_stigrule_258032_Manage: True
+rhel9STIG_stigrule_258032__etc_dconf_db_local_d_locks_session_logout_Line: '/org/gnome/settings-daemon/plugins/media-keys/logout'
+
+# R-258033 RHEL-09-271115
+rhel9STIG_stigrule_258033_Manage: True
+rhel9STIG_stigrule_258033__etc_dconf_db_local_d_02_login_screen_Value: 'true'
+
+# R-258034 RHEL-09-291010
+rhel9STIG_stigrule_258034_Manage: True
+rhel9STIG_stigrule_258034__etc_modprobe_d_usb_storage_conf_install_usb_storage__bin_false_Line: 'install usb-storage /bin/false'
+rhel9STIG_stigrule_258034__etc_modprobe_d_usb_storage_conf_blacklist_usb_storage_Line: 'blacklist usb-storage'
+
+# R-258035 RHEL-09-291015
+rhel9STIG_stigrule_258035_Manage: True
+rhel9STIG_stigrule_258035_usbguard_State: installed
+
+# R-258036 RHEL-09-291020
+rhel9STIG_stigrule_258036_Manage: False
+rhel9STIG_stigrule_258036_usbguard_enable_Enabled: yes
+rhel9STIG_stigrule_258036_usbguard_start_State: started
+
+# R-258037 RHEL-09-291025
+rhel9STIG_stigrule_258037_Manage: True
+rhel9STIG_stigrule_258037__etc_usbguard_usbguard_daemon_conf_Line: 'AuditBackend=LinuxAudit'
+
+# R-258039 RHEL-09-291035
+rhel9STIG_stigrule_258039_Manage: True
+rhel9STIG_stigrule_258039__etc_modprobe_d_bluetooth_conf_install_bluetooth__bin_false_Line: 'install bluetooth /bin/false'
+rhel9STIG_stigrule_258039__etc_modprobe_d_bluetooth_conf_blacklist_bluetooth_Line: 'blacklist bluetooth'
+
+# R-258040 RHEL-09-291040
+rhel9STIG_stigrule_258040_Manage: True
+rhel9STIG_stigrule_258040_nmcli_radio_wifi_off_Command: nmcli radio wifi off
+
+# R-258041 RHEL-09-411010
+rhel9STIG_stigrule_258041_Manage: True
+rhel9STIG_stigrule_258041__etc_login_defs_Line: 'PASS_MAX_DAYS 60'
+
+# R-258043 RHEL-09-411020
+rhel9STIG_stigrule_258043_Manage: True
+rhel9STIG_stigrule_258043__etc_login_defs_Line: 'CREATE_HOME yes'
+
+# R-258049 RHEL-09-411050
+rhel9STIG_stigrule_258049_Manage: True
+rhel9STIG_stigrule_258049_sudo_useradd__D__f_35_Command: sudo useradd -D -f 35
+
+# R-258068 RHEL-09-412035
+rhel9STIG_stigrule_258068_Manage: True
+rhel9STIG_stigrule_258068__etc_profile_d_tmout_sh_Dest: /etc/profile.d/tmout.sh
+rhel9STIG_stigrule_258068__etc_profile_d_tmout_sh_Content: |
   #!/bin/bash
 
   declare -xr TMOUT=600
-# R-271751 OL09-00-002412
-ol9STIG_stigrule_271751_Manage: True
-ol9STIG_stigrule_271751__etc_systemd_system_conf_d_55_CtrlAltDel_BurstAction_conf_Value: 'none'
-# R-271752 OL09-00-002413
-ol9STIG_stigrule_271752_Manage: True
-ol9STIG_stigrule_271752_ctrl_alt_del_target_disable_Enabled: false
-ol9STIG_stigrule_271752_ctrl_alt_del_target_mask_Masked: true
-# R-271753 OL09-00-002415
-ol9STIG_stigrule_271753_Manage: True
-ol9STIG_stigrule_271753__etc_security_limits_conf_Line: '* hard maxlogins 10'
-# R-271761 OL09-00-002423
-ol9STIG_stigrule_271761_Manage: True
-ol9STIG_stigrule_271761_kernel_randomize_va_space_Value: 2
-ol9STIG_stigrule_271761_kernel_randomize_va_space_File: /etc/sysctl.d/99-sysctl.conf
-# R-271766 OL09-00-002428
-ol9STIG_stigrule_271766_Manage: True
-ol9STIG_stigrule_271766_kernel_kexec_load_disabled_Value: 1
-ol9STIG_stigrule_271766_kernel_kexec_load_disabled_File: /etc/sysctl.d/99-sysctl.conf
-# R-271768 OL09-00-002430
-ol9STIG_stigrule_271768_Manage: True
-ol9STIG_stigrule_271768_net_core_bpf_jit_harden_Value: 2
-ol9STIG_stigrule_271768_net_core_bpf_jit_harden_File: /etc/sysctl.d/99-sysctl.conf
-# R-271846 OL09-00-003052
-ol9STIG_stigrule_271846_Manage: True
-ol9STIG_stigrule_271846__etc_login_defs_Line: 'CREATE_HOME yes'
-# R-271849 OL09-00-003065
-ol9STIG_stigrule_271849_Manage: True
-ol9STIG_stigrule_271849_sudo_useradd__D__f_35_Command: sudo useradd -D -f 35
-# R-271850 OL09-00-003070
-ol9STIG_stigrule_271850_Manage: True
-ol9STIG_stigrule_271850__etc_login_defs_Line: 'FAIL_DELAY 4'
-# R-271851 OL09-00-005000
-ol9STIG_stigrule_271851_Manage: True
-ol9STIG_stigrule_271851__etc_rsyslog_conf_Line: 'auth.*;authpriv.*;daemon.* /var/log/secure'
-# R-271853 OL09-00-005010
-ol9STIG_stigrule_271853_Manage: True
-ol9STIG_stigrule_271853__etc_rsyslog_conf_Line: 'cron.* /var/log/cron'
-# R-271854 OL09-00-005015
-ol9STIG_stigrule_271854_Manage: True
-ol9STIG_stigrule_271854__etc_rsyslog_conf_DefaultNetstreamDriver_Line: '$ActionSendStreamDriverAuthMode x509/name'
-# R-271855 OL09-00-005020
-ol9STIG_stigrule_271855_Manage: True
-ol9STIG_stigrule_271855__etc_rsyslog_conf_ActionSendStreamDriverMode_Line: '$ActionSendStreamDriverMode 1'
-# R-271856 OL09-00-005025
-ol9STIG_stigrule_271856_Manage: True
-ol9STIG_stigrule_271856__etc_rsyslog_conf_DefaultNetstreamDriver_Line: '$DefaultNetstreamDriver gtls'
-# R-271858 OL09-00-006000
-ol9STIG_stigrule_271858_Manage: True
-ol9STIG_stigrule_271858__etc_firewalld_firewalld_conf_Line: 'FirewallBackend=nftables'
-# R-271859 OL09-00-006001
-ol9STIG_stigrule_271859_Manage: True
-ol9STIG_stigrule_271859_nmcli_radio_wifi_off_Command: nmcli radio wifi off
-# R-271860 OL09-00-006002
-ol9STIG_stigrule_271860_Manage: True
-ol9STIG_stigrule_271860__etc_NetworkManager_NetworkManager_conf_Value: 'systemd-resolved'
-# R-271864 OL09-00-006020
-ol9STIG_stigrule_271864_Manage: True
-ol9STIG_stigrule_271864_net_ipv4_conf_all_accept_redirects_Value: 0
-ol9STIG_stigrule_271864_net_ipv4_conf_all_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271865 OL09-00-006021
-ol9STIG_stigrule_271865_Manage: True
-ol9STIG_stigrule_271865_net_ipv4_conf_all_accept_source_route_Value: 0
-ol9STIG_stigrule_271865_net_ipv4_conf_all_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
-# R-271866 OL09-00-006022
-ol9STIG_stigrule_271866_Manage: True
-ol9STIG_stigrule_271866_net_ipv4_conf_all_log_martians_Value: 1
-ol9STIG_stigrule_271866_net_ipv4_conf_all_log_martians_File: /etc/sysctl.d/99-sysctl.conf
-# R-271867 OL09-00-006023
-ol9STIG_stigrule_271867_Manage: True
-ol9STIG_stigrule_271867_net_ipv4_conf_default_log_martians_Value: 1
-ol9STIG_stigrule_271867_net_ipv4_conf_default_log_martians_File: /etc/sysctl.d/99-sysctl.conf
-# R-271868 OL09-00-006024
-ol9STIG_stigrule_271868_Manage: True
-ol9STIG_stigrule_271868_net_ipv4_conf_all_rp_filter_Value: 1
-ol9STIG_stigrule_271868_net_ipv4_conf_all_rp_filter_File: /etc/sysctl.d/99-sysctl.conf
-# R-271869 OL09-00-006025
-ol9STIG_stigrule_271869_Manage: True
-ol9STIG_stigrule_271869_net_ipv4_conf_default_accept_redirects_Value: 0
-ol9STIG_stigrule_271869_net_ipv4_conf_default_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271870 OL09-00-006026
-ol9STIG_stigrule_271870_Manage: True
-ol9STIG_stigrule_271870_net_ipv4_conf_default_accept_source_route_Value: 0
-ol9STIG_stigrule_271870_net_ipv4_conf_default_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
-# R-271871 OL09-00-006027
-ol9STIG_stigrule_271871_Manage: True
-ol9STIG_stigrule_271871_net_ipv4_conf_default_rp_filter_Value: 1
-ol9STIG_stigrule_271871_net_ipv4_conf_default_rp_filter_File: /etc/sysctl.d/99-sysctl.conf
-# R-271872 OL09-00-006028
-ol9STIG_stigrule_271872_Manage: True
-ol9STIG_stigrule_271872_net_ipv4_conf_all_forwarding_Value: 0
-ol9STIG_stigrule_271872_net_ipv4_conf_all_forwarding_File: /etc/sysctl.d/99-sysctl.conf
-# R-271873 OL09-00-006030
-ol9STIG_stigrule_271873_Manage: True
-ol9STIG_stigrule_271873_net_ipv4_icmp_echo_ignore_broadcasts_Value: 1
-ol9STIG_stigrule_271873_net_ipv4_icmp_echo_ignore_broadcasts_File: /etc/sysctl.d/99-sysctl.conf
-# R-271874 OL09-00-006031
-ol9STIG_stigrule_271874_Manage: True
-ol9STIG_stigrule_271874_net_ipv4_icmp_ignore_bogus_error_responses_Value: 1
-ol9STIG_stigrule_271874_net_ipv4_icmp_ignore_bogus_error_responses_File: /etc/sysctl.d/99-sysctl.conf
-# R-271875 OL09-00-006032
-ol9STIG_stigrule_271875_Manage: True
-ol9STIG_stigrule_271875_net_ipv4_conf_all_send_redirects_Value: 0
-ol9STIG_stigrule_271875_net_ipv4_conf_all_send_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271876 OL09-00-006033
-ol9STIG_stigrule_271876_Manage: True
-ol9STIG_stigrule_271876_net_ipv4_conf_default_send_redirects_Value: 0
-ol9STIG_stigrule_271876_net_ipv4_conf_default_send_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271877 OL09-00-006040
-ol9STIG_stigrule_271877_Manage: True
-ol9STIG_stigrule_271877_net_ipv6_conf_all_accept_ra_Value: 0
-ol9STIG_stigrule_271877_net_ipv6_conf_all_accept_ra_File: /etc/sysctl.d/99-sysctl.conf
-# R-271878 OL09-00-006041
-ol9STIG_stigrule_271878_Manage: True
-ol9STIG_stigrule_271878_net_ipv6_conf_all_accept_redirects_Value: 0
-ol9STIG_stigrule_271878_net_ipv6_conf_all_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271879 OL09-00-006042
-ol9STIG_stigrule_271879_Manage: True
-ol9STIG_stigrule_271879_net_ipv6_conf_all_accept_source_route_Value: 0
-ol9STIG_stigrule_271879_net_ipv6_conf_all_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
-# R-271880 OL09-00-006043
-ol9STIG_stigrule_271880_Manage: True
-ol9STIG_stigrule_271880_net_ipv6_conf_all_forwarding_Value: 0
-ol9STIG_stigrule_271880_net_ipv6_conf_all_forwarding_File: /etc/sysctl.d/99-sysctl.conf
-# R-271881 OL09-00-006044
-ol9STIG_stigrule_271881_Manage: True
-ol9STIG_stigrule_271881_net_ipv6_conf_default_accept_ra_Value: 0
-ol9STIG_stigrule_271881_net_ipv6_conf_default_accept_ra_File: /etc/sysctl.d/99-sysctl.conf
-# R-271882 OL09-00-006045
-ol9STIG_stigrule_271882_Manage: True
-ol9STIG_stigrule_271882_net_ipv6_conf_default_accept_redirects_Value: 0
-ol9STIG_stigrule_271882_net_ipv6_conf_default_accept_redirects_File: /etc/sysctl.d/99-sysctl.conf
-# R-271883 OL09-00-006046
-ol9STIG_stigrule_271883_Manage: True
-ol9STIG_stigrule_271883_net_ipv6_conf_default_accept_source_route_Value: 0
-ol9STIG_stigrule_271883_net_ipv6_conf_default_accept_source_route_File: /etc/sysctl.d/99-sysctl.conf
-# R-271884 OL09-00-006050
-ol9STIG_stigrule_271884_Manage: True
-ol9STIG_stigrule_271884_net_ipv4_tcp_syncookies_Value: 1
-ol9STIG_stigrule_271884_net_ipv4_tcp_syncookies_File: /etc/sysctl.d/99-sysctl.conf
-# R-271885 OL09-00-008000
-ol9STIG_stigrule_271885_Manage: True
-ol9STIG_stigrule_271885__etc_audit_rules_d_audit_rules_loginuid_immutable_Line: '--loginuid-immutable'
-# R-271886 OL09-00-008005
-ol9STIG_stigrule_271886_Manage: True
-ol9STIG_stigrule_271886__etc_audit_rules_d_audit_rules_e2_Line: '-e 2'
-# R-278952 OL09-00-002584
-ol9STIG_stigrule_278952_Manage: True
-ol9STIG_stigrule_278952__etc_audit_rules_d_audit_rules__etc_cron_d__cronjobs_Line: '-w /etc/cron.d/ -p wa -k cronjobs'
-ol9STIG_stigrule_278952__etc_audit_rules_d_audit_rules__var_spool_cron__cronjobs_Line: '-w /var/spool/cron/ -p wa -k cronjobs'
+
+# R-258069 RHEL-09-412040
+rhel9STIG_stigrule_258069_Manage: True
+rhel9STIG_stigrule_258069__etc_security_limits_conf_Line: '* hard maxlogins 10'
+
+# R-258071 RHEL-09-412050
+rhel9STIG_stigrule_258071_Manage: True
+rhel9STIG_stigrule_258071__etc_login_defs_Line: 'FAIL_DELAY 4'
+
+# R-258072 RHEL-09-412055
+rhel9STIG_stigrule_258072_Manage: True
+rhel9STIG_stigrule_258072__etc_bashrc_Line: 'umask 077'
+
+# R-258073 RHEL-09-412060
+rhel9STIG_stigrule_258073_Manage: True
+rhel9STIG_stigrule_258073__etc_csh_cshrc_Line: 'umask 077'
+
+# R-258074 RHEL-09-412065
+rhel9STIG_stigrule_258074_Manage: True
+rhel9STIG_stigrule_258074__etc_login_defs_Line: 'UMASK 077'
+
+# R-258075 RHEL-09-412070
+rhel9STIG_stigrule_258075_Manage: True
+rhel9STIG_stigrule_258075__etc_profile_Line: 'umask 077'
+
+# R-258078 RHEL-09-431010
+rhel9STIG_stigrule_258078_Manage: True
+rhel9STIG_stigrule_258078__etc_selinux_config_Line: 'SELINUX=enforcing'
+
+# R-258079 RHEL-09-431015
+rhel9STIG_stigrule_258079_Manage: True
+rhel9STIG_stigrule_258079__etc_selinux_config_Line: 'SELINUXTYPE=targeted'
+
+# R-272496 RHEL-09-431016
+### !! SITE-SPECIFIC: set rhel9STIG_stigrule_272496_sudoers_admin_group to the real
+### designated sudoers admin group before enabling !! ###
+rhel9STIG_stigrule_272496_Manage: False
+rhel9STIG_stigrule_272496_sudoers_admin_group: '%wheel'
+
+# R-258081 RHEL-09-431025
+rhel9STIG_stigrule_258081_Manage: True
+rhel9STIG_stigrule_258081_policycoreutils_State: installed
+
+# R-258082 RHEL-09-431030
+rhel9STIG_stigrule_258082_Manage: True
+rhel9STIG_stigrule_258082_policycoreutils_python_utils_State: installed
+
+# R-258083 RHEL-09-432010
+rhel9STIG_stigrule_258083_Manage: True
+rhel9STIG_stigrule_258083_sudo_State: installed
+
+# R-258084 RHEL-09-432015
+rhel9STIG_stigrule_258084_Manage: True
+rhel9STIG_stigrule_258084__etc_sudoers_Line: 'Defaults timestamp_timeout=0'
+
+# R-258089 RHEL-09-433010
+rhel9STIG_stigrule_258089_Manage: True
+rhel9STIG_stigrule_258089_fapolicyd_State: installed
+
+# R-258090 RHEL-09-433015
+rhel9STIG_stigrule_258090_Manage: True
+rhel9STIG_stigrule_258090_fapolicyd_enable_Enabled: yes
+rhel9STIG_stigrule_258090_fapolicyd_start_State: started
+
+# R-270180 RHEL-09-433016
+# Site policy: fapolicyd must run in permissive mode (1) until an allow list matching
+# this host's actually-used software is built under /etc/fapolicyd/rules.d/ - flipping
+# straight to enforcing (0) without one locks the system out, per the STIG's own fixtext.
+# Enable rhel9STIG_stigrule_270180_Manage only after that allow list is reviewed and staged.
+rhel9STIG_stigrule_270180_Manage: False
+rhel9STIG_stigrule_270180_fapolicyd_permissive: 1
+
+# R-258099 RHEL-09-611050
+rhel9STIG_stigrule_258099_Manage: True
+rhel9STIG_stigrule_258099__etc_pam_d_password_auth_rounds_Line: 'password    sufficient                                   pam_unix.so sha512 rounds=100000'
+
+# R-258100 RHEL-09-611055
+rhel9STIG_stigrule_258100_Manage: True
+rhel9STIG_stigrule_258100__etc_pam_d_system_auth_rounds_Line: 'password    sufficient                                   pam_unix.so sha512 rounds=100000'
+
+# R-258101 RHEL-09-611060
+rhel9STIG_stigrule_258101_Manage: True
+rhel9STIG_stigrule_258101__etc_security_pwquality_conf_Line: 'enforce_for_root'
+
+# R-258102 RHEL-09-611065
+rhel9STIG_stigrule_258102_Manage: True
+rhel9STIG_stigrule_258102__etc_security_pwquality_conf_Line: 'lcredit = -1'
+
+# R-258103 RHEL-09-611070
+rhel9STIG_stigrule_258103_Manage: True
+rhel9STIG_stigrule_258103__etc_security_pwquality_conf_Line: 'dcredit = -1'
+
+# R-258104 RHEL-09-611075
+rhel9STIG_stigrule_258104_Manage: True
+rhel9STIG_stigrule_258104__etc_login_defs_Line: 'PASS_MIN_DAYS 1'
+
+# R-258107 RHEL-09-611090
+rhel9STIG_stigrule_258107_Manage: True
+rhel9STIG_stigrule_258107__etc_security_pwquality_conf_Line: 'minlen = 15'
+
+# R-258109 RHEL-09-611100
+rhel9STIG_stigrule_258109_Manage: True
+rhel9STIG_stigrule_258109__etc_security_pwquality_conf_Line: 'ocredit = -1'
+
+# R-258110 RHEL-09-611105
+rhel9STIG_stigrule_258110_Manage: True
+rhel9STIG_stigrule_258110__etc_security_pwquality_conf_Line: 'dictcheck = 1'
+
+# R-258111 RHEL-09-611110
+rhel9STIG_stigrule_258111_Manage: True
+rhel9STIG_stigrule_258111__etc_security_pwquality_conf_Line: 'ucredit = -1'
+
+# R-258112 RHEL-09-611115
+rhel9STIG_stigrule_258112_Manage: True
+rhel9STIG_stigrule_258112__etc_security_pwquality_conf_Line: 'difok = 8'
+
+# R-258113 RHEL-09-611120
+rhel9STIG_stigrule_258113_Manage: True
+rhel9STIG_stigrule_258113__etc_security_pwquality_conf_Line: 'maxclassrepeat = 4'
+
+# R-258114 RHEL-09-611125
+rhel9STIG_stigrule_258114_Manage: True
+rhel9STIG_stigrule_258114__etc_security_pwquality_conf_Line: 'maxrepeat = 3'
+
+# R-258115 RHEL-09-611130
+rhel9STIG_stigrule_258115_Manage: True
+rhel9STIG_stigrule_258115__etc_security_pwquality_conf_Line: 'minclass = 4'
+
+# R-258116 RHEL-09-611135
+rhel9STIG_stigrule_258116_Manage: True
+rhel9STIG_stigrule_258116__etc_libuser_conf_Value: 'sha512'
+
+# R-258117 RHEL-09-611140
+rhel9STIG_stigrule_258117_Manage: True
+rhel9STIG_stigrule_258117__etc_login_defs_Line: 'ENCRYPT_METHOD SHA512'
+
+# R-258121 RHEL-09-611160
+rhel9STIG_stigrule_258121_Manage: True
+
+# R-258122 RHEL-09-611165 
+### !! HEDC USES ALERNATIVE METHODS TO MAINTAIN AUTH !! ##
+rhel9STIG_stigrule_258122_Manage: False
+rhel9STIG_stigrule_258122__etc_sssd_sssd_conf_Value: 'True'
+
+# R-258124 RHEL-09-611175
+rhel9STIG_stigrule_258124_Manage: True
+rhel9STIG_stigrule_258124_pcsc_lite_State: installed
+
+# R-258125 RHEL-09-611180
+rhel9STIG_stigrule_258125_Manage: True
+rhel9STIG_stigrule_258125_pcscd_enable_Enabled: yes
+rhel9STIG_stigrule_258125_pcscd_start_State: started
+
+# R-258126 RHEL-09-611185
+rhel9STIG_stigrule_258126_Manage: True
+rhel9STIG_stigrule_258126_opensc_State: installed
+
+# R-258128 RHEL-09-611195
+rhel9STIG_stigrule_258128_Manage: True
+rhel9STIG_stigrule_258128_emergency_service_dropin_Value: '-/usr/lib/systemd/systemd-sulogin-shell emergency'
+
+# R-258129 RHEL-09-611200
+rhel9STIG_stigrule_258129_Manage: True
+rhel9STIG_stigrule_258129_rescue_service_dropin_Value: '-/usr/lib/systemd/systemd-sulogin-shell rescue'
+
+# R-258133 RHEL-09-631020
+rhel9STIG_stigrule_258133_Manage: True
+rhel9STIG_stigrule_258133__etc_sssd_sssd_conf_Value: '1'
+
+# R-258140 RHEL-09-652010
+rhel9STIG_stigrule_258140_Manage: True
+rhel9STIG_stigrule_258140_rsyslog_State: installed
+
+# R-258141 RHEL-09-652015
+rhel9STIG_stigrule_258141_Manage: True
+rhel9STIG_stigrule_258141_rsyslog_gnutls_State: installed
+
+# R-258142 RHEL-09-652020
+rhel9STIG_stigrule_258142_Manage: True
+rhel9STIG_stigrule_258142_rsyslog_enable_Enabled: yes
+rhel9STIG_stigrule_258142_rsyslog_start_State: started
+
+# R-258144 RHEL-09-652030
+rhel9STIG_stigrule_258144_Manage: True
+rhel9STIG_stigrule_258144__etc_rsyslog_conf_Line: 'auth.*;authpriv.*;daemon.* /var/log/secure'
+
+# R-258146 RHEL-09-652040
+rhel9STIG_stigrule_258146_Manage: True
+rhel9STIG_stigrule_258146__etc_rsyslog_conf_DefaultNetstreamDriver_Line: '$ActionSendStreamDriverAuthMode x509/name'
+
+# R-258147 RHEL-09-652045
+rhel9STIG_stigrule_258147_Manage: True
+rhel9STIG_stigrule_258147__etc_rsyslog_conf_ActionSendStreamDriverMode_Line: '$ActionSendStreamDriverMode 1'
+
+# R-258148 RHEL-09-652050
+rhel9STIG_stigrule_258148_Manage: True
+rhel9STIG_stigrule_258148__etc_rsyslog_conf_DefaultNetstreamDriver_Line: '$DefaultNetstreamDriver gtls'
+
+# R-258150 RHEL-09-652060
+rhel9STIG_stigrule_258150_Manage: True
+rhel9STIG_stigrule_258150__etc_rsyslog_conf_Line: 'cron.* /var/log/cron'
+
+# R-258151 RHEL-09-653010
+rhel9STIG_stigrule_258151_Manage: True
+rhel9STIG_stigrule_258151_audit_State: installed
+
+# R-258152 RHEL-09-653015
+rhel9STIG_stigrule_258152_Manage: True
+rhel9STIG_stigrule_258152_auditd_enable_Enabled: yes
+rhel9STIG_stigrule_258152_auditd_start_State: started
+
+# R-258153 RHEL-09-653020
+rhel9STIG_stigrule_258153_Manage: True
+rhel9STIG_stigrule_258153__etc_audit_auditd_conf_Line: 'disk_error_action = HALT'
+
+# R-258154 RHEL-09-653025
+rhel9STIG_stigrule_258154_Manage: True
+rhel9STIG_stigrule_258154__etc_audit_auditd_conf_Line: 'disk_full_action = HALT'
+
+# R-258156 RHEL-09-653035
+rhel9STIG_stigrule_258156_Manage: True
+rhel9STIG_stigrule_258156__etc_audit_auditd_conf_space_left_Line: 'space_left = 25%'
+
+# R-258157 RHEL-09-653040
+rhel9STIG_stigrule_258157_Manage: True
+rhel9STIG_stigrule_258157__etc_audit_auditd_conf_space_left_action_Line: 'space_left_action = email'
+
+# R-258158 RHEL-09-653045
+rhel9STIG_stigrule_258158_Manage: True
+rhel9STIG_stigrule_258158__etc_audit_auditd_conf_admin_space_left_Line: 'admin_space_left = 5%'
+
+# R-258159 RHEL-09-653050
+rhel9STIG_stigrule_258159_Manage: True
+rhel9STIG_stigrule_258159__etc_audit_auditd_conf_admin_space_left_action_Line: 'admin_space_left_action = single'
+
+# R-258160 RHEL-09-653055
+rhel9STIG_stigrule_258160_Manage: True
+rhel9STIG_stigrule_258160__etc_audit_auditd_conf_Line: 'max_log_file_action = ROTATE'
+
+# R-258161 RHEL-09-653060
+rhel9STIG_stigrule_258161_Manage: True
+rhel9STIG_stigrule_258161__etc_audit_auditd_conf_Line: 'name_format = hostname'
+
+# R-258162 RHEL-09-653065
+rhel9STIG_stigrule_258162_Manage: True
+rhel9STIG_stigrule_258162__etc_audit_auditd_conf_Line: 'overflow_action = syslog'
+
+# R-258163 RHEL-09-653070
+rhel9STIG_stigrule_258163_Manage: True
+rhel9STIG_stigrule_258163__etc_audit_auditd_conf_Line: 'action_mail_acct = root'
+
+# R-258164 RHEL-09-653075
+rhel9STIG_stigrule_258164_Manage: True
+rhel9STIG_stigrule_258164__etc_audit_auditd_conf_Line: 'local_events = yes'
+
+# R-258168 RHEL-09-653095
+rhel9STIG_stigrule_258168_Manage: True
+rhel9STIG_stigrule_258168__etc_audit_auditd_conf_Line: 'freq = 100'
+
+# R-258169 RHEL-09-653100
+rhel9STIG_stigrule_258169_Manage: True
+rhel9STIG_stigrule_258169__etc_audit_auditd_conf_Line: 'log_format = ENRICHED'
+
+# R-258170 RHEL-09-653105
+rhel9STIG_stigrule_258170_Manage: True
+rhel9STIG_stigrule_258170__etc_audit_auditd_conf_Line: 'write_logs = yes'
+
+# R-258174 RHEL-09-653125
+rhel9STIG_stigrule_258174_Manage: True
+rhel9STIG_stigrule_258174__etc_aliases_Line: 'root: 75ABW.HEDC.SUSTAINMENT@US.AF.MIL'
+
+# R-258175 RHEL-09-653130
+rhel9STIG_stigrule_258175_Manage: True
+rhel9STIG_stigrule_258175_audispd_plugins_State: installed
+
+# R-258176 RHEL-09-654010
+rhel9STIG_stigrule_258176_Manage: True
+rhel9STIG_stigrule_258176__etc_audit_rules_d_audit_rules_execve_uid_b32_Line: '-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k execpriv'
+rhel9STIG_stigrule_258176__etc_audit_rules_d_audit_rules_execve_uid_b64_Line: '-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k execpriv'
+rhel9STIG_stigrule_258176__etc_audit_rules_d_audit_rules_execve_gid_b32_Line: '-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k execpriv'
+rhel9STIG_stigrule_258176__etc_audit_rules_d_audit_rules_execve_gid_b64_Line: '-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k execpriv'
+
+# R-258177 RHEL-09-654015
+rhel9STIG_stigrule_258177_Manage: True
+rhel9STIG_stigrule_258177__etc_audit_rules_d_audit_rules_chmod_b32_Line: '-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
+rhel9STIG_stigrule_258177__etc_audit_rules_d_audit_rules_chmod_b64_Line: '-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
+
+# R-258178 RHEL-09-654020
+rhel9STIG_stigrule_258178_Manage: True
+rhel9STIG_stigrule_258178__etc_audit_rules_d_audit_rules_chown_b32_Line: '-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
+rhel9STIG_stigrule_258178__etc_audit_rules_d_audit_rules_chown_b64_Line: '-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
+
+# R-258179 RHEL-09-654025
+rhel9STIG_stigrule_258179_Manage: True
+rhel9STIG_stigrule_258179__etc_audit_rules_d_audit_rules_lremovexattr_b32_unset_Line: '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
+rhel9STIG_stigrule_258179__etc_audit_rules_d_audit_rules_lremovexattr_b64_unset_Line: '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
+rhel9STIG_stigrule_258179__etc_audit_rules_d_audit_rules_lremovexattr_b32_Line: '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
+rhel9STIG_stigrule_258179__etc_audit_rules_d_audit_rules_lremovexattr_b64_Line: '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
+
+# R-258180 RHEL-09-654030
+rhel9STIG_stigrule_258180_Manage: True
+rhel9STIG_stigrule_258180__etc_audit_rules_d_audit_rules__usr_bin_umount_Line: '-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
+
+# R-258181 RHEL-09-654035
+rhel9STIG_stigrule_258181_Manage: True
+rhel9STIG_stigrule_258181__etc_audit_rules_d_audit_rules__usr_bin_chacl_Line: '-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+
+# R-258182 RHEL-09-654040
+rhel9STIG_stigrule_258182_Manage: True
+rhel9STIG_stigrule_258182__etc_audit_rules_d_audit_rules__usr_bin_setfacl_Line: '-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+
+# R-258183 RHEL-09-654045
+rhel9STIG_stigrule_258183_Manage: True
+rhel9STIG_stigrule_258183__etc_audit_rules_d_audit_rules__usr_bin_chcon_Line: '-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+
+# R-258184 RHEL-09-654050
+rhel9STIG_stigrule_258184_Manage: True
+rhel9STIG_stigrule_258184__etc_audit_rules_d_audit_rules__usr_sbin_semanage_Line: '-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258185 RHEL-09-654055
+rhel9STIG_stigrule_258185_Manage: True
+rhel9STIG_stigrule_258185__etc_audit_rules_d_audit_rules__usr_sbin_setfiles_Line: '-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258186 RHEL-09-654060
+rhel9STIG_stigrule_258186_Manage: True
+rhel9STIG_stigrule_258186__etc_audit_rules_d_audit_rules__usr_sbin_setsebool_Line: '-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258187 RHEL-09-654065
+rhel9STIG_stigrule_258187_Manage: True
+rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b32_Line: '-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
+rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b64_Line: '-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
+
+# R-258188 RHEL-09-654070
+rhel9STIG_stigrule_258188_Manage: True
+rhel9STIG_stigrule_258188__etc_audit_rules_d_audit_rules_truncate_EPERM_b32_Line: '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
+rhel9STIG_stigrule_258188__etc_audit_rules_d_audit_rules_truncate_EPERM_b64_Line: '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
+rhel9STIG_stigrule_258188__etc_audit_rules_d_audit_rules_truncate_EACCES_b32_Line: '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
+rhel9STIG_stigrule_258188__etc_audit_rules_d_audit_rules_truncate_EACCES_b64_Line: '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
+
+# R-258189 RHEL-09-654075
+rhel9STIG_stigrule_258189_Manage: True
+rhel9STIG_stigrule_258189__etc_audit_rules_d_audit_rules_delete_module_b32_Line: '-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
+rhel9STIG_stigrule_258189__etc_audit_rules_d_audit_rules_delete_module_b64_Line: '-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
+
+# R-258190 RHEL-09-654080
+rhel9STIG_stigrule_258190_Manage: True
+rhel9STIG_stigrule_258190__etc_audit_rules_d_audit_rules_init_module_b32_Line: '-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
+rhel9STIG_stigrule_258190__etc_audit_rules_d_audit_rules_init_module_b64_Line: '-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
+
+# R-258191 RHEL-09-654085
+rhel9STIG_stigrule_258191_Manage: True
+rhel9STIG_stigrule_258191__etc_audit_rules_d_audit_rules__usr_bin_chage_Line: '-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage'
+
+# R-258192 RHEL-09-654090
+rhel9STIG_stigrule_258192_Manage: True
+rhel9STIG_stigrule_258192__etc_audit_rules_d_audit_rules__usr_bin_chsh_Line: '-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+
+# R-258193 RHEL-09-654095
+rhel9STIG_stigrule_258193_Manage: True
+rhel9STIG_stigrule_258193__etc_audit_rules_d_audit_rules__usr_bin_crontab_Line: '-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-crontab'
+
+# R-279936 RHEL-09-654097
+rhel9STIG_stigrule_279936_Manage: True
+rhel9STIG_stigrule_279936__etc_audit_rules_d_audit_rules_cron_exec_euid_b64_Line: '-a always,exit -F arch=b64 -S execve -F subj_type=crond_t -F euid=0 -k cron_exec'
+rhel9STIG_stigrule_279936__etc_audit_rules_d_audit_rules_cron_exec_euid_b32_Line: '-a always,exit -F arch=b32 -S execve -F subj_type=crond_t -F euid=0 -k cron_exec'
+rhel9STIG_stigrule_279936__etc_audit_rules_d_audit_rules_cron_exec_auid_b64_Line: '-a always,exit -F arch=b64 -S execve -F subj_type=crond_t -F auid>=1000 -F auid!=unset -k cron_exec'
+rhel9STIG_stigrule_279936__etc_audit_rules_d_audit_rules_cron_exec_auid_b32_Line: '-a always,exit -F arch=b32 -S execve -F subj_type=crond_t -F auid>=1000 -F auid!=unset -k cron_exec'
+
+# R-258194 RHEL-09-654100
+rhel9STIG_stigrule_258194_Manage: True
+rhel9STIG_stigrule_258194__etc_audit_rules_d_audit_rules__usr_bin_gpasswd_Line: '-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-gpasswd'
+
+# R-258195 RHEL-09-654105
+rhel9STIG_stigrule_258195_Manage: True
+rhel9STIG_stigrule_258195__etc_audit_rules_d_audit_rules__usr_bin_kmod_Line: '-a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>=1000 -F auid!=unset -k modules'
+
+# R-258196 RHEL-09-654110
+rhel9STIG_stigrule_258196_Manage: True
+rhel9STIG_stigrule_258196__etc_audit_rules_d_audit_rules__usr_bin_newgrp_Line: '-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+
+# R-258197 RHEL-09-654115
+rhel9STIG_stigrule_258197_Manage: True
+rhel9STIG_stigrule_258197__etc_audit_rules_d_audit_rules__usr_sbin_pam_timestamp_check_Line: '-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam_timestamp_check'
+
+# R-258198 RHEL-09-654120
+rhel9STIG_stigrule_258198_Manage: True
+rhel9STIG_stigrule_258198__etc_audit_rules_d_audit_rules__usr_bin_passwd_Line: '-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd'
+
+# R-258199 RHEL-09-654125
+rhel9STIG_stigrule_258199_Manage: True
+rhel9STIG_stigrule_258199__etc_audit_rules_d_audit_rules__usr_sbin_postdrop_Line: '-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258200 RHEL-09-654130
+rhel9STIG_stigrule_258200_Manage: True
+rhel9STIG_stigrule_258200__etc_audit_rules_d_audit_rules__usr_sbin_postqueue_Line: '-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258201 RHEL-09-654135
+rhel9STIG_stigrule_258201_Manage: True
+rhel9STIG_stigrule_258201__etc_audit_rules_d_audit_rules__usr_bin_ssh_agent_Line: '-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
+
+# R-258202 RHEL-09-654140
+rhel9STIG_stigrule_258202_Manage: True
+rhel9STIG_stigrule_258202__etc_audit_rules_d_audit_rules__usr_libexec_openssh_ssh_keysign_Line: '-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
+
+# R-258203 RHEL-09-654145
+rhel9STIG_stigrule_258203_Manage: True
+rhel9STIG_stigrule_258203__etc_audit_rules_d_audit_rules__usr_bin_su_Line: '-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change'
+
+# R-258204 RHEL-09-654150
+rhel9STIG_stigrule_258204_Manage: True
+rhel9STIG_stigrule_258204__etc_audit_rules_d_audit_rules__usr_bin_sudo_Line: '-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+
+# R-258205 RHEL-09-654155
+rhel9STIG_stigrule_258205_Manage: True
+rhel9STIG_stigrule_258205__etc_audit_rules_d_audit_rules__usr_bin_sudoedit_Line: '-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+
+# R-258206 RHEL-09-654160
+rhel9STIG_stigrule_258206_Manage: True
+rhel9STIG_stigrule_258206__etc_audit_rules_d_audit_rules__usr_sbin_unix_chkpwd_Line: '-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258207 RHEL-09-654165
+rhel9STIG_stigrule_258207_Manage: True
+rhel9STIG_stigrule_258207__etc_audit_rules_d_audit_rules__usr_sbin_unix_update_Line: '-a always,exit -F path=/usr/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258208 RHEL-09-654170
+rhel9STIG_stigrule_258208_Manage: True
+rhel9STIG_stigrule_258208__etc_audit_rules_d_audit_rules__usr_sbin_userhelper_Line: '-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+
+# R-258209 RHEL-09-654175
+rhel9STIG_stigrule_258209_Manage: True
+rhel9STIG_stigrule_258209__etc_audit_rules_d_audit_rules__usr_sbin_usermod_Line: '-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod'
+
+# R-258210 RHEL-09-654180
+rhel9STIG_stigrule_258210_Manage: True
+rhel9STIG_stigrule_258210__etc_audit_rules_d_audit_rules__usr_bin_mount_Line: '-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
+
+# R-258211 RHEL-09-654185
+rhel9STIG_stigrule_258211_Manage: True
+rhel9STIG_stigrule_258211__etc_audit_rules_d_audit_rules__usr_sbin_init_Line: '-a always,exit -F path=/usr/sbin/init -F perm=x -F auid>=1000 -F auid!=unset -k privileged-init'
+
+# R-258212 RHEL-09-654190
+rhel9STIG_stigrule_258212_Manage: True
+rhel9STIG_stigrule_258212__etc_audit_rules_d_audit_rules__usr_sbin_poweroff_Line: '-a always,exit -F path=/usr/sbin/poweroff -F perm=x -F auid>=1000 -F auid!=unset -k privileged-poweroff'
+
+# R-258213 RHEL-09-654195
+rhel9STIG_stigrule_258213_Manage: True
+rhel9STIG_stigrule_258213__etc_audit_rules_d_audit_rules__usr_sbin_reboot_Line: '-a always,exit -F path=/usr/sbin/reboot -F perm=x -F auid>=1000 -F auid!=unset -k privileged-reboot'
+
+# R-258214 RHEL-09-654200
+rhel9STIG_stigrule_258214_Manage: True
+rhel9STIG_stigrule_258214__etc_audit_rules_d_audit_rules__usr_sbin_shutdown_Line: '-a always,exit -F path=/usr/sbin/shutdown -F perm=x -F auid>=1000 -F auid!=unset -k privileged-shutdown'
+
+# R-258215 RHEL-09-654205
+rhel9STIG_stigrule_258215_Manage: True
+rhel9STIG_stigrule_258215__etc_audit_rules_d_audit_rules_umount_b32_Line: '-a always,exit -F arch=b32 -S umount -F auid>=1000 -F auid!=unset -k privileged-umount'
+
+# R-258216 RHEL-09-654210
+rhel9STIG_stigrule_258216_Manage: True
+rhel9STIG_stigrule_258216__etc_audit_rules_d_audit_rules_umount2_b32_Line: '-a always,exit -F arch=b32 -S umount2 -F auid>=1000 -F auid!=unset -k privileged-umount'
+rhel9STIG_stigrule_258216__etc_audit_rules_d_audit_rules_umount2_b64_Line: '-a always,exit -F arch=b64 -S umount2 -F auid>=1000 -F auid!=unset -k privileged-umount'
+
+# R-258217 RHEL-09-654215
+rhel9STIG_stigrule_258217_Manage: True
+rhel9STIG_stigrule_258217__etc_audit_rules_d_audit_rules_etc_sudoers_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/sudoers -F perm=wa -k identity'
+rhel9STIG_stigrule_258217__etc_audit_rules_d_audit_rules_etc_sudoers_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/sudoers -F perm=wa -k identity'
+
+# R-258218 RHEL-09-654220
+rhel9STIG_stigrule_258218_Manage: True
+rhel9STIG_stigrule_258218__etc_audit_rules_d_audit_rules_etc_sudoers_d_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/sudoers.d -F perm=wa -k identity'
+rhel9STIG_stigrule_258218__etc_audit_rules_d_audit_rules_etc_sudoers_d_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/sudoers.d -F perm=wa -k identity'
+
+# R-258219 RHEL-09-654225
+rhel9STIG_stigrule_258219_Manage: True
+rhel9STIG_stigrule_258219__etc_audit_rules_d_audit_rules_etc_group_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/group -F perm=wa -k identity'
+rhel9STIG_stigrule_258219__etc_audit_rules_d_audit_rules_etc_group_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/group -F perm=wa -k identity'
+
+# R-258220 RHEL-09-654230
+rhel9STIG_stigrule_258220_Manage: True
+rhel9STIG_stigrule_258220__etc_audit_rules_d_audit_rules_etc_gshadow_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/gshadow -F perm=wa -k identity'
+rhel9STIG_stigrule_258220__etc_audit_rules_d_audit_rules_etc_gshadow_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/gshadow -F perm=wa -k identity'
+
+# R-258221 RHEL-09-654235
+rhel9STIG_stigrule_258221_Manage: True
+rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/opasswd -F perm=wa -k identity'
+rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/opasswd -F perm=wa -k identity'
+
+# R-258222 RHEL-09-654240
+rhel9STIG_stigrule_258222_Manage: True
+rhel9STIG_stigrule_258222__etc_audit_rules_d_audit_rules_etc_passwd_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/passwd -F perm=wa -k identity'
+rhel9STIG_stigrule_258222__etc_audit_rules_d_audit_rules_etc_passwd_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/passwd -F perm=wa -k identity'
+
+# R-258223 RHEL-09-654245
+rhel9STIG_stigrule_258223_Manage: True
+rhel9STIG_stigrule_258223__etc_audit_rules_d_audit_rules_etc_shadow_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/shadow -F perm=wa -k identity'
+rhel9STIG_stigrule_258223__etc_audit_rules_d_audit_rules_etc_shadow_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/shadow -F perm=wa -k identity'
+
+# R-258224 RHEL-09-654250
+rhel9STIG_stigrule_258224_Manage: True
+rhel9STIG_stigrule_258224__etc_audit_rules_d_audit_rules_var_log_faillock_b32_Line: '-a always,exit -F arch=b32 -F path=/var/log/faillock -F perm=wa -F auid>=1000 -F auid!=unset -k logins'
+rhel9STIG_stigrule_258224__etc_audit_rules_d_audit_rules_var_log_faillock_b64_Line: '-a always,exit -F arch=b64 -F path=/var/log/faillock -F perm=wa -F auid>=1000 -F auid!=unset -k logins'
+
+# R-258225 RHEL-09-654255
+rhel9STIG_stigrule_258225_Manage: True
+rhel9STIG_stigrule_258225__etc_audit_rules_d_audit_rules_var_log_lastlog_b32_Line: '-a always,exit -F arch=b32 -F path=/var/log/lastlog -F perm=wa -F auid>=1000 -F auid!=unset -k logins'
+rhel9STIG_stigrule_258225__etc_audit_rules_d_audit_rules_var_log_lastlog_b64_Line: '-a always,exit -F arch=b64 -F path=/var/log/lastlog -F perm=wa -F auid>=1000 -F auid!=unset -k logins'
+
+# R-258227 RHEL-09-654265
+rhel9STIG_stigrule_258227_Manage: True
+rhel9STIG_stigrule_258227__etc_audit_rules_d_audit_rules_f2_Line: '-f 2'
+
+# R-258228 RHEL-09-654270
+rhel9STIG_stigrule_258228_Manage: True
+rhel9STIG_stigrule_258228__etc_audit_rules_d_audit_rules_loginuid_immutable_Line: '--loginuid-immutable'
+
+# R-258229 RHEL-09-654275
+rhel9STIG_stigrule_258229_Manage: True
+rhel9STIG_stigrule_258229__etc_audit_rules_d_audit_rules_e2_Line: '-e 2'

@@ -1,7 +1,16 @@
 ---
-- name: HEDC STIG Oracle Linux 9
+- name: HEDC STIG Linux 9 hosts (OL9 / RHEL9)
   hosts: rhel9
   become: true
-  gather_facts: false
-  roles:
-    - ol9STIG
+  gather_facts: true
+  vars_files:
+    - ../vars/common-vars.yml
+  pre_tasks:
+    - name: Resolve OS-specific STIG role from gathered facts
+      ansible.builtin.include_tasks: resolve_os_stig_role.yml
+      tags:
+        - always
+  tasks:
+    - name: Run the resolved STIG role
+      ansible.builtin.include_role:
+        name: "{{ os_stig_role }}"

@@ -19,37 +19,34 @@ ipa_client_state_file: /etc/ipa/default.conf
 #Do not change these values unless approved
 #These are the baseline roles for the vm_type defined in the build template
 #If additional roles are needed per server, add them to the server_roles list in the build template for that VM
+#OS_STIG_ROLE is a placeholder resolved at runtime (see os_stig_role_map below and
+#provision_vm.yml/resolve_os_stig_role.yml) to whichever STIG role matches the
+#OS actually detected on the host, so vm_type no longer needs an OS-specific suffix
 vm_type_role_map:
   app:
     - baseline
-    - ol9STIG
-  app_r9:
-    - baseline
-    - rhel9STIG
+    - OS_STIG_ROLE
   weblogic:
     - baseline
-    - ol9STIG
-    - weblogic14c
-  weblogic_r9:
-    - baseline
-    - rhel9STIG
+    - OS_STIG_ROLE
     - weblogic14c
   oracle_db:
     - baseline
-    - ol9STIG
-    - oracle19c
-  oracle_db_r9:
-    - baseline
-    - rhel9STIG
+    - OS_STIG_ROLE
     - oracle19c
   generic_db:
     - baseline
-    - ol9STIG
+    - OS_STIG_ROLE
     - generic_db
-  generic_db_r9:
-    - baseline
-    - rhel9STIG
-    - generic_db
+
+#Do not change these values unless approved
+#Maps the OS facts gathered from a host (ansible_distribution / ansible_distribution_major_version)
+#to the STIG role that applies to it. Add an entry here when a new OS/role is introduced.
+os_stig_role_map:
+  OracleLinux:
+    "9": ol9STIG
+  RedHat:
+    "9": rhel9STIG
 
 
 #Do not change these values unless approved
@@ -67,18 +64,7 @@ vm_type_profiles:
     memory_gb: 8
     firmware: "efi"
     disk0_size_gb: 70
-    additional_disks: 
-      - label: app
-        size_gb: 60
-        unit_number: 1
-        thin_provisioned: false
-        eagerly_scrub: false
-  app_r9:
-    num_cpus: 4
-    memory_gb: 8
-    firmware: "efi"
-    disk0_size_gb: 70
-    additional_disks: 
+    additional_disks:
       - label: app
         size_gb: 60
         unit_number: 1
@@ -89,40 +75,13 @@ vm_type_profiles:
     memory_gb: 8
     firmware: "efi"
     disk0_size_gb: 70
-    additional_disks: 
-      - label: app
-        size_gb: 60
-        unit_number: 1
-        thin_provisioned: false
-        eagerly_scrub: false
-  weblogic_r9:
-    num_cpus: 4
-    memory_gb: 8
-    firmware: "efi"
-    disk0_size_gb: 70
-    additional_disks: 
-      - label: app
-        size_gb: 60
-        unit_number: 1
-        thin_provisioned: false
-        eagerly_scrub: false
-  oracle_db:
-    num_cpus: 8
-    memory_gb: 32
-    firmware: "efi"
-    disk0_size_gb: 70
     additional_disks:
       - label: app
         size_gb: 60
         unit_number: 1
         thin_provisioned: false
         eagerly_scrub: false
-      - label: data
-        size_gb: 350
-        unit_number: 2
-        thin_provisioned: false
-        eagerly_scrub: false
-  oracle_db_r9:
+  oracle_db:
     num_cpus: 8
     memory_gb: 32
     firmware: "efi"
@@ -153,23 +112,5 @@ vm_type_profiles:
         size_gb: 350
         unit_number: 2
         thin_provisioned: false
-        eagerly_scrub: false  
-    generic_db_r9:
-      num_cpus: 8
-      memory_gb: 32
-      firmware: "efi"
-      disk0_size_gb: 70
-      additional_disks:
-        - label: app
-          size_gb: 60
-          unit_number: 1
-          thin_provisioned: false
-          eagerly_scrub: false
-        - label: data
-          size_gb: 350
-          unit_number: 2
-          thin_provisioned: false
-          eagerly_scrub: false  
-
-
+        eagerly_scrub: false
 

@@ -2,6 +2,12 @@
   command: dconf update
 - name: auditd_restart
   command: /usr/sbin/service auditd restart
+- name: augenrules_load
+  command: augenrules --load
+- name: pcscd_restart
+  service:
+    name: pcscd
+    state: restarted
 - name: ssh_restart
   service:
     name: sshd
