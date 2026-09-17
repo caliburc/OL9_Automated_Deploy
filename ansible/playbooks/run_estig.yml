@@ -2,9 +2,17 @@
 - name: Run e-stig
   hosts: dbservers
   become: true
+  vars_files:
+    - ../vars/common-vars.yml
+
+  pre_tasks:
+    - name: Resolve OS-specific STIG role from gathered facts
+      ansible.builtin.include_tasks: resolve_os_stig_role.yml
+      tags:
+        - always
 
   tasks:
-  - name: Run run-estig.yml role
-    ansible.builtin.import_role:
-      name: ol9STIG
-      tasks_from: run-estig.yml
+  - name: Run run_estig.yml from the resolved STIG role
+    ansible.builtin.include_role:
+      name: "{{ os_stig_role }}"
+      tasks_from: run_estig.yml

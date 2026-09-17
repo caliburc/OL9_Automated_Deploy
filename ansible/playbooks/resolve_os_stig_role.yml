@@ -1,0 +1,19 @@
+---
+# Resolves os_stig_role from the host's gathered OS facts, using the
+# os_stig_role_map defined in common-vars.yml. Requires gather_facts: true
+# (or a prior setup task that populates ansible_distribution) in the calling play.
+
+- name: Resolve OS-specific STIG role from gathered facts
+  ansible.builtin.set_fact:
+    os_stig_role: "{{ (os_stig_role_map[ansible_distribution] | default({}))[ansible_distribution_major_version] | default(omit) }}"
+  tags:
+    - always
+
+- name: Fail on unsupported OS for STIG role selection
+  ansible.builtin.fail:
+    msg: >-
+      No STIG role mapped for {{ ansible_distribution }} {{ ansible_distribution_major_version }}.
+      Add an entry to os_stig_role_map in ansible/vars/common-vars.yml.
+  when: os_stig_role is not defined
+  tags:
+    - always

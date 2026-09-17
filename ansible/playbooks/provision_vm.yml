@@ -71,17 +71,28 @@
       # already be in provisioned_vms (populated by the terraform_runner role
       # running in the first play even when skip_terraform=true).
 
+    - name: Resolve OS-specific STIG role from gathered facts
+      ansible.builtin.include_tasks: resolve_os_stig_role.yml
+      tags:
+        - always
+      # gather_facts: true above means ansible_distribution is already available here.
+      # This lets vm_type stay OS-agnostic (no more app_r9/oracle_db_r9/etc. variants) -
+      # the correct STIG role is picked from what the host actually reports itself as.
+
     - name: Set fact for server roles based on vm_type or explicit server_roles
       ansible.builtin.set_fact:
         effective_server_roles: >-
           {{
             (build_vm.server_roles
              | default(vm_type_role_map[build_vm.vm_type] | default(['baseline'])))
+            | map('regex_replace', '^OS_STIG_ROLE$', os_stig_role)
+            | list
             | difference(skip_roles | default([]))
           }}
       tags:
         - always
       # Priority: explicit server_roles in build file > vm_type role map > baseline
+      # OS_STIG_ROLE placeholder entries are swapped for the role resolved above
 
     - name: Display host summary
       ansible.builtin.debug:
