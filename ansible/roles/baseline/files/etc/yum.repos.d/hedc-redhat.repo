@@ -1,0 +1,17 @@
+[rhel-$releasever-for-$basearch-appstream-rpms]
+name=rhel-$releasever-for-$basearch-appstream-rpms
+baseurl=http://10.61.16.19/provisioning/patchset/redhat/$releasever/$basearch/latest/rhel-9-for-x86_64-appstream-rpms
+enabled=0
+gpgcheck=1
+
+[rhel-$releasever-for-$basearch-baseos-rpms]
+name=rhel-$releasever-for-$basearch-baseos-rpms
+baseurl=http://10.61.16.19/provisioning/patchset/redhat/$releasever/$basearch/latest/rhel-9-for-x86_64-baseos-rpms
+enabled=0
+gpgcheck=1
+
+[rhel-$releasever-for-$basearch-supplementary-rpms]
+name=rhel-$releasever-for-$basearch-supplementary-rpms
+baseurl=http://10.61.16.19/provisioning/patchset/redhat/$releasever/$basearch/latest/rhel-9-for-x86_64-supplementary-rpms
+enabled=0
+gpgcheck=1
