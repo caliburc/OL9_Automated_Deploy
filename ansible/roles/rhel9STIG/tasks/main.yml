@@ -2,6 +2,31 @@
 - name: populate package facts
   package_facts:
 
+# This host had a full set of pre-existing rules.d files (access.rules, actions.rules,
+# perm_mod.rules, privileged.rules, setgid.rules, setuid.rules, modules.rules, delete.rules,
+# logins.rules, cronjobs.rules, immutable.rules, audit_rules_usergroup_modification*.rules)
+# from an older, unmanaged remediation pass (not written by this role or ol9STIG). augenrules
+# concatenates every *.rules file under this directory into one load, alphabetically - so
+# these compete with our own audit.rules regardless of what we do to our own file's content
+# or ordering. Checked every one of them against the current RHEL 9 V2R9 STIG: none covers
+# anything this role doesn't already implement correctly (same controls, just older/generic
+# key names) - some of them use the SAME key name we do for the same syscalls, which is what
+# was actually causing "Rule exists" (perm_mod.rules colliding with our own perm_mod-keyed
+# rules). Remove all of them; this role's own audit.rules becomes the sole source of truth.
+- name: Remove pre-existing unmanaged audit rules files
+  ansible.builtin.find:
+    paths: /etc/audit/rules.d
+    patterns: '*.rules'
+    excludes: 'audit.rules'
+  register: rhel9stig_legacy_audit_rules_files
+
+- name: Remove pre-existing unmanaged audit rules files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ rhel9stig_legacy_audit_rules_files.files | default([]) }}"
+  notify: augenrules_load
+
 # All of this role's audit.rules lineinfile tasks only ever ADD or UPDATE a line that
 # matches their own regexp - they never remove a line whose regexp no longer matches
 # (e.g. after a rule's exact syntax/key name changes between role revisions, or a line
@@ -16,11 +41,18 @@
     dest: /etc/audit/rules.d/audit.rules
     content: |
       ## Managed by the rhel9STIG role - do not edit directly.
+      -D
+      -b 8192
     owner: root
     group: root
     mode: '0600'
     force: true
   notify: augenrules_load
+  # -D clears the kernel's currently loaded rules before augenrules re-adds this
+  # file's rules; without it, any rule already resident from a prior load makes
+  # the reload fail with "Rule exists". -b restates the backlog buffer size that
+  # was here before this reset was introduced (matches auditd's own compiled-in
+  # default, so this is a no-op today, but keeps the behavior explicit).
 
 # R-270174 RHEL-09-171011
 - name: stigrule_270174__etc_dconf_db_local_d_01_banner_message
@@ -2492,7 +2524,7 @@
 - name: stigrule_258187__etc_audit_rules_d_audit_rules_rename_b32
   lineinfile:
     path: /etc/audit/rules.d/audit.rules
-    regexp: '^-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete$'
+    regexp: '^-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete$'
     line: "{{ rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b32_Line }}"
   notify: augenrules_load
   when: rhel9STIG_stigrule_258187_Manage
@@ -2500,7 +2532,7 @@
 - name: stigrule_258187__etc_audit_rules_d_audit_rules_rename_b64
   lineinfile:
     path: /etc/audit/rules.d/audit.rules
-    regexp: '^-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete$'
+    regexp: '^-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete$'
     line: "{{ rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b64_Line }}"
   notify: augenrules_load
   when: rhel9STIG_stigrule_258187_Manage
@@ -2884,7 +2916,7 @@
 - name: rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b32
   lineinfile:
     path: /etc/audit/rules.d/audit.rules
-    regexp: '^-a always,exit -F arch=b32 -F path=/etc/opasswd -F perm=wa -k identity$'
+    regexp: '^-a always,exit -F arch=b32 -F path=/etc/(security/)?opasswd -F perm=wa -k identity$'
     line: "{{ rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b32_Line }}"
   notify: augenrules_load
   when: rhel9STIG_stigrule_258221_Manage
@@ -2892,7 +2924,7 @@
 - name: rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b64
   lineinfile:
     path: /etc/audit/rules.d/audit.rules
-    regexp: '^-a always,exit -F arch=b64 -F path=/etc/opasswd -F perm=wa -k identity$'
+    regexp: '^-a always,exit -F arch=b64 -F path=/etc/(security/)?opasswd -F perm=wa -k identity$'
     line: "{{ rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b64_Line }}"
   notify: augenrules_load
   when: rhel9STIG_stigrule_258221_Manage

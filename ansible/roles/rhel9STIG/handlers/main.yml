@@ -3,7 +3,14 @@
 - name: auditd_restart
   command: /usr/sbin/service auditd restart
 - name: augenrules_load
-  command: augenrules --load
+  # augenrules concatenates every *.rules file under /etc/audit/rules.d/ ALPHABETICALLY
+  # before loading it - our managed file is named "audit.rules", which sorts after
+  # access.rules/actions.rules, so a "-D" embedded inside our own file can't protect
+  # THEIR rules from a "Rule exists" conflict if they're already resident in the
+  # kernel from a prior load (they get re-added before our file's turn even comes up
+  # in that same pass). Clear the kernel's rule table directly here instead, before
+  # augenrules touches anything, so reload order never matters.
+  ansible.builtin.shell: auditctl -D && augenrules --load
 - name: pcscd_restart
   service:
     name: pcscd

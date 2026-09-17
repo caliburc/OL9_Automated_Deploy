@@ -959,8 +959,8 @@ rhel9STIG_stigrule_258186__etc_audit_rules_d_audit_rules__usr_sbin_setsebool_Lin
 
 # R-258187 RHEL-09-654065
 rhel9STIG_stigrule_258187_Manage: True
-rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b32_Line: '-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
-rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b64_Line: '-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F success=1 -F auid>=1000 -F auid!=unset -k delete'
+rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b32_Line: '-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete'
+rhel9STIG_stigrule_258187__etc_audit_rules_d_audit_rules_rename_b64_Line: '-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete'
 
 # R-258188 RHEL-09-654070
 rhel9STIG_stigrule_258188_Manage: True
@@ -1113,8 +1113,8 @@ rhel9STIG_stigrule_258220__etc_audit_rules_d_audit_rules_etc_gshadow_b64_Line: '
 
 # R-258221 RHEL-09-654235
 rhel9STIG_stigrule_258221_Manage: True
-rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/opasswd -F perm=wa -k identity'
-rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/opasswd -F perm=wa -k identity'
+rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b32_Line: '-a always,exit -F arch=b32 -F path=/etc/security/opasswd -F perm=wa -k identity'
+rhel9STIG_stigrule_258221__etc_audit_rules_d_audit_rules_etc_opasswd_b64_Line: '-a always,exit -F arch=b64 -F path=/etc/security/opasswd -F perm=wa -k identity'
 
 # R-258222 RHEL-09-654240
 rhel9STIG_stigrule_258222_Manage: True
