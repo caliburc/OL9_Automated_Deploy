@@ -655,6 +655,11 @@ rhel9STIG_stigrule_258074__etc_login_defs_Line: 'UMASK 077'
 rhel9STIG_stigrule_258075_Manage: True
 rhel9STIG_stigrule_258075__etc_profile_Line: 'umask 077'
 
+# R-258077 RHEL-09-412080
+rhel9STIG_stigrule_258077_Manage: True
+rhel9STIG_stigrule_258077_StopIdleSessionSec: 600
+rhel9STIG_stigrule_258077_KillUserProcesses: 'no'
+
 # R-258078 RHEL-09-431010
 rhel9STIG_stigrule_258078_Manage: True
 rhel9STIG_stigrule_258078__etc_selinux_config_Line: 'SELINUX=enforcing'

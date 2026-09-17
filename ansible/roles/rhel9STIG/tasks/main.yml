@@ -1713,6 +1713,38 @@
     create: yes
   when:
     - rhel9STIG_stigrule_258075_Manage
+# R-258077 RHEL-09-412080
+- name: rhel9STIG_stigrule_258077_logind_conf_dir
+  file:
+    path: /etc/systemd/logind.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when:
+    - rhel9STIG_stigrule_258077_Manage
+# R-258077 RHEL-09-412080
+- name: rhel9STIG_stigrule_258077_logind_conf_stop_idle_session
+  ini_file:
+    path: /etc/systemd/logind.conf.d/stig.conf
+    section: Login
+    option: StopIdleSessionSec
+    value: "{{ rhel9STIG_stigrule_258077_StopIdleSessionSec }}"
+    no_extra_spaces: yes
+  notify: logind_restart
+  when:
+    - rhel9STIG_stigrule_258077_Manage
+# R-258077 RHEL-09-412080
+- name: rhel9STIG_stigrule_258077_logind_conf_kill_user_processes
+  ini_file:
+    path: /etc/systemd/logind.conf.d/stig.conf
+    section: Login
+    option: KillUserProcesses
+    value: "{{ rhel9STIG_stigrule_258077_KillUserProcesses }}"
+    no_extra_spaces: yes
+  notify: logind_restart
+  when:
+    - rhel9STIG_stigrule_258077_Manage
 # R-258078 RHEL-09-431010
 - name: stigrule_258078__etc_selinux_config
   lineinfile:
