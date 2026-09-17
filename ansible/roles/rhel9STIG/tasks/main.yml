@@ -1,6 +1,27 @@
 ---
 - name: populate package facts
   package_facts:
+
+# All of this role's audit.rules lineinfile tasks only ever ADD or UPDATE a line that
+# matches their own regexp - they never remove a line whose regexp no longer matches
+# (e.g. after a rule's exact syntax/key name changes between role revisions, or a line
+# this role used to write via a different convention than OL9's). Left alone, stale
+# copies pile up alongside the current one and can even break augenrules outright (a
+# malformed leftover line aborts the whole rule load). Reset the file to empty here so
+# every run rebuilds it from scratch, deterministically, from this run's actual rules -
+# safe because /etc/audit/rules.d/audit.rules is a file this role fully owns and every
+# lineinfile task below targets this same path.
+- name: Reset the STIG-managed audit rules file before rebuilding it
+  copy:
+    dest: /etc/audit/rules.d/audit.rules
+    content: |
+      ## Managed by the rhel9STIG role - do not edit directly.
+    owner: root
+    group: root
+    mode: '0600'
+    force: true
+  notify: augenrules_load
+
 # R-270174 RHEL-09-171011
 - name: stigrule_270174__etc_dconf_db_local_d_01_banner_message
   ini_file:
