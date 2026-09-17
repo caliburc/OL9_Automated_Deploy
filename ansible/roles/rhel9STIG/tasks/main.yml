@@ -1999,10 +1999,10 @@
     - rhel9STIG_stigrule_258128_Manage
 # R-258128 RHEL-09-611195
 - name: rhel9STIG_stigrule_258128_emergency_service_disable_original_execstart
-  replace:
+  lineinfile:
     path: /usr/lib/systemd/system/emergency.service
-    regexp: '^(ExecStart[a-zA-Z]*=.*)$'
-    replace: '#\1'
+    regexp: '^ExecStart[a-zA-Z]*=.*$'
+    state: absent
   when:
     - rhel9STIG_stigrule_258128_Manage
 # R-258129 RHEL-09-611200
@@ -2028,10 +2028,10 @@
     - rhel9STIG_stigrule_258129_Manage
 # R-258129 RHEL-09-611200
 - name: rhel9STIG_stigrule_258129_rescue_service_disable_original_execstart
-  replace:
+  lineinfile:
     path: /usr/lib/systemd/system/rescue.service
-    regexp: '^(ExecStart[a-zA-Z]*=.*)$'
-    replace: '#\1'
+    regexp: '^ExecStart[a-zA-Z]*=.*$'
+    state: absent
   when:
     - rhel9STIG_stigrule_258129_Manage
 # R-258133 RHEL-09-631020
@@ -2963,6 +2963,111 @@
     line: "{{ rhel9STIG_stigrule_258229__etc_audit_rules_d_audit_rules_e2_Line }}"
   notify: auditd_restart
   when: rhel9STIG_stigrule_258229_Manage
+
+# R-258171 RHEL-09-653110
+- name: rhel9STIG_stigrule_258171_find_audit_rules_d_files
+  find:
+    paths: /etc/audit/rules.d
+    patterns: '*.rules'
+  register: rhel9stig_258171_rules_d_files
+  when: rhel9STIG_stigrule_258171_Manage
+# R-258171 RHEL-09-653110
+- name: rhel9STIG_stigrule_258171_audit_rules_d_mode
+  file:
+    path: "{{ item.path }}"
+    mode: '0600'
+  loop: "{{ rhel9stig_258171_rules_d_files.files | default([]) }}"
+  when: rhel9STIG_stigrule_258171_Manage
+# R-258171 RHEL-09-653110
+- name: rhel9STIG_stigrule_258171_audit_rules_mode
+  file:
+    path: /etc/audit/audit.rules
+    mode: '0600'
+  when: rhel9STIG_stigrule_258171_Manage
+  ignore_errors: true  # /etc/audit/audit.rules may be augenrules-managed and not always present
+# R-258171 RHEL-09-653110
+- name: rhel9STIG_stigrule_258171_auditd_conf_mode
+  file:
+    path: /etc/audit/auditd.conf
+    mode: '0600'
+  when: rhel9STIG_stigrule_258171_Manage
+
+# R-258098 RHEL-09-611045
+- name: rhel9STIG_stigrule_258098__etc_pam_d_system_auth_pwquality
+  lineinfile:
+    path: /etc/pam.d/system-auth
+    regexp: '^password\s+required\s+pam_pwquality\.so'
+    line: "{{ rhel9STIG_stigrule_258098__etc_pam_d_system_auth_pwquality_Line }}"
+    insertafter: '^password'
+  when: rhel9STIG_stigrule_258098_Manage
+
+# R-258097 RHEL-09-611040
+- name: rhel9STIG_stigrule_258097__etc_pam_d_password_auth_pwquality
+  lineinfile:
+    path: /etc/pam.d/password-auth
+    regexp: '^password\s+required\s+pam_pwquality\.so'
+    line: "{{ rhel9STIG_stigrule_258097__etc_pam_d_password_auth_pwquality_Line }}"
+    insertafter: '^password'
+  when: rhel9STIG_stigrule_258097_Manage
+
+# R-258000 RHEL-09-255120
+- name: rhel9STIG_stigrule_258000_find_ssh_private_host_keys
+  find:
+    paths: /etc/ssh
+    patterns: '*_key'
+  register: rhel9stig_258000_keys
+  when: rhel9STIG_stigrule_258000_Manage
+# R-258000 RHEL-09-255120
+- name: rhel9STIG_stigrule_258000_ssh_private_host_keys_mode
+  file:
+    path: "{{ item.path }}"
+    mode: '0600'
+  loop: "{{ rhel9stig_258000_keys.files | default([]) }}"
+  notify: ssh_restart
+  when: rhel9STIG_stigrule_258000_Manage
+
+# R-257888 RHEL-09-232040
+- name: rhel9STIG_stigrule_257888_cron_perms_restore
+  command: rpm --setugids cronie crontabs
+  register: rhel9stig_257888_setugids
+  changed_when: rhel9stig_257888_setugids.rc == 0
+  when: rhel9STIG_stigrule_257888_Manage
+# R-257888 RHEL-09-232040
+- name: rhel9STIG_stigrule_257888_cron_perms_restore_mode
+  command: rpm --setperms cronie crontabs
+  register: rhel9stig_257888_setperms
+  changed_when: rhel9stig_257888_setperms.rc == 0
+  when: rhel9STIG_stigrule_257888_Manage
+
+# R-258131 RHEL-09-631010
+- name: rhel9STIG_stigrule_258131_sssd_pki_dir
+  file:
+    path: /etc/sssd/pki
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: rhel9STIG_stigrule_258131_Manage
+# R-258131 RHEL-09-631010
+- name: rhel9STIG_stigrule_258131_sssd_ca_bundle
+  copy:
+    src: "{{ rhel9STIG_stigrule_258131_ca_bundle_source }}"
+    dest: /etc/sssd/pki/sssd_auth_ca_db.pem
+    remote_src: "{{ rhel9STIG_stigrule_258131_ca_bundle_source_remote }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: rhel9STIG_stigrule_258131_Manage
+
+# Several checks (audit watch rules, cron_exec, loginuid-immutable, etc.) read the
+# LIVE loaded audit rules via `auditctl -l`, not just the file on disk. Handlers
+# only fire on the notify queue at end-of-play by default, which is too late -
+# Evaluate-STIG runs as the very next task below, in the same play. Flush now so
+# augenrules_load/auditd_restart/daemon_reload etc. have actually applied before
+# the scan reads live state.
+- name: Flush pending handlers before running Evaluate-STIG
+  meta: flush_handlers
+
 - name: Include eSTIG tasks
   ansible.builtin.include_tasks: run_estig.yml
   tags: stig

@@ -94,6 +94,17 @@
       # Priority: explicit server_roles in build file > vm_type role map > baseline
       # OS_STIG_ROLE placeholder entries are swapped for the role resolved above
 
+    - name: Fail if no roles are left to run for this server
+      ansible.builtin.fail:
+        msg: >-
+          effective_server_roles is empty for {{ build_vars_file }} (vm_type={{ build_vm.vm_type | default('undefined') }}).
+          This usually means vm_type doesn't match a key in vm_type_role_map (check for an old
+          OS-suffixed value like app_r9/oracle_db_r9 - those keys were removed), or skip_roles
+          stripped out every role vm_type_role_map provided. Refusing to run zero roles silently.
+      when: effective_server_roles | length == 0
+      tags:
+        - always
+
     - name: Display host summary
       ansible.builtin.debug:
         msg:

@@ -1147,3 +1147,29 @@ rhel9STIG_stigrule_258228__etc_audit_rules_d_audit_rules_loginuid_immutable_Line
 # R-258229 RHEL-09-654275
 rhel9STIG_stigrule_258229_Manage: True
 rhel9STIG_stigrule_258229__etc_audit_rules_d_audit_rules_e2_Line: '-e 2'
+
+# R-258171 RHEL-09-653110
+rhel9STIG_stigrule_258171_Manage: True
+
+# R-258098 RHEL-09-611045
+rhel9STIG_stigrule_258098_Manage: True
+rhel9STIG_stigrule_258098__etc_pam_d_system_auth_pwquality_Line: 'password    required                                     pam_pwquality.so'
+
+# R-258097 RHEL-09-611040
+rhel9STIG_stigrule_258097_Manage: True
+rhel9STIG_stigrule_258097__etc_pam_d_password_auth_pwquality_Line: 'password    required                                     pam_pwquality.so'
+
+# R-258000 RHEL-09-255120
+rhel9STIG_stigrule_258000_Manage: True
+
+# R-257888 RHEL-09-232040
+rhel9STIG_stigrule_257888_Manage: True
+
+# R-258131 RHEL-09-631010
+### !! SITE-SPECIFIC: point rhel9STIG_stigrule_258131_ca_bundle_source at the DoD_PKE_CA_chain.pem
+### on your NFS-mounted CA/software depot before enabling. Set _remote: true if that path is
+### already reachable on the target host (e.g. an NFS mount), false if it's a local control-node
+### file Ansible should copy from. !! ###
+rhel9STIG_stigrule_258131_Manage: False
+rhel9STIG_stigrule_258131_ca_bundle_source: /depot/pki/DoD_PKE_CA_chain.pem
+rhel9STIG_stigrule_258131_ca_bundle_source_remote: true

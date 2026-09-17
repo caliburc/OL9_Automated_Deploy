@@ -5,7 +5,10 @@
 
 - name: Resolve OS-specific STIG role from gathered facts
   ansible.builtin.set_fact:
-    os_stig_role: "{{ (os_stig_role_map[ansible_distribution] | default({}))[ansible_distribution_major_version] | default(omit) }}"
+    os_stig_role: "{{ os_stig_role_map[ansible_distribution][ansible_distribution_major_version] }}"
+  when:
+    - ansible_distribution in os_stig_role_map
+    - ansible_distribution_major_version in os_stig_role_map[ansible_distribution]
   tags:
     - always
 

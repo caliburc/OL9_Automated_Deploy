@@ -32,5 +32,7 @@
 - name: with_faillock_enable
   command: authselect enable-feature with-faillock
 - name: do_reboot
-  reboot:
-    pre_reboot_delay: 60
+  debug:
+    msg: >-
+      One or more STIG settings applied on this run require a reboot to take full effect.
+      No automatic reboot was performed - schedule one for this host.
