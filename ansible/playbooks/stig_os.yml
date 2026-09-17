@@ -1,6 +1,6 @@
 ---
 - name: HEDC STIG Oracle Linux 9
-  hosts: dbservers
+  hosts: rhel9
   become: true
   gather_facts: false
   roles:

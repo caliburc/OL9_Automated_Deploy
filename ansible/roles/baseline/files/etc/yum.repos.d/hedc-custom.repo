@@ -1,6 +1,6 @@
-[el-$releasever-custom]
-name=el-$releasever-custom
-baseurl=http://x.x.x.x/provisioning/patchset/custom/$releasever
+[el-$releasever-hedc-custom]
+name=el-$releasever-hedc-custom
+baseurl=http://10.61.8.68/provisioning/patchset/custom/$releasever
 enabled=1
 gpgcheck=1
-gpgkey=http://x.x.x.x/provisioning/keys/hedc/RPM-GPG-FIPS
+gpgkey=http://10.61.8.68/provisioning/keys/hedc/RPM-GPG-KEY-HEDC-FIPS

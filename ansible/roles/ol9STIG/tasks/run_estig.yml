@@ -45,7 +45,7 @@
 
 - name: Copy powershell.tar.gz into /root/Evaluate-STIG when missing
   ansible.builtin.copy:
-    src: /software/source/directory/Evaluate-STIG/current/powershell.tar.gz
+    src: /depot/software/Evaluate-STIG/current/powershell.tar.gz
     dest: /root/Evaluate-STIG/powershell.tar.gz
     remote_src: true
     mode: '0644'

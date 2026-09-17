@@ -103,7 +103,7 @@
             'vsphere_folder': vmvars.vsphere_folder | default(''),
             'vsphere_resource_pool': vmvars.vsphere_resource_pool | default(''),
             'template_name': vmvars.template_name,
-            'vm_domain': vmvars.vm_domain | default(vm_domain | default('X.my.domain.com'))
+            'vm_domain': vmvars.vm_domain | default(vm_domain | default('idm.hedc.mil'))
           }
         }
       }}

@@ -712,7 +712,7 @@ ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Dest: /etc/profile.d/tmout.sh
 ol9STIG_stigrule_271750__etc_profile_d_tmout_sh_Content: |
   #!/bin/bash
 
-  declare -xr TMOUT=900
+  declare -xr TMOUT=600
 # R-271751 OL09-00-002412
 ol9STIG_stigrule_271751_Manage: True
 ol9STIG_stigrule_271751__etc_systemd_system_conf_d_55_CtrlAltDel_BurstAction_conf_Value: 'none'
