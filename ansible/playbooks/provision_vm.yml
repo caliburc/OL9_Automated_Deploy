@@ -87,12 +87,17 @@
              | default(vm_type_role_map[build_vm.vm_type] | default(['baseline'])))
             | map('regex_replace', '^OS_STIG_ROLE$', os_stig_role)
             | list
-            | difference(skip_roles | default([]))
+            | reject('in', skip_roles | default([]))
+            | list
           }}
       tags:
         - always
       # Priority: explicit server_roles in build file > vm_type role map > baseline
       # OS_STIG_ROLE placeholder entries are swapped for the role resolved above
+      # reject('in', ...) is used instead of the `difference` filter deliberately -
+      # difference() is backed by Python set operations and does NOT preserve list
+      # order, which silently scrambled role ordering (baseline must always run
+      # first). reject('in', ...) filters the same way but keeps original order.
 
     - name: Fail if no roles are left to run for this server
       ansible.builtin.fail:
